@@ -1,5 +1,8 @@
 import * as THREE from './vendor/three.module.min.js';
 import { GLTFLoader } from './vendor/GLTFLoader.js';
+import zModelUrl from './assets/models/Z.glb';
+import wModelUrl from './assets/models/w.glb';
+import oModelUrl from './assets/models/o.glb';
 
 // Page templates, project content, and hash navigation.
 const asset=name=>'assets/'+name+(name==='imgOriginalThumbsUpGesture'?'.svg':'.png');
@@ -98,7 +101,8 @@ function initRefraction(){
   };
   const updateModelLayout=()=>{const mobile=hero.clientWidth<=640;glassObjects.forEach(({name,pivot})=>{const layout=modelLayout[name][mobile?'mobile':'desktop'];pivot.scale.setScalar(layout.width);pivot.position.set(layout.x,layout.y,layout.z);pivot.rotation.set(layout.rx,layout.ry,layout.rz);});canvas.dataset.glassModels=String(glassObjects.length);};
   const loader=new GLTFLoader();
-  [['Z',zGlassMaterial],['w',frostedGlassMaterial],['o',frostedGlassMaterial]].forEach(([name,glass])=>loader.load(`./assets/models/${name}.glb`,gltf=>{
+  const modelUrls={Z:zModelUrl,w:wModelUrl,o:oModelUrl};
+  [['Z',zGlassMaterial],['w',frostedGlassMaterial],['o',frostedGlassMaterial]].forEach(([name,glass])=>loader.load(modelUrls[name],gltf=>{
     if(!canvas.isConnected)return;const content=gltf.scene,box=new THREE.Box3().setFromObject(content),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());content.position.sub(center);const normalize=1/Math.max(size.x,size.y,size.z);content.scale.setScalar(normalize);
     content.traverse(child=>{if(child.isMesh){originalMaterials.push(child.material);child.material=glass;}});
     const oriented=new THREE.Group();oriented.add(content);oriented.rotation.y=(name==='Z'?-1:1)*Math.PI*.5;oriented.updateMatrixWorld(true);const orientedCenter=new THREE.Box3().setFromObject(oriented).getCenter(new THREE.Vector3());oriented.position.sub(orientedCenter);
