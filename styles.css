@@ -499,3 +499,15 @@
 
 @supports (height: 100dvh) { :root { --W: max(100vw, 160dvh); } }
 @media (max-width: 800px) and (max-height: 500px) { .carousel { max-width: calc((100dvh - 160px) * 4 / 3); } }
+
+/* A stable full-size scene avoids Safari toolbar gaps and sticky repaint lag. */
+@media (max-width: 800px), (pointer: coarse) {
+  :root { --W: max(100vw, 160lvh); }
+  .track { height: 730lvh; }
+  .stage { height: 100lvh; }
+  .frame { min-height: calc(100% + 24px); }
+  .plate { inset: -12px 0; }
+  .mobile-track > .stage { position: absolute; top: 0; left: 0; }
+  .mobile-track > .stage.scene-fixed { position: fixed; top: 0; left: 0; }
+  .mobile-track > .stage.scene-ended { top: auto; bottom: 0; }
+}

@@ -25,6 +25,23 @@
   var contactIn = document.getElementById('contactIn');
   var letters = Array.prototype.slice.call(document.querySelectorAll('.name .ch'));
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var mobileStage = window.matchMedia('(max-width: 800px), (pointer: coarse)');
+  var stage = document.getElementById('stage');
+
+  // WebKit can move a sticky layer before resizing it as browser chrome collapses.
+  // Pin the mobile scene explicitly; keep it inside its track at either boundary.
+  function positionStage() {
+    var mobile = mobileStage.matches;
+    track.classList.toggle('mobile-track', mobile);
+    if (!mobile) {
+      stage.classList.remove('scene-fixed', 'scene-ended');
+      return;
+    }
+    var bounds = track.getBoundingClientRect();
+    var end = bounds.bottom <= stage.offsetHeight;
+    stage.classList.toggle('scene-fixed', bounds.top <= 0 && !end);
+    stage.classList.toggle('scene-ended', end);
+  }
 
   var vid = null;
   if (CLIP) {
@@ -153,6 +170,7 @@
   }
 
   function render() {
+    positionStage();
     var g = geometry();
     var p = clamp((g.y - g.start) / g.L, 0, 1);
     var h = clamp((g.y - g.workStart) / g.transition, 0, 1);
