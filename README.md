@@ -21,8 +21,10 @@ File structure:
 
 Edit the page copy and add projects in app.js. Change the visual design in styles.css.
 Put new images or videos into assets/ and reference them by relative path.
-The opening animation takes about 2.1 seconds and plays on page load; navigation between pages does not replay it.
-Visitors with reduced-motion preferences skip the opening animation.
+The home page foregrounds gesture interaction and the HOVR prototype. The generated background is decorative and visibly attributed.
+`app.bundle.js` is the browser entry point; the current dependency-free `app.js` can be copied directly into it after edits.
 The original Figma embedded video remains available through the Figma link; this copy uses its preview image.
-Contact details and the other two project covers remain the placeholders in the original design.
+Unfinished project placeholders are omitted from the homepage. Contact placeholders on the existing About and HOVR pages still need real details.
 This version is a snapshot of the current Figma design and does not automatically sync future changes.
+
+Hero artwork: `assets/hero-atmosphere-v2.png`, edited with the built-in ImageGen tool. Final prompt: remove all text and UI overlays from the supplied reference; preserve the hand, pale fog, faint head shadow and pink edge glow; no readable shoulders, neck, torso or white ribbon.
