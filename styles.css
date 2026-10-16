@@ -1,3 +1,6 @@
+@font-face { font-family: "Manrope"; src: url("assets/fonts/manrope-regular.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Manrope"; src: url("assets/fonts/manrope-medium.ttf") format("truetype"); font-style: normal; font-weight: 500; font-display: swap; }
+@font-face { font-family: "Manrope"; src: url("assets/fonts/manrope-semibold.ttf") format("truetype"); font-style: normal; font-weight: 600; font-display: swap; }
 :root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
 
 
@@ -11,9 +14,9 @@
     --cream: #F6F5F1;
     --card: #b4afa8;
 
-    --display: "Michroma", "Eurostile", Arial, sans-serif;
+    --display: var(--body);
     --body: "Manrope", "Helvetica Neue", Arial, sans-serif;
-    --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --mono: var(--body);
 
     --W: max(100vw, 160svh);
     --focal: 0.36;
@@ -25,6 +28,7 @@
   * { box-sizing: border-box; }
   html { background: var(--fog); }
   body { margin: 0; background: var(--fog); color: var(--ink); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  button, input, select, textarea { font-family: var(--body); }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
   .track { position: relative; height: 730svh; } /* Hero hold 80, scrub 300, Ask hold 100, dusk scrub 150, viewport 100. */
