@@ -1,0 +1,1348 @@
+<!doctype html><html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<script>
+(function(){
+  try {
+    var replay = new URLSearchParams(location.search).get('intro') === 'replay';
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches && (replay || !sessionStorage.getItem('zhaolin-intro-seen'))) document.documentElement.setAttribute('data-intro','playing');
+  } catch(e) { if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.setAttribute('data-intro','playing'); }
+})();
+</script>
+<title>Zhaolin Hu Portfolio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Michroma&family=Manrope:wght@400;500;600&display=swap">
+<style>
+  /* Layout: one pinned stage holds three pages (hero, Ask glass, My Work) and is driven by scroll.
+     Each page has a reading hold; transitions follow native scroll position in both directions. */
+  :root {
+    --fog: #F6F5F1;
+    --ink: #4D4133;
+    --ink-soft: #75685f;
+    --brown: #4D4133;
+    --cream: #F6F5F1;
+    --card: #b4afa8;
+
+    --display: "Michroma", "Eurostile", Arial, sans-serif;
+    --body: "Manrope", "Helvetica Neue", Arial, sans-serif;
+    --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    --W: max(100vw, 160svh);
+    --focal: 0.36;
+    --L: min(0px, max(calc(100vw - var(--W)), calc(50vw - var(--focal) * var(--W))));
+    --nl: calc(var(--L) + var(--W) * 0.40);
+    --fs: min(calc(var(--W) * 0.058), calc((100vw - var(--nl) - 24px) / 8.9));
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--fog); }
+  body { margin: 0; background: var(--fog); color: var(--ink); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  .track { position: relative; height: 730svh; } /* Hero hold 80, scrub 300, Ask hold 100, dusk scrub 150, Work is held by the deck input gate; viewport 100. */
+  .stage { position: sticky; top: 0; height: 100svh; width: 100%; overflow: hidden; background: var(--fog); }
+  .frame { position: absolute; left: var(--L); top: 50%; width: var(--W); aspect-ratio: 1024 / 640; transform: translateY(-50%); }
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .frame {
+      translate: calc(var(--hero-mouse-x, 0px) * var(--hero-mouse-weight, 1)) calc(var(--hero-mouse-y, 0px) * var(--hero-mouse-weight, 1));
+      scale: calc(1 + .025 * var(--hero-mouse-weight, 1));
+    }
+  }
+  .hero-pointer-glow {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse 260px 240px at var(--hero-light-x, 50%) var(--hero-light-y, 50%), rgba(249,181,156,.22), rgba(255,226,204,.09) 42%, transparent 75%);
+    mix-blend-mode: multiply;
+    opacity: calc(var(--hero-pointer-visible, 0) * var(--hero-mouse-weight, 1));
+  }
+  .hero-orbit { position: absolute; left: 44%; top: 44%; width: clamp(140px, 18vw, 260px); aspect-ratio: 1; transform: translate(-50%, -50%); opacity: calc(.3 * var(--hero-mouse-weight, 1)); pointer-events: none; }
+  .hero-orbit-ring { position: absolute; inset: 0; border: 1px solid transparent; border-top-color: rgba(77,65,51,.55); border-left-color: rgba(77,65,51,.16); border-radius: 50%; animation: hero-orbit-turn 9s linear infinite; }
+  .hero-orbit-ring--inner { inset: 18%; border-top-color: rgba(161,112,96,.6); border-left-color: transparent; border-bottom-color: rgba(161,112,96,.25); animation: hero-orbit-turn 6s linear infinite reverse; }
+  .hero-orbit-point { position: absolute; inset: 8%; animation: hero-orbit-turn 4s linear infinite; }
+  .hero-orbit-point::before { content: ""; position: absolute; top: 0; left: 50%; width: 5px; height: 5px; border-radius: 50%; background: #ad7c68; box-shadow: 0 0 12px rgba(218,159,125,.65); }
+  @keyframes hero-orbit-turn { to { rotate: 360deg; } }
+  .stage:not(.hero-decor-active) .hero-orbit * { animation-play-state: paused; }
+  @media (max-width: 700px) { .hero-orbit { left: 55%; top: 40%; width: 150px; opacity: calc(.22 * var(--hero-mouse-weight, 1)); } }
+  @media (prefers-reduced-motion: reduce) { .hero-orbit * { animation: none; } }
+  .hand-cursor { position: fixed; inset: 0; z-index: 30; pointer-events: none; opacity: 0; transition: opacity .2s ease; }
+  .hand-cursor.is-visible { opacity: 1; }
+  .hand-cursor-core {
+    position: absolute; left: 0; top: 0; width: 32px; height: 32px; margin: -16px;
+    border-radius: 50%; border: 1px solid rgba(255,255,255,.85);
+    background: radial-gradient(circle at 28% 22%, rgba(255,255,255,.95), rgba(246,224,197,.42) 24%, rgba(204,160,147,.26) 58%, rgba(114,92,116,.42));
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    box-shadow: inset 2px 2px 6px rgba(255,255,255,.75), inset -3px -3px 7px rgba(89,65,77,.3), 0 3px 14px rgba(79,55,43,.2);
+    transition: width .4s ease, height .4s ease, margin .4s ease, border-radius .5s ease, background .4s ease, box-shadow .4s ease;
+  }
+  .hand-cursor-trail { position: absolute; left: 0; top: 0; width: 18px; height: 18px; margin: -9px; border-radius: 50%; background: rgba(179,120,103,.72); box-shadow: 0 0 10px rgba(239,175,144,.38); filter: blur(1.4px); transition: background .35s, box-shadow .35s; }
+  .hand-cursor.is-touching .hand-cursor-core {
+    width: 76px; height: 76px; margin: -38px; border-radius: 38% 62% 57% 43% / 48% 39% 61% 52%;
+    background: radial-gradient(circle at 30% 25%, #fff8e8, rgba(255,204,165,.88) 24%, rgba(230,141,152,.7) 52%, rgba(157,119,197,.78));
+    border-color: rgba(255,239,212,.95);
+    box-shadow: inset 4px 4px 14px rgba(255,255,255,.8), inset -6px -8px 18px rgba(149,79,163,.45), 0 0 24px rgba(251,175,144,.6), 0 0 65px rgba(223,150,189,.38);
+  }
+  .hand-cursor.is-touching .hand-cursor-trail { background: rgba(237,165,187,.6); box-shadow: 0 0 16px rgba(241,176,153,.6); filter: blur(4px); }
+  @media (hover: hover) and (pointer: fine) { body.has-hand-cursor, body.has-hand-cursor * { cursor: none !important; } }
+  .plate { position: absolute; inset: 0; transform-origin: 20% 60%; will-change: transform; }
+  .plate img, .plate video { display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; user-select: none; -webkit-user-drag: none; }
+  .glow {
+    position: absolute; left: 28.2%; top: 31.3%; width: 16%; aspect-ratio: 1; margin: -8% 0 0 -8%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(255,170,160,.75), rgba(255,190,180,.28) 55%, rgba(255,200,190,0));
+    mix-blend-mode: multiply; opacity: 0; pointer-events: none;
+  }
+
+  @keyframes hero-cross-drift { 0% { translate: 0 0; rotate: 0deg; } 25% { translate: 14px -18px; } 50% { translate: -8px -28px; } 75% { translate: -16px 9px; } 100% { translate: 0 0; rotate: 360deg; } }
+  @keyframes hero-square-breathe { 0%, 100% { transform: translateY(0) rotate(0deg); opacity: .6; } 50% { transform: translateY(-26px) rotate(24deg); opacity: 1; } }
+  @keyframes hero-line-scan { 0%, 100% { transform: scaleY(.55); opacity: .3; } 50% { transform: scaleY(1); opacity: .8; } }
+  .deco .x { animation: hero-cross-drift 1.8s linear infinite; }
+  .deco .x:nth-of-type(2) { animation-delay: -3s; animation-duration: 2.1s; }
+  .deco .x:nth-of-type(3) { animation-delay: -6s; animation-duration: 2.6s; }
+  .deco .x:nth-of-type(4) { animation-delay: -2s; animation-duration: 1.6s; }
+  .deco .x:nth-of-type(5) { animation-delay: -7s; animation-duration: 2.4s; }
+  .deco .sq { animation: hero-square-breathe 1.1s ease-in-out infinite; }
+  .deco .vl { transform-origin: center; animation: hero-line-scan 1.3s ease-in-out infinite; }
+  .deco .coords { font-variant-numeric: tabular-nums; }
+  .stage:not(.hero-decor-active) .deco * { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) { .deco .x, .deco .sq, .deco .vl, .deco .coords { animation: none; } }
+  @keyframes hero-hand-breathe {
+    0%, 100% { translate: 0 calc(4px * var(--hero-mouse-weight, 1)); scale: 1; }
+    50% { translate: calc(4px * var(--hero-mouse-weight, 1)) calc(-5px * var(--hero-mouse-weight, 1)); scale: calc(1 + .012 * var(--hero-mouse-weight, 1)); }
+  }
+  @media (prefers-reduced-motion: no-preference) { .plate { animation: hero-hand-breathe 3.5s ease-in-out infinite; } }
+  /* hero furniture */
+  .deco { position: absolute; inset: 0; pointer-events: none; color: var(--ink-soft); }
+  .coords { position: absolute; left: 6.7%; top: 26%; font-family: var(--mono); font-size: clamp(9px, .72vw, 11px); letter-spacing: .12em; line-height: 1.5; }
+  .sq { position: absolute; left: 6.7%; top: 40%; width: 2.8%; aspect-ratio: 1; background: rgba(243,170,166,.55); box-shadow: 0 0 40px 18px rgba(255,170,165,.3); }
+  .vl { position: absolute; left: 8.1%; top: 38%; height: 24%; width: 1px; background: rgba(69,55,45,.22); }
+  .x { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; }
+  .x::before, .x::after { content: ""; position: absolute; background: rgba(69,55,45,.4); }
+  .x::before { left: 0; right: 0; top: 50%; height: 1px; }
+  .x::after { top: 0; bottom: 0; left: 50%; width: 1px; }
+
+  .type { position: absolute; left: var(--nl); top: calc(50% - var(--W) * 0.0719 - var(--fs) * 0.5); color: var(--ink); }
+  .name { margin: 0; font-family: var(--display); font-weight: 400; font-size: var(--fs); line-height: 1; letter-spacing: -0.01em; white-space: nowrap; display: flex; }
+  .name .ch { display: inline-block; will-change: transform, opacity, filter; }
+  .name .sp { display: inline-block; width: 0.34em; }
+  .tag { margin-top: calc(var(--fs) * 0.32); text-align: right; font-family: var(--mono); text-transform: uppercase; letter-spacing: .26em; will-change: opacity; }
+  .tag .role { display: block; font-size: max(12px, calc(var(--fs) * .2)); color: var(--ink); margin-right: -.26em; }
+  .tag .scope { display: block; margin: .7em -.26em 0 0; font-size: max(10px, calc(var(--fs) * .135)); font-weight: 300; color: var(--ink-soft); }
+
+  /* page 2: frosted glass over the same plate */
+  .glass {
+    position: absolute; left: 8.1%; right: 9.5%; top: 16%; bottom: 11%;
+    border-radius: clamp(28px, 5.6vw, 84px);
+    background: rgba(224,222,219,.46);
+    border: 1px solid rgba(255,255,255,.6);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 30px 80px rgba(70,50,40,.12);
+    display: grid; place-items: center; align-content: center; gap: 18px;
+    opacity: 0; visibility: hidden; pointer-events: none;
+  }
+  .ask {
+    width: min(62%, 760px); margin: 0;
+    display: flex; align-items: center;
+    background: rgba(255,255,255,.72);
+    border: 1px solid rgba(255,255,255,.95);
+    border-radius: 999px;
+    box-shadow: 0 10px 30px rgba(70,50,40,.10), inset 0 -1px 0 rgba(70,50,40,.06);
+    padding: 0 clamp(18px, 2.4vw, 34px);
+    height: clamp(46px, 6.6vw, 84px);
+    opacity: 0;
+  }
+  .ask input {
+    width: 100%; min-width: 0; border: 0; background: transparent; outline: none;
+    font-family: var(--display); font-size: clamp(14px, 2.1vw, 28px); color: var(--ink); letter-spacing: -.01em;
+  }
+  .ask input::placeholder { color: var(--ink); opacity: .92; }
+  .ask:focus-within { box-shadow: 0 10px 30px rgba(70,50,40,.10), 0 0 0 2px var(--ink); }
+  .ask { transition: translate .55s cubic-bezier(.22,.8,.24,1), opacity .25s ease, visibility 0s, box-shadow .3s ease; }
+  .glass.is-typing .ask { translate: 0 clamp(-130px, -16svh, -60px); }
+  .ask-dialog {
+    position: absolute; left: 50%; top: 12%; bottom: 8%;
+    width: min(78%, 880px); min-height: 0; display: flex; flex-direction: column;
+    padding: 16px 20px; border-radius: 24px; color: var(--ink);
+    background: transparent; border: 0; box-shadow: none;
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transform: translate(-50%, -22px); clip-path: inset(0 0 100% 0 round 24px);
+    transition: clip-path .75s cubic-bezier(.22,.8,.24,1), transform .75s cubic-bezier(.22,.8,.24,1), opacity .35s ease, visibility .75s;
+  }
+  .glass.is-chat .ask {
+    translate: 0 clamp(-130px, -16svh, -60px); opacity: 0 !important; visibility: hidden; pointer-events: none;
+    transition: translate .55s cubic-bezier(.22,.8,.24,1), opacity .25s ease .2s, visibility 0s .55s, box-shadow .3s ease;
+  }
+  .glass.is-chat .ask-dialog {
+    opacity: 1; visibility: visible; pointer-events: auto;
+    transform: translate(-50%, 0); clip-path: inset(0 0 0 0 round 24px);
+    transition-delay: .38s, .38s, .38s, .38s;
+  }
+  @media (max-aspect-ratio: 1/1) { .ask-dialog { width: 88%; padding: 12px 14px; } }
+  .ask-dialog > * { opacity: 0; translate: 0 -8px; transition: opacity .3s ease, translate .45s ease; }
+  .glass.is-chat .ask-dialog > * { opacity: 1; translate: 0 0; transition-delay: .68s; }
+  .glass.is-chat .ask-dialog .dialog-compose { transition-delay: .8s; }
+  @media (prefers-reduced-motion: reduce) { .ask-dialog, .ask-dialog > *, .glass.is-chat .ask, .glass.is-chat .ask-dialog > * { transition: none; transition-delay: 0s; } }
+  .dialog-header { display: flex; justify-content: space-between; align-items: center; padding: 24px 28px; border-bottom: 1px solid rgba(69,55,45,.12); }
+  .dialog-header h2 { margin: 0; font: 13px/1.5 var(--display); }
+  .dialog-header p { margin: 6px 0 0; font: 9px/1.4 var(--mono); letter-spacing: .12em; color: var(--ink-soft); }
+  .dialog-close { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(69,55,45,.15); background: rgba(255,255,255,.5); font: 22px/1 var(--body); color: var(--ink); cursor: pointer; }
+  .dialog-messages { padding: 25px 28px; display: flex; flex-direction: column; gap: 20px; max-height: 43svh; overflow-y: auto; overscroll-behavior: contain; }
+  .chat-message { margin: 0; padding: 15px 18px; max-width: 92%; font: 14px/1.75 var(--body); white-space: pre-wrap; border-radius: 18px; }
+  .chat-message--user { align-self: flex-end; background: var(--brown); color: var(--cream); border-bottom-right-radius: 5px; }
+  .chat-message--reply { align-self: flex-start; background: rgba(255,255,255,.65); border: 1px solid rgba(255,255,255,.85); border-bottom-left-radius: 5px; }
+  .dialog-compose { margin: 0; padding: 18px 24px; display: flex; gap: 12px; border-top: 1px solid rgba(69,55,45,.12); }
+  .dialog-compose input { min-width: 0; flex: 1; padding: 12px 16px; border: 1px solid rgba(69,55,45,.14); border-radius: 999px; background: rgba(255,255,255,.7); color: var(--ink); font: 13px var(--body); }
+  .dialog-compose button { padding: 10px 17px; border: 0; border-radius: 999px; background: var(--brown); color: var(--cream); font: 11px var(--mono); cursor: pointer; }
+  .ask-dialog :focus-visible { outline: 2px solid var(--ink-soft); outline-offset: 3px; }
+  .glass.is-chat > .ask-suggestions, .glass.is-chat > .note { visibility: hidden; opacity: 0; pointer-events: none; }
+  .ask-dialog .dialog-header { padding: 0 0 10px; flex: 0 0 auto; }
+  .ask-dialog .dialog-messages { flex: 1; min-height: 0; max-height: none; padding: 14px 0; }
+  .ask-dialog .dialog-compose { flex: 0 0 auto; padding: 10px 0 0; }
+  @media (max-width: 600px) { .ask-dialog .chat-message { font-size: 12px; padding: 10px 13px; } .ask-dialog .dialog-header h2 { font-size: 11px; } }
+
+  .ask-suggestions {
+    position: absolute; top: calc(50% + clamp(38px, 4.5vw, 60px)); left: 50%;
+    width: min(76%, 850px); transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 13px;
+    transition: opacity .2s ease, translate .35s ease, visibility .2s;
+  }
+  .suggestions-label { margin: 0; font: 9px/1.5 var(--mono); letter-spacing: .16em; color: var(--ink-soft); }
+  .suggestion-list { display: flex; justify-content: center; flex-wrap: wrap; gap: 9px; }
+  .suggestion-chip {
+    min-height: 34px; padding: 8px 15px; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.72); background: rgba(255,255,255,.32);
+    color: var(--ink); font: 11px/1.4 var(--body); cursor: pointer;
+    box-shadow: 0 3px 10px rgba(70,50,40,.035);
+    transition: background .2s ease, box-shadow .2s ease, translate .2s ease;
+  }
+  .suggestion-chip:hover { translate: 0 -2px; background: rgba(255,255,255,.78); box-shadow: 0 5px 14px rgba(70,50,40,.08); }
+  .suggestion-chip:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .glass.is-typing .ask-suggestions { opacity: 0; visibility: hidden; translate: 0 -12px; pointer-events: none; }
+  .glass > .note { position: absolute; top: calc(50% + 170px); left: 5%; right: 5%; }
+  @media (max-width: 600px) {
+    .ask-suggestions { width: 92%; gap: 10px; }
+    .suggestion-list { gap: 7px; }
+    .suggestion-chip { padding: 7px 10px; font-size: 10px; min-height: 32px; }
+    .glass > .note { top: calc(50% + 165px); font-size: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .ask-suggestions, .suggestion-chip { transition: none; } }
+  .ask-keyboard {
+    position: absolute; left: 50%; bottom: 8%; width: min(86%, 850px);
+    padding: clamp(10px, 1.3vw, 18px); border-radius: 22px;
+    border: 1px solid rgba(255,255,255,.65); background: rgba(235,232,227,.6);
+    box-shadow: 0 18px 45px rgba(58,43,32,.12), inset 0 1px 0 rgba(255,255,255,.75);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transform: translate(-50%, 32px) scale(.97);
+    transition: opacity .4s ease, transform .55s cubic-bezier(.22,.8,.24,1), visibility .4s;
+    display: flex; flex-direction: column; gap: clamp(5px, .7svh, 9px);
+  }
+  .glass.is-typing .ask-keyboard { opacity: 1; visibility: visible; pointer-events: auto; transform: translate(-50%, 0) scale(1); }
+  .keyboard-row { display: flex; justify-content: center; gap: clamp(4px, .6vw, 8px); }
+  .keyboard-key {
+    flex: 1; max-width: 8.5%; min-width: 0; height: clamp(27px, 4.6svh, 46px);
+    padding: 0; border-radius: 7px; border: 1px solid rgba(255,255,255,.85);
+    background: rgba(255,255,255,.64); color: var(--ink); font: 12px/1 var(--mono);
+    box-shadow: 0 2px 2px rgba(68,48,33,.13); cursor: pointer;
+    transition: background .15s, translate .15s;
+  }
+  .keyboard-key:hover { background: rgba(255,255,255,.95); }
+  .keyboard-key:active, .keyboard-key.is-pressed {
+    translate: 0 2px; background: rgba(255,239,214,.98); border-color: rgba(255,255,255,1);
+    box-shadow: inset 0 2px 3px rgba(86,60,36,.12), 0 0 15px rgba(255,218,172,.4);
+  }
+  .keyboard-key.is-modifier { background: rgba(255,232,196,.88); box-shadow: 0 0 10px rgba(255,222,181,.3); }
+  .glass.is-typing .ask.is-keying { box-shadow: 0 10px 30px rgba(70,50,40,.10), 0 0 0 2px rgba(116,85,60,.65), 0 0 22px rgba(255,221,181,.3); }
+
+  .keyboard-key:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .keyboard-key--wide { max-width: 19%; flex: 2; font-size: 10px; }
+  .keyboard-key--space { max-width: 53%; flex: 6; font-size: 10px; letter-spacing: .12em; }
+  .glass.is-typing .note { translate: 0 clamp(-130px, -16svh, -60px); }
+  .note { transition: translate .55s cubic-bezier(.22,.8,.24,1); }
+  @media (max-width: 600px) { .ask-keyboard { width: 94%; padding: 10px 6px; border-radius: 15px; } .keyboard-key { font-size: 10px; } .keyboard-key--wide { font-size: 8px; } }
+  @media (prefers-reduced-motion: reduce) { .ask, .ask-keyboard, .note { transition: none; } }
+  .note { margin: 0; min-height: 1.2em; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: var(--ink-soft); text-align: center; padding: 0 16px; }
+
+  /* grainy brown triangle, drawn on a canvas at low resolution so the grain stays coarse */
+  .dusk { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; pointer-events: none; image-rendering: pixelated; }
+
+  /* page 3: My Work lives on the same stage, above the brown, and fades in while the brown rises */
+  .works {
+    position: absolute; inset: 0; z-index: 4;
+    display: flex; flex-direction: column; justify-content: center;
+    padding-block: 8svh 3svh; color: var(--cream);
+    visibility: hidden; pointer-events: none;
+  }
+  .works-in { display: flex; flex-direction: column; gap: clamp(12px, 1.8svh, 22px); }
+  .works h2 { margin: 0; text-align: center; font-family: var(--display); font-weight: 400; font-size: clamp(22px, 3vw, 40px); letter-spacing: -.01em; will-change: opacity, transform; }
+  .carousel {
+    display: block; width: min(86vw, 1600px, calc((100svh - 200px) * 16 / 9)); margin-inline: auto;
+    padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px));
+    will-change: opacity, transform;
+  }
+  .carousel { perspective: 1400px; position: relative; isolation: isolate; }
+  .carousel::before {
+    content: ""; position: absolute; inset: -9% -5% -14%; z-index: -1; pointer-events: none;
+    background: radial-gradient(ellipse at 24% 35%, rgba(231,191,153,.12), transparent 58%), radial-gradient(ellipse at 82% 68%, rgba(178,157,194,.09), transparent 55%);
+    filter: blur(24px);
+  }
+  .card-trail {
+    position: absolute; inset: 0 8px; z-index: 0; pointer-events: none;
+    border-radius: clamp(24px, 3.6vw, 48px); opacity: 0;
+    border: 1px solid rgba(244,221,195,.65);
+    background: linear-gradient(125deg, rgba(236,205,170,.15), rgba(180,159,196,.07));
+    box-shadow: 0 0 24px rgba(228,197,166,.12);
+    filter: blur(2px);
+  }
+  .card-trail--far { filter: blur(5px); }
+
+  .viewport {
+    position: relative;
+    z-index: 1;
+    transform-origin: center;
+    will-change: transform;
+    transition: translate .35s cubic-bezier(.22,.8,.24,1), scale .35s cubic-bezier(.22,.8,.24,1), box-shadow .35s ease, border-color .35s ease;
+    box-shadow: 0 30px 65px -18px rgba(19,11,7,.55), 0 8px 18px rgba(20,12,8,.2), 0 0 0 1px rgba(248,226,200,.16), -10px -6px 34px -16px rgba(244,209,167,.34), 12px 10px 38px -20px rgba(182,160,204,.24);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .works.is-ready .viewport[aria-busy="false"]:hover {
+      translate: 0 -6px;
+      scale: 1.008;
+      border-color: rgba(255,240,215,.95);
+      box-shadow: 0 42px 80px -18px rgba(19,11,7,.65), 0 14px 24px rgba(20,12,8,.24), 0 0 0 1px rgba(255,239,212,.72), 0 0 16px rgba(255,224,182,.38), 0 0 44px rgba(245,204,157,.26), -14px -10px 70px -10px rgba(244,209,167,.5), 18px 16px 72px -12px rgba(193,165,220,.4);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .viewport { transition: none; }
+    .works.is-ready .viewport[aria-busy="false"]:hover { translate: none; scale: none; }
+  }
+  .viewport::before {
+    content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: inherit;
+    box-shadow: inset 0 1px 0 rgba(255,244,221,.52), inset 1px 0 0 rgba(255,237,214,.2), inset 0 -1px 0 rgba(38,24,18,.28);
+  }
+  .viewport::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    border-radius: inherit;
+    background: linear-gradient(115deg, transparent 22%, rgba(255,239,206,.12) 38%, rgba(255,255,255,.65) 49%, rgba(212,189,255,.2) 56%, transparent 72%);
+    transform: translateX(var(--shine-x,-140%));
+    opacity: var(--shine-opacity,0);
+    mix-blend-mode: screen;
+  }
+  .viewport { touch-action: pan-y pinch-zoom; overflow: hidden; border-radius: clamp(24px, 3.6vw, 48px); border: 2px solid rgba(239,232,223,.22); background: var(--card); }
+  .slides { display: flex; transition: transform .48s cubic-bezier(.22,.8,.24,1); }
+  .slide { flex: 0 0 100%; min-width: 0; aspect-ratio: 16 / 9; height: auto; padding: clamp(18px, 3vw, 40px); display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; color: #2f261f; }
+  .slide { position: relative; overflow: hidden; }
+  .slide > img, .slide > video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .slide b, .slide span { position: relative; z-index: 1; }
+  .slide b { font-family: var(--body); font-weight: 600; font-size: clamp(18px, 2.4vw, 30px); letter-spacing: -.01em; }
+  .slide span { font-size: clamp(12px, 1.2vw, 15px); color: #4d4238; }
+  .work-browse { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .browse-hint { margin: 0; display: flex; align-items: center; gap: 12px; font: 10px/1.6 var(--display); letter-spacing: .08em; color: var(--cream); opacity: 1; }
+  .browse-bar { display: inline-block; width: 56px; height: 3px; border-radius: 2px; background: var(--cream); box-shadow: 0 0 12px rgba(239,232,223,.35); animation: browse-blink 1.8s ease-in-out infinite; }
+  @keyframes browse-blink { 0%, 100% { opacity: .3; box-shadow: 0 0 0 rgba(239,232,223,0); } 50% { opacity: 1; box-shadow: 0 0 14px rgba(239,232,223,.55); } }
+  @media (prefers-reduced-motion: reduce) { .browse-bar { animation: none; opacity: 1; } }
+  .browse-count { padding-left: 14px; border-left: 1px solid rgba(239,232,223,.35); font-variant-numeric: tabular-nums; }
+  .dots { display: flex; justify-content: center; gap: 12px; will-change: opacity; }
+  .dots button { width: 14px; height: 14px; padding: 0; border: 0; border-radius: 50%; background: rgba(239,232,223,.3); cursor: pointer; }
+  .dots button[aria-current="true"] { background: var(--cream); }
+  .dots button:focus-visible { outline: 2px solid var(--cream); outline-offset: 3px; }
+
+  .hint {
+    position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 6svh);
+    display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-soft);
+  }
+  .hint i { display: block; width: 1px; height: 38px; background: var(--ink-soft); transform-origin: top; animation: drip 2.4s ease-in-out infinite; }
+  @keyframes drip { 0% { transform: scaleY(0); opacity: 1; } 60% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
+
+  .about-track { position: relative; min-height: 170svh; background: var(--fog); }
+  .about-page { position: sticky; top: 0; min-height: 100svh; padding: clamp(100px, 13svh, 150px) 7vw 70px; display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); align-items: center; gap: 7vw; color: var(--ink); }
+  .about-kicker { margin: 0 0 24px; font: 10px/1.5 var(--mono); letter-spacing: .16em; }
+  .about-page h2 { margin: 0 0 38px; font: 500 clamp(30px, 3.8vw, 64px)/1.12 var(--body); letter-spacing: -.045em; }
+  .about-bio h3 { margin: 0 0 16px; font: 500 19px/1.4 var(--body); }
+  .about-bio p { margin: 0 0 18px; max-width: 650px; font: 14px/1.75 var(--body); }
+  .about-practice { margin-top: 36px; }
+  .about-practice h3 { margin: 0 0 16px; font: 500 clamp(18px, 1.7vw, 28px)/1.4 var(--body); letter-spacing: -.025em; }
+  .about-practice p { margin: 0; color: var(--ink-soft); font: 10px/1.8 var(--mono); letter-spacing: .06em; }
+  .about-portrait { margin: 0; align-self: center; }
+  .about-photo-slot { aspect-ratio: 3 / 4; max-height: 66svh; background: #e6e2da; overflow: hidden; }
+  .about-photo-slot img { display: block; width: 100%; height: 100%; aspect-ratio: 3 / 4; object-fit: cover; object-position: center 35%; }
+  .about-portrait figcaption { margin-top: 14px; display: flex; justify-content: space-between; font: 9px/1.5 var(--mono); letter-spacing: .1em; color: var(--ink-soft); }
+  @media (max-width: 800px) {
+    .about-track { min-height: 0; }
+    .about-page { position: relative; grid-template-columns: 1fr; padding: 120px 24px 64px; gap: 36px; }
+    .about-page h2 { font-size: clamp(32px, 7vw, 52px); margin-bottom: 30px; }
+    .about-portrait { max-width: 420px; width: 100%; }
+    .about-photo-slot { max-height: none; }
+  }
+  /* contact: brown fades out into fog, the hand comes back faintly behind the words */
+  .contact {
+    position: relative; overflow: hidden; min-height: 150svh;
+    display: flex; align-items: flex-end; justify-content: flex-end;
+    padding-bottom: calc(18svh + env(safe-area-inset-bottom, 0px));
+    background: var(--fog);
+    color: var(--ink);
+  }
+  .contact::before {
+    content: ""; position: absolute; inset: 0;
+    background: url("../assets/images/fog-hand.jpg") 20% 62% / cover no-repeat;
+    mix-blend-mode: multiply; opacity: .85;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 38%, #000 66%);
+    mask-image: linear-gradient(to bottom, transparent 38%, #000 66%);
+  }
+  .contact-in {
+    position: relative; width: min(52%, 720px);
+    margin-right: max(24px, 8vw);
+    display: flex; flex-direction: column; align-items: flex-start; gap: 18px;
+    will-change: opacity, transform;
+  }
+  .contact .eyebrow { margin: 0; font-family: var(--mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-soft); }
+  .contact h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(26px, 4.6vw, 68px); line-height: 1.12; letter-spacing: -.02em; text-wrap: balance; }
+  .contact .lead { margin: 0; font-family: var(--mono); font-size: clamp(12px, 1.1vw, 15px); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-soft); }
+  .mail {
+    display: inline-flex; align-items: center; justify-content: space-between; gap: 24px;
+    max-width: 100%; min-height: clamp(46px, 5.4vw, 70px); padding: 0 clamp(18px, 2.2vw, 30px);
+    background: rgba(255,255,255,.72); border: 1px solid rgba(255,255,255,.95); border-radius: 999px;
+    box-shadow: 0 10px 30px rgba(70,50,40,.10);
+    color: var(--ink); cursor: pointer; font: inherit;
+  }
+  .mail:hover { background: rgba(255,255,255,.9); }
+  .mail:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .mail .addr { font-family: var(--display); font-size: clamp(13px, 1.6vw, 22px); min-width: 0; overflow-wrap: anywhere; text-align: left; }
+  .mail .copy { font-family: var(--mono); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-soft); flex: none; }
+  .note2 { margin: 0; min-height: 1.2em; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--ink-soft); }
+  .foot { position: absolute; left: max(24px, env(safe-area-inset-left, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); margin: 0; font-family: var(--mono); font-size: 11px; letter-spacing: .18em; color: var(--ink-soft); }
+
+  @media (max-aspect-ratio: 1/1) {
+    :root { --focal: 0.25; --fs: 10.4vw; }
+    .type { left: max(24px, env(safe-area-inset-left, 0px)); top: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 17svh); }
+    .tag { text-align: left; }
+    .tag .role, .tag .scope { margin-right: 0; }
+    .tag .role { font-size: 12px; }
+    .tag .scope { font-size: 10px; letter-spacing: .18em; }
+    .deco .coords, .deco .sq, .deco .vl { display: none; }
+    .nav { gap: 5px; }
+    .glass { left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); top: 18svh; bottom: 22svh; }
+    .ask { width: 88%; }
+    .carousel { width: min(94vw, calc((100svh - 180px) * 16 / 9)); }
+    .contact-in { width: auto; margin-inline: max(24px, env(safe-area-inset-left, 0px)) max(24px, env(safe-area-inset-right, 0px)); }
+    .contact { justify-content: flex-start; }
+    .contact::before { background-position: 22% 40%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hint i { animation: none; }
+    .slides { transition: none; }
+  }
+  a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+  /* A narrow inverse strip reveals only availability and the hovered navigation item. */
+  .nav {
+    --nav-band: #4D4133; --nav-highlight: #F6F5F1;
+    position: fixed; z-index: 6; isolation: isolate;
+    top: calc(env(safe-area-inset-top, 0px) + 30px);
+    left: max(5vw, env(safe-area-inset-left, 0px), 24px); right: max(5vw, env(safe-area-inset-right, 0px), 24px);
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px;
+    padding: 0; border: 0; background: transparent; box-shadow: none;
+    font: 12px/1.5 var(--mono); letter-spacing: .13em; text-transform: uppercase; color: var(--nav-band);
+  }
+  .nav::before {
+    content: ""; position: absolute; z-index: -1; left: 0; right: 0; top: 50%; height: 1.5em;
+    transform: translateY(-50%); background: var(--nav-band); opacity: 0;
+    pointer-events: none; transition: opacity .15s ease;
+  }
+  .nav a { padding: 8px 0; color: inherit; text-decoration: none; white-space: nowrap; transition: color .15s ease; }
+  .nav .nav-availability { justify-self: start; font: 10px/1.5 var(--mono); letter-spacing: .08em; }
+  .nav .nav-brand { font: 500 12px/1.5 var(--mono); letter-spacing: .14em; }
+  .nav-menu { justify-self: center; display: flex; align-items: center; gap: 30px; }
+  .nav-language { justify-self: end; display: flex; align-items: center; gap: 18px; transition: color .15s ease; }
+  .nav-language select { border: 0; color: inherit; background: transparent; padding: 8px 0; font: inherit; cursor: pointer; }
+  .nav-language select option { background: #F6F5F1; color: #4D4133; }
+  .nav.on-dark { --nav-band: #F6F5F1; --nav-highlight: #4D4133; }
+  .nav:is(:has(a:hover), :has(.nav-language:hover))::before { opacity: 1; }
+  .nav:is(:has(a:hover), :has(.nav-language:hover)) .nav-availability,
+  .nav a:hover, .nav .nav-language:hover { color: var(--nav-highlight); }
+  .nav :focus-visible { outline: 1px solid currentColor; outline-offset: 3px; }
+  @media (max-width: 1000px) {
+    .nav { font-size: 10px; gap: 16px; }
+    .nav-menu { gap: 20px; }
+    .nav .nav-brand { font-size: 10px; }
+    .nav-language { gap: 10px; }
+  }
+  @media (max-width: 700px) {
+    .nav { top: calc(env(safe-area-inset-top, 0px) + 20px); grid-template-columns: 1fr auto; gap: 4px 12px; }
+    .nav-menu { grid-column: 1 / -1; grid-row: 2; justify-self: center; gap: 24px; }
+    .nav-language { grid-column: 2; grid-row: 1; }
+    .nav::before { height: 100%; }
+  }
+  @media (max-width: 400px) { .nav-brand-role { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .nav::before, .nav a, .nav-language { transition: none; } }
+
+  .opening { display: none; }
+  html[data-intro] { overflow: hidden; }
+  html[data-intro] body { overflow: hidden; }
+  html[data-intro] .opening { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; justify-content: center; padding: 5vw; background: #4D4133; color: #F6F5F1; transform: translateY(0); transition: transform .85s cubic-bezier(.76,0,.24,1); }
+  html[data-intro="leaving"] .opening { transform: translateY(-101%); }
+  .opening-top, .opening-bottom { position: absolute; left: 5vw; right: 5vw; display: flex; align-items: center; justify-content: space-between; font: 10px/1.6 var(--mono); letter-spacing: .13em; }
+  .opening-top { top: 34px; }
+  .opening-bottom { bottom: 34px; align-items: end; }
+  .opening-skip { padding: 8px 0 8px 16px; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+  .opening-skip:focus-visible { outline: 1px solid currentColor; outline-offset: 6px; }
+  .opening-center { width: 100%; overflow: hidden; }
+  .opening-name { margin: 0; font: 400 clamp(28px,7.7vw,124px)/1.3 var(--display); letter-spacing: -.025em; animation: opening-name-in .8s cubic-bezier(.22,.8,.24,1) both; }
+  .opening-role { margin: 20px 0 0; font: 10px/1.5 var(--mono); letter-spacing: .22em; animation: opening-label-in .65s ease .25s both; }
+  .opening-line { height: 1px; margin-top: 36px; background: rgba(246,245,241,.18); }
+  .opening-line i { display: block; height: 100%; width: 100%; background: #F6F5F1; transform-origin: left; animation: opening-trace 1.7s cubic-bezier(.2,.65,.3,1) both; }
+  .opening-coordinates { font-variant-numeric: tabular-nums; }
+  @keyframes opening-name-in { from { transform: translateY(110%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes opening-label-in { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes opening-trace { from { scale: 0 1; } to { scale: 1 1; } }
+  html[data-intro] body.has-hand-cursor, html[data-intro] body.has-hand-cursor * { cursor: auto !important; }
+  @media (max-width: 600px) { .opening-top, .opening-bottom { left: 24px; right: 24px; font-size: 9px; } .opening-role { font-size: 9px; letter-spacing: .1em; } }
+  @media (prefers-reduced-motion: reduce) { html[data-intro] .opening { display: none; } }
+</style>
+
+<div class="opening" id="opening" role="dialog" aria-label="Welcome to Zhaolin Hu’s portfolio" aria-modal="true">
+  <div class="opening-top"><span>ZHAOLIN HU / PORTFOLIO 2026</span><button class="opening-skip" id="openingSkip" type="button">SKIP ↗</button></div>
+  <div class="opening-center"><p class="opening-name">ZHAOLIN HU</p><p class="opening-role">INTERACTION DESIGN / EMERGING TECHNOLOGY</p><div class="opening-line" aria-hidden="true"><i></i></div></div>
+  <div class="opening-bottom"><span class="opening-coordinates" id="openingCoordinates" aria-hidden="true">35.676200° N<br>139.650300° E</span><span>MOVE. FEEL. EXPLORE.</span></div>
+</div>
+
+<nav class="nav" id="nav" aria-label="Main navigation">
+  <a class="nav-availability" href="#contact"><span>Available for job</span></a>
+  <div class="nav-menu"><a class="nav-brand" href="#home" aria-label="Zhaolin Hu home">@zhaolin hu</a><a href="#work">Work</a><a href="#about">About</a></div><label class="nav-language"><span>LAN</span><select id="navLanguage" aria-label="Language"><option value="en">EN</option><option value="zh">中文</option></select></label>
+</nav>
+
+<section class="track" id="track" aria-label="Introduction">
+  <div class="stage" id="stage">
+    <div class="frame">
+      <div class="plate" id="plate">
+        <img id="plateImg" src="../assets/images/fog-hand.jpg" alt="A hand pressing softly against fogged glass, lit pink from within" width="1024" height="640" draggable="false">
+        <div class="glow" id="glow"></div>
+      </div>
+    </div>
+
+    <div class="hero-pointer-glow" aria-hidden="true"></div>
+    <div class="hero-orbit" aria-hidden="true"><i class="hero-orbit-ring"></i><i class="hero-orbit-ring hero-orbit-ring--inner"></i><i class="hero-orbit-point"></i></div>
+    <div class="deco" id="deco" aria-hidden="true">
+      <div class="coords" aria-hidden="true"><span id="heroCoordX">35.6762° N</span><br><span id="heroCoordY">139.6503° E</span><br><span id="heroClock">T 00:00:00</span></div>
+      <div class="sq"></div><div class="vl"></div>
+      <i class="x" style="left:16.5%;top:24%"></i>
+      <i class="x" style="left:8%;top:71%"></i>
+      <i class="x" style="left:95.5%;top:4%"></i>
+      <i class="x" style="left:93.8%;top:54%"></i>
+      <i class="x" style="left:95.5%;top:81%"></i>
+    </div>
+
+    <div class="type" id="about">
+      <h1 class="name" aria-label="Zhaolin Hu"><span class="ch" aria-hidden="true">Z</span><span class="ch" aria-hidden="true">H</span><span class="ch" aria-hidden="true">A</span><span class="ch" aria-hidden="true">O</span><span class="ch" aria-hidden="true">L</span><span class="ch" aria-hidden="true">I</span><span class="ch" aria-hidden="true">N</span><span class="sp" aria-hidden="true"></span><span class="ch" aria-hidden="true">H</span><span class="ch" aria-hidden="true">U</span></h1>
+      <div class="tag" id="tag">
+        <span class="role">Interaction Designer</span>
+        <span class="scope">Human design system / Emerging technology</span>
+      </div>
+    </div>
+
+    <div class="hint" id="hint" aria-hidden="true"><span>Scroll / Explore</span><i></i></div>
+
+    <div class="glass" id="glass">
+      <form class="ask" id="ask" autocomplete="off">
+        <label class="sr" for="q">Ask anything about Zhaolin</label>
+        <input id="q" type="text" placeholder="Ask anything about Zhaolin" enterkeyhint="send" aria-controls="askKeyboard" aria-expanded="false">
+      </form>
+      <div class="ask-suggestions" id="askSuggestions" role="group" aria-label="Suggested questions">
+        <p class="suggestions-label">A FEW PLACES TO START</p>
+        <div class="suggestion-list">
+          <button class="suggestion-chip" type="button" data-question="How would you describe your design focus and approach?">Your design focus</button>
+          <button class="suggestion-chip" type="button" data-question="Which project should I start with, and why?">Where should I start?</button>
+          <button class="suggestion-chip" type="button" data-question="What was your role and contribution in your featured project?">Your role in the project</button>
+          <button class="suggestion-chip" type="button" data-question="What tools do you use to build and test interactive prototypes?">Prototyping & tools</button>
+          <button class="suggestion-chip" type="button" data-question="What kinds of roles or collaborations are you looking for?">Roles & opportunities</button>
+          <button class="suggestion-chip" type="button" data-question="How can I contact you or get your resume?">Contact & resume</button>
+        </div>
+      </div>
+      <p class="note" id="note" role="status" aria-live="polite"></p>
+      <div class="ask-keyboard" id="askKeyboard" role="group" aria-label="On-screen keyboard" aria-hidden="true" inert></div>
+<section class="ask-dialog" id="askDialog" aria-labelledby="dialogTitle" aria-hidden="true" inert>
+  <header class="dialog-header"><div><h2 id="dialogTitle">Ask Zhaolin</h2><p>PORTFOLIO Q&A / PREVIEW</p></div><button class="dialog-close" id="dialogClose" type="button" aria-label="Back to suggested questions">←</button></header>
+  <div class="dialog-messages" id="dialogMessages" role="log" aria-label="Conversation" aria-live="polite"></div>
+  <form class="dialog-compose" id="dialogCompose"><input id="dialogQuestion" aria-label="Ask a follow-up question" placeholder="Ask a follow-up question…" required><button type="submit">SEND ↗</button></form>
+</section>
+    </div>
+
+    <canvas class="dusk" id="dusk" aria-hidden="true"></canvas>
+
+    <div class="works" id="work" aria-label="My Work">
+      <div class="works-in">
+        <h2 id="wTitle">My Work</h2>
+        <div class="carousel" id="wCar" role="group" aria-roledescription="carousel" aria-label="Selected work">
+          <span class="card-trail card-trail--far" aria-hidden="true"></span><span class="card-trail card-trail--near" aria-hidden="true"></span><div class="viewport"><div class="slides" id="slides">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="1 of 5"><b>Moving toward feeling</b><span>Touchless kitchen tablet. Interaction concept.</span></div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="2 of 5"><b>Human × AI</b><span>An experience-based concept.</span></div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="3 of 5"><b>Project 03</b><span>Placeholder for the next case study.</span></div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="4 of 5"><b>Project 04</b><span>Placeholder for the next case study.</span></div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="5 of 5"><b>Project 05</b><span>Placeholder for the next case study.</span></div>
+          </div></div>
+        </div>
+        <div class="work-browse" id="workBrowse"><div class="dots" id="dots"></div><p class="browse-hint"><span class="browse-bar" aria-hidden="true"></span> SCROLL TO EXPLORE <span class="browse-count" id="browseCount">01 / 05</span></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="about-track" id="aboutPage"><section class="about-page" aria-labelledby="aboutTitle">
+  <div class="about-copy"><p class="about-kicker">ABOUT / ZHAOLIN HU</p>
+    <h2 id="aboutTitle">Curious about people.<br>Driven by interaction.</h2>
+    <div class="about-bio"><h3>A little about me</h3>
+      <p>I’m Zhaolin Hu, an interaction designer with a background in product design, pursuing an MFA in Interactive Design at SCAD.</p>
+      <p>My interests sit at the intersection of AI experiences, embodied interaction, and creative technology.</p>
+    </div>
+    <div class="about-practice"><h3>Research → Interaction → Prototyping</h3><p>AI EXPERIENCE DESIGN<br>EMBODIED INTERACTION<br>UNITY / UNREAL / FIGMA<br>CREATIVE CODING</p></div>
+  </div>
+  <figure class="about-portrait"><div class="about-photo-slot" id="aboutPhotoSlot"><img src="../assets/images/zhaolin-portrait.jpg" alt="Zhaolin Hu" width="2533" height="3377" loading="lazy"></div><figcaption><span>ZHAOLIN HU</span><span>INTERACTION DESIGNER</span></figcaption></figure>
+</section></div>
+
+<section class="contact" id="contact" aria-label="Contact">
+  <div class="contact-in" id="contactIn">
+    <p class="eyebrow">Contact</p>
+    <h2>Have something<br>in mind?</h2>
+    <p class="lead">Let's make it happen.</p>
+    <button class="mail" id="mail" type="button" aria-label="Copy email address">
+      <span class="addr" id="addr">you@example.com</span>
+      <span class="copy" id="copyLabel">Copy</span>
+    </button>
+    <p class="note2" id="note2">Placeholder address. Replace it with your own.</p>
+  </div>
+  <p class="foot">© 2026 Zhaolin Hu</p>
+</section>
+
+
+<script>
+(function () {
+  // Set to a video URL (for example 'hero-scrub.mp4') to drive a clip with scroll instead of the CSS push-in.
+  var CLIP = '';
+
+  var deckReleased = false, deckLanded = false, deckLandingUntil = 0;
+  var navigationTarget = null, navigationTimer = 0;
+  var docEl = document.documentElement;
+  var track = document.getElementById('track');
+  var nav = document.getElementById('nav');
+  var plate = document.getElementById('plate');
+  var glow = document.getElementById('glow');
+  var deco = document.getElementById('deco');
+  var tag = document.getElementById('tag');
+  var hint = document.getElementById('hint');
+  var glass = document.getElementById('glass');
+  var ask = document.getElementById('ask');
+  var dusk = document.getElementById('dusk');
+  var works = document.getElementById('work');
+  var wTitle = document.getElementById('wTitle');
+  var wCar = document.getElementById('wCar');
+  var workCard = wCar.querySelector('.viewport');
+  var cardTrails = wCar.querySelectorAll('.card-trail');
+  var dotsEl = document.getElementById('dots');
+  var contact = document.getElementById('contact');
+  var contactIn = document.getElementById('contactIn');
+  var letters = Array.prototype.slice.call(document.querySelectorAll('.name .ch'));
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var vid = null;
+  if (CLIP) {
+    vid = document.createElement('video');
+    vid.src = CLIP; vid.muted = true; vid.playsInline = true; vid.preload = 'auto';
+    vid.setAttribute('aria-hidden', 'true');
+    var img = document.getElementById('plateImg');
+    img.parentNode.replaceChild(vid, img);
+  }
+
+  function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
+  function ease(t) { return t * t * (3 - 2 * t); }
+
+  /* ---------- grainy brown triangle ---------- */
+  var dctx = dusk.getContext('2d');
+  var dW = 0, dH = 0, dNoise = null, dData = null, dBuf = null, dLast = -1;
+  var BROWN32 = (255 << 24 | 0x33 << 16 | 0x41 << 8 | 0x4d) >>> 0;
+  function sizeDusk() {
+    var S = 3;
+    dW = Math.max(1, Math.ceil(window.innerWidth / S));
+    dH = Math.max(1, Math.ceil(window.innerHeight / S));
+    dusk.width = dW; dusk.height = dH;
+    dNoise = new Uint8Array(dW * dH);
+    for (var i = 0; i < dNoise.length; i++) dNoise[i] = ((Math.random() + Math.random()) * 127.5) | 0;
+    dData = dctx.createImageData(dW, dH);
+    dBuf = new Uint32Array(dData.data.buffer);
+    dLast = -1;
+  }
+  function drawDusk(r) {
+    if (r === dLast) return;
+    dLast = r;
+    if (r <= 0.001) { dctx.clearRect(0, 0, dW, dH); return; }
+    var hh = 4 * dH * Math.pow(r, 1.6); // triangle height in canvas pixels
+    var b = 1.6 * hh;                   // half width of its base: wide and low, not a spike
+    var len = Math.sqrt(hh * hh + b * b);
+    var ya = dH - hh;
+    var cx = dW / 2;
+    var G = 0.5 * dH;                   // grain band: a long, loose gradient
+    dBuf.fill(0);
+    var y0 = Math.max(0, Math.floor(ya));
+    for (var y = y0; y < dH; y++) {
+      var base = (y - ya) * b;
+      var row = y * dW;
+      for (var x = 0; x < dW; x++) {
+        var d = (base - Math.abs(x - cx) * hh) / len;
+        if (d <= 0) continue;
+        var c = d / G;
+        if (c >= 1 || dNoise[row + x] < c * Math.sqrt(c) * 255) dBuf[row + x] = BROWN32;
+      }
+    }
+    dctx.putImageData(dData, 0, 0);
+  }
+
+  /* ---------- scroll-driven state ---------- */
+  function zoomAt(p) {
+    if (p <= 0.38) return 1 + 0.42 * ease(p / 0.38);
+    return 1.42 - 0.37 * ease(clamp((p - 0.38) / 0.5, 0, 1));
+  }
+
+  function apply(p, h) {
+    if (vid && vid.duration) {
+      try { vid.currentTime = p * vid.duration; } catch (e) {}
+      plate.style.transform = '';
+    } else {
+      plate.style.transform = 'scale(' + zoomAt(p).toFixed(4) + ')';
+    }
+
+    var pulse = Math.sin(Math.PI * clamp((p - 0.12) / 0.26, 0, 1));
+    glow.style.opacity = pulse.toFixed(3);
+    glow.style.transform = 'scale(' + (0.6 + pulse * 0.9).toFixed(3) + ')';
+
+    for (var i = 0; i < letters.length; i++) {
+      var t = ease(clamp((p - (0.17 + i * 0.022)) / 0.22, 0, 1));
+      var el = letters[i];
+      if (t === 0) { el.style.transform = ''; el.style.opacity = ''; el.style.filter = ''; continue; }
+      el.style.transform = 'translateX(' + (t * 2.8).toFixed(3) + 'em)';
+      el.style.opacity = (1 - t).toFixed(3);
+      el.style.filter = 'blur(' + (t * 8).toFixed(2) + 'px)';
+    }
+    tag.style.opacity = (1 - ease(clamp((p - 0.12) / 0.18, 0, 1))).toFixed(3);
+    deco.style.opacity = (1 - ease(clamp((p - 0.04) / 0.2, 0, 1))).toFixed(3);
+    hint.style.opacity = (1 - clamp(p / 0.05, 0, 1)).toFixed(3);
+
+    // Page 2: glass rises from p 0.5, holds while h = 0, then leaves as the brown comes up.
+    if (h > .02 && glass.classList.contains('is-typing')) { typingMode(false); queryInput.blur(); }
+    var ex = ease(clamp(h / 0.4, 0, 1));
+    var g = ease(clamp((p - 0.5) / 0.35, 0, 1));
+    glass.style.opacity = (g * (1 - ex)).toFixed(3);
+    glass.style.transform = 'translateY(' + ((1 - g) * 5 - ex * 6).toFixed(2) + '%) scale(' + (0.97 + 0.03 * g - 0.03 * ex).toFixed(4) + ')';
+    var bl = 'blur(' + (g * 22).toFixed(1) + 'px)';
+    glass.style.backdropFilter = bl; glass.style.webkitBackdropFilter = bl;
+    glass.style.visibility = (g * (1 - ex)) > 0.01 ? 'visible' : 'hidden';
+    glass.style.pointerEvents = (p > 0.9 && ex < 0.4) ? 'auto' : 'none';
+    var a = ease(clamp((p - 0.78) / 0.17, 0, 1));
+    ask.style.opacity = a.toFixed(3);
+    ask.style.transform = 'translateY(' + ((1 - a) * 16).toFixed(1) + 'px)';
+
+    // Transition: the grainy triangle rises (h 0.08 to 0.70), then My Work arrives on top of it (h 0.55 to 1).
+    drawDusk(ease(clamp((h - 0.08) / 0.62, 0, 1)));
+    var rv = clamp((h - 0.55) / 0.45, 0, 1);
+    var e1 = ease(clamp(rv / 0.5, 0, 1));
+    var e2 = ease(clamp((rv - 0.15) / 0.6, 0, 1));
+    var e3 = ease(clamp((rv - 0.6) / 0.4, 0, 1));
+    wTitle.style.opacity = e1.toFixed(3);
+    wTitle.style.transform = 'translateY(' + ((1 - e1) * 36).toFixed(1) + 'px)';
+    wCar.style.opacity = e2.toFixed(3);
+    wCar.style.transform = 'translateY(' + ((1 - e2) * 70).toFixed(1) + 'px) scale(' + (0.94 + 0.06 * e2).toFixed(4) + ')';
+    document.getElementById('workBrowse').style.opacity = e3.toFixed(3);
+    works.style.visibility = rv > 0 ? 'visible' : 'hidden';
+    works.style.pointerEvents = h >= .999 ? 'auto' : 'none';
+    works.classList.toggle('is-ready', h >= .999);
+  }
+
+  function geometry() {
+    var y = window.scrollY, vh = window.innerHeight;
+    var H = track.getBoundingClientRect().top + y;
+    // Use the actual sticky viewport so mobile browser chrome does not shorten a hold.
+    var unit = document.getElementById('stage').offsetHeight;
+    var start = H + unit * 0.8;
+    var A = start + unit * 3;
+    var workStart = A + unit;
+    var B = workStart + unit * 1.5;
+    var C = docEl.scrollHeight - vh;
+    return { y: y, vh: vh, H: H, A: A, B: B, C: C, L: unit * 3,
+      start: start, workStart: workStart, holdLength: unit, transition: unit * 1.5 };
+  }
+
+  function render() {
+    var g = geometry();
+    var p = clamp((g.y - g.start) / g.L, 0, 1);
+    var h = clamp((g.y - g.workStart) / g.transition, 0, 1);
+    if (reduce) { p = p > 0.5 ? 1 : 0; h = h > 0.5 ? 1 : 0; }
+    document.getElementById('stage').style.setProperty('--hero-mouse-weight', (1 - ease(clamp(p / .55, 0, 1))).toFixed(4));
+    document.getElementById('stage').classList.toggle('hero-decor-active', p < .55);
+    apply(p, h);
+    // Spawn and spin with the Ask-to-Work reveal; face forward when the transition ends.
+    var spin = reduce ? 1 : ease(clamp((h - 0.55) / 0.45, 0, 1));
+    var lift = Math.sin(Math.PI * spin);
+    var hold = 0; // No secondary motion after the entry spin finishes.
+    var float = Math.sin(Math.PI * hold);
+    // Foreground card travels farther than its title and pagination, giving the stage depth.
+    var arrival = reduce ? 1 : clamp((h - .55) / .45, 0, 1);
+    var depth = (1 - arrival) * (1 - arrival);
+    wTitle.style.transform = 'translateY(' + (reduce ? 0 : 36 * depth - 10 * hold).toFixed(2) + 'px)';
+    wCar.style.transform = 'translateY(' + (reduce ? 0 : 100 * depth - 30 * hold).toFixed(2) + 'px) scale(' + (reduce ? 1 : .94 + .06 * arrival).toFixed(4) + ')';
+    dotsEl.style.transform = 'translateY(' + (-5 * hold).toFixed(2) + 'px)';
+    workCard.style.transform = 'translateY(' + (-18 * lift - 16 * float).toFixed(2) + 'px) rotateY(' + (360 * spin + 9 * Math.sin(2 * Math.PI * hold)).toFixed(2) + 'deg) rotateX(' + (12 * lift - 6 * float).toFixed(2) + 'deg) rotateZ(' + (-7 * Math.sin(2 * Math.PI * spin) + 2 * float).toFixed(2) + 'deg) scale(' + (1 - .09 * lift + .025 * float).toFixed(4) + ')';
+    // Faint trailing silhouettes live behind the card and vanish at both ends of entry.
+    var trailEnvelope = reduce ? 0 : Math.pow(Math.sin(Math.PI * spin), 1.5);
+    for (var trailIndex = 0; trailIndex < cardTrails.length; trailIndex++) {
+      var lag = trailIndex === 0 ? .07 : .035;
+      var trailSpin = clamp(spin - lag, 0, 1);
+      cardTrails[trailIndex].style.opacity = (trailEnvelope * (trailIndex === 0 ? .10 : .18)).toFixed(3);
+      cardTrails[trailIndex].style.transform = 'translateX(' + (-trailEnvelope * (trailIndex === 0 ? 26 : 13)).toFixed(2) + 'px) translateY(' + (-18 * Math.sin(Math.PI * trailSpin)).toFixed(2) + 'px) rotateY(' + (360 * trailSpin).toFixed(2) + 'deg) rotateX(' + (12 * Math.sin(Math.PI * trailSpin)).toFixed(2) + 'deg) rotateZ(' + (-7 * Math.sin(2 * Math.PI * trailSpin)).toFixed(2) + 'deg) scale(' + (1 - .09 * Math.sin(Math.PI * trailSpin)).toFixed(4) + ')';
+    }
+    var shine = hold > 0 ? hold : spin;
+    workCard.style.setProperty('--shine-x', (-140 + 280 * shine).toFixed(2) + '%');
+    workCard.style.setProperty('--shine-opacity', (.85 * Math.sin(Math.PI * shine)).toFixed(3));
+    var cTop = contact.getBoundingClientRect().top, cH = contact.offsetHeight;
+    var aboutTop = document.getElementById('aboutPage').getBoundingClientRect().top;
+    nav.classList.toggle('on-dark', h > .7 && aboutTop > 35);
+    var activeNav = aboutTop <= g.vh * .35 ? '#about' : g.y >= g.workStart ? '#work' : '#home';
+    nav.querySelectorAll('a[href="#home"],a[href="#work"],a[href="#about"]').forEach(function (link) {
+      if (link.getAttribute('href') === activeNav && cTop > 0) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+    var t2 = ease(clamp(1 - cTop / (g.vh * 0.6), 0, 1));
+    contactIn.style.opacity = reduce ? '1' : (0.1 + 0.9 * t2).toFixed(3);
+    contactIn.style.transform = reduce ? '' : 'translateY(' + ((1 - t2) * 40).toFixed(1) + 'px)';
+  }
+
+  /* Native wheel, touch and keyboard scrolling keep every transition scrubbable.
+     No idle snapping: stopping your gesture stops the visual at that exact point. */
+  function goTo(target) {
+    clearTimeout(navigationTimer);
+    navigationTarget = target;
+    navigationTimer = setTimeout(function () { navigationTarget = null; }, 2200);
+    deckReleased = target > geometry().B + 2;
+    window.scrollTo({ top: target, behavior: reduce ? 'instant' : 'smooth' });
+  }
+  var ticking = false;
+  function onScroll() {
+    var bounds = geometry();
+    if (navigationTarget !== null && Math.abs(bounds.y - navigationTarget) < 2) {
+      navigationTarget = null;
+      clearTimeout(navigationTimer);
+    }
+    if (navigationTarget === null && bounds.y < bounds.B - 20) { deckReleased = false; deckLanded = false; }
+    if (navigationTarget === null && !deckReleased && !deckLanded && bounds.y >= bounds.B - 2) {
+      deckLanded = true;
+      deckLandingUntil = performance.now() + 650;
+      deckWheelUsed = true;
+      deckWheelLast = performance.now();
+      window.scrollTo(0, bounds.B);
+    }
+    // Catch native momentum, touch flings and scrollbar jumps before they skip the deck.
+    if (navigationTarget === null && !deckReleased && bounds.y > bounds.B) {
+      window.scrollTo(0, bounds.B);
+      deckWheelUsed = true;
+      deckWheelLast = performance.now();
+    }
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { ticking = false; render(); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', function () { sizeDusk(); onScroll(); });
+  sizeDusk();
+  render();
+
+  /* ---------- nav ---------- */
+  function navTo(sel, pick) {
+    document.querySelector('a[href="' + sel + '"]').addEventListener('click', function (e) {
+      e.preventDefault();
+      goTo(pick(geometry()));
+    });
+  }
+  navTo('#work', function (s) { return s.B; });
+  navTo('#home', function (s) { return s.H; });
+  navTo('#about', function (s) { return document.getElementById('aboutPage').getBoundingClientRect().top + window.scrollY; });
+  navTo('#contact', function (s) { return s.C; });
+
+  /* ---------- ask field ---------- */
+  var chatFocusTimer = 0;
+  var askDialog = document.getElementById('askDialog');
+  var dialogMessages = document.getElementById('dialogMessages');
+  var dialogQuestion = document.getElementById('dialogQuestion');
+  function portfolioReply(question) {
+    if (/focus|approach|design direction|设计方向/i.test(question)) return 'I’m an interaction designer with a background in product design, pursuing an MFA in Interactive Design at SCAD. My interests sit at the intersection of AI experiences, embodied interaction, and creative technology.';
+    if (/start|which project|推荐/i.test(question)) return 'Start with “Moving toward feeling,” the touchless kitchen tablet interaction concept in My Work. It introduces the kind of interaction experiences I explore.';
+    if (/role|contribution|职责/i.test(question) && !/looking|opportunit/i.test(question)) return 'This preview introduces the projects, but detailed role and contribution breakdowns have not been added yet. The full case studies will provide that context.';
+    if (/tool|prototyp|工具/i.test(question)) return 'Interaction prototyping is part of my practice. The detailed tools and implementation notes for these projects have not been added to this preview yet.';
+    if (/opportunit|looking|collaborat|求职/i.test(question)) return 'For current role interests, availability, or collaboration opportunities, please get in touch. Those details are still being finalized for this portfolio.';
+    if (/contact|resume|email|联系|简历/i.test(question)) return 'You can find the Contact section at the end of the portfolio. The final email address and resume link are still being updated in this preview.';
+    return 'This preview currently covers the suggested portfolio questions. More detailed answers will be added with the full project case studies.';
+  }
+  function addExchange(question) {
+    [['user', question], ['reply', portfolioReply(question)]].forEach(function (item) {
+      var message = document.createElement('p');
+      message.className = 'chat-message chat-message--' + item[0];
+      message.textContent = item[1];
+      dialogMessages.appendChild(message);
+    });
+    dialogMessages.scrollTop = dialogMessages.scrollHeight;
+  }
+  function openConversation(question) {
+    typingMode(false);
+    queryInput.blur();
+    dialogMessages.replaceChildren();
+    dialogQuestion.value = '';
+    glass.classList.add('is-chat');
+    ask.inert = true;
+    queryInput.value = question;
+    askSuggestions.inert = true;
+    askDialog.inert = false;
+    askDialog.setAttribute('aria-hidden', 'false');
+    addExchange(question);
+    clearTimeout(chatFocusTimer);
+    chatFocusTimer = setTimeout(function () {
+      if (glass.classList.contains('is-chat')) document.getElementById('dialogClose').focus({ preventScroll: true });
+    }, reduce ? 0 : 950);
+  }
+  function closeConversation() {
+    clearTimeout(chatFocusTimer);
+    askDialog.inert = true;
+    askDialog.setAttribute('aria-hidden', 'true');
+    glass.classList.remove('is-chat');
+    ask.inert = false;
+    typingMode(false);
+    askSuggestions.querySelector('button').focus({ preventScroll: true });
+  }
+  document.getElementById('dialogClose').addEventListener('click', closeConversation);
+  askDialog.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { e.preventDefault(); closeConversation(); }
+  });
+  document.getElementById('dialogCompose').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var question = dialogQuestion.value.trim();
+    if (!question) return;
+    addExchange(question);
+    dialogQuestion.value = '';
+    dialogQuestion.focus({ preventScroll: true });
+  });
+  var queryInput = document.getElementById('q');
+  var askSuggestions = document.getElementById('askSuggestions');
+  askSuggestions.querySelectorAll('.suggestion-chip').forEach(function (button) {
+    button.addEventListener('click', function () {
+      queryInput.value = button.dataset.question;
+      document.getElementById('note').textContent = '';
+      queryInput.dispatchEvent(new Event('input', { bubbles: true }));
+      openConversation(button.dataset.question);
+    });
+  });
+  var askKeyboard = document.getElementById('askKeyboard');
+  function typingMode(open) {
+    open = open && !glass.classList.contains('is-chat');
+    if (!open) clearKeyboardFeedback();
+    glass.classList.toggle('is-typing', open);
+    askSuggestions.inert = open || glass.classList.contains('is-chat');
+    askSuggestions.setAttribute('aria-hidden', open ? 'true' : 'false');
+    askKeyboard.setAttribute('aria-hidden', open ? 'false' : 'true');
+    askKeyboard.inert = !open;
+    queryInput.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  function keyboardKey(label, value, css) {
+    var key = document.createElement('button');
+    key.type = 'button'; key.className = 'keyboard-key' + (css ? ' keyboard-key--' + css : '');
+    key.textContent = label;
+    key.dataset.key = value;
+    key.addEventListener('pointerdown', function (e) { e.preventDefault(); });
+    key.addEventListener('click', function () {
+      queryInput.focus({ preventScroll: true });
+      pulseKey(key);
+      if (value === 'shift') { virtualShift = !virtualShift; updateKeyCase(virtualShift); return; }
+      if (value === 'enter') { ask.requestSubmit(); return; }
+      var start = queryInput.selectionStart, end = queryInput.selectionEnd;
+      if (value === 'backspace') {
+        if (start === end && start > 0) start--;
+        queryInput.setRangeText('', start, end, 'end');
+      } else queryInput.setRangeText(virtualShift ? value.toUpperCase() : value, start, end, 'end');
+      if (virtualShift) { virtualShift = false; updateKeyCase(false); }
+      queryInput.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    return key;
+  }
+  ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'].forEach(function (letters) {
+    var row = document.createElement('div'); row.className = 'keyboard-row';
+    if (letters === 'ZXCVBNM') row.appendChild(keyboardKey('SHIFT', 'shift', 'wide'));
+    letters.split('').forEach(function (letter) { row.appendChild(keyboardKey(letter, letter.toLowerCase())); });
+    askKeyboard.appendChild(row);
+  });
+  var bottomRow = document.createElement('div'); bottomRow.className = 'keyboard-row';
+  bottomRow.appendChild(keyboardKey('DELETE', 'backspace', 'wide'));
+  bottomRow.appendChild(keyboardKey('SPACE', ' ', 'space'));
+  bottomRow.appendChild(keyboardKey('ASK ↵', 'enter', 'wide'));
+  askKeyboard.appendChild(bottomRow);
+  var virtualShift = false, keyFeedbackTimer = 0;
+  var releaseTimers = new Map();
+  function pulseKey(key) {
+    clearTimeout(releaseTimers.get(key));
+    key.classList.add('is-pressed');
+    releaseTimers.set(key, setTimeout(function () { key.classList.remove('is-pressed'); releaseTimers.delete(key); }, 180));
+  }
+  function updateKeyCase(upper) {
+    askKeyboard.querySelectorAll('[data-key]').forEach(function (key) {
+      if (/^[a-z]$/.test(key.dataset.key)) key.textContent = upper ? key.dataset.key.toUpperCase() : key.dataset.key.toLowerCase();
+      if (key.dataset.key === 'shift') key.classList.toggle('is-modifier', upper);
+    });
+  }
+  function clearKeyboardFeedback() {
+    if (!askKeyboard) return;
+    releaseTimers && releaseTimers.forEach(function (timer) { clearTimeout(timer); });
+    if (releaseTimers) releaseTimers.clear();
+    askKeyboard.querySelectorAll('.is-pressed, .is-modifier').forEach(function (key) { key.classList.remove('is-pressed', 'is-modifier'); });
+    ask.classList.remove('is-keying');
+    virtualShift = false;
+  }
+  function keyForEvent(e) {
+    var value = /^Key[A-Z]$/.test(e.code) ? e.code.slice(3).toLowerCase()
+      : e.code === 'Space' ? ' ' : e.key === 'Backspace' ? 'backspace'
+      : e.key === 'Enter' ? 'enter' : e.key === 'Shift' || e.key === 'CapsLock' ? 'shift' : e.key.toLowerCase();
+    return Array.prototype.find.call(askKeyboard.querySelectorAll('[data-key]'), function (key) { return key.dataset.key === value; });
+  }
+  queryInput.addEventListener('keydown', function (e) {
+    if (!glass.classList.contains('is-typing')) return;
+    var key = keyForEvent(e);
+    if (key) {
+      clearTimeout(releaseTimers.get(key));
+      key.classList.add('is-pressed');
+    }
+    updateKeyCase(e.shiftKey !== Boolean(e.getModifierState('CapsLock')));
+  });
+  window.addEventListener('keyup', function (e) {
+    var key = keyForEvent(e);
+    if (key) pulseKey(key);
+    if (document.activeElement === queryInput) updateKeyCase(e.shiftKey !== Boolean(e.getModifierState('CapsLock')));
+  });
+  queryInput.addEventListener('input', function () {
+    if (!glass.classList.contains('is-typing')) return;
+    ask.classList.add('is-keying');
+    clearTimeout(keyFeedbackTimer);
+    keyFeedbackTimer = setTimeout(function () { ask.classList.remove('is-keying'); }, 160);
+  });
+  window.addEventListener('blur', clearKeyboardFeedback);
+  queryInput.addEventListener('focus', function () { typingMode(true); });
+  glass.addEventListener('focusout', function (e) { if (!glass.contains(e.relatedTarget)) typingMode(false); });
+  document.addEventListener('pointerdown', function (e) {
+    if (!glass.contains(e.target)) { typingMode(false); queryInput.blur(); }
+  });
+  queryInput.addEventListener('keydown', function (e) { if (e.key === 'Escape') { typingMode(false); queryInput.blur(); } });
+  var note = document.getElementById('note');
+  ask.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var question = queryInput.value.trim();
+    if (question) openConversation(question);
+    else queryInput.focus({ preventScroll: true });
+  });
+
+  /* ---------- contact: copy the address ---------- */
+  var mail = document.getElementById('mail');
+  var addr = document.getElementById('addr');
+  var copyLabel = document.getElementById('copyLabel');
+  mail.addEventListener('click', function () {
+    var text = addr.textContent;
+    function done(ok) {
+      copyLabel.textContent = ok ? 'Copied' : 'Select';
+      setTimeout(function () { copyLabel.textContent = 'Copy'; }, 1600);
+    }
+    function fallback() {
+      try {
+        var r = document.createRange(); r.selectNodeContents(addr);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      } catch (err) {}
+      done(false);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, fallback);
+    } else { fallback(); }
+  });
+
+  /* ---------- carousel ---------- */
+  var slides = document.getElementById('slides');
+  var count = slides.children.length, idx = 0, dots = [];
+  var cardMoving = false, cardTimer = 0, cardFinishedAt = -Infinity;
+  for (var d = 0; d < count; d++) {
+    (function (n) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.setAttribute('aria-label', 'Go to project ' + (n + 1));
+      b.addEventListener('click', function () { go(n); });
+      dotsEl.appendChild(b); dots.push(b);
+    })(d);
+  }
+  function updateCards() {
+    document.getElementById('browseCount').textContent = String(idx + 1).padStart(2, '0') + ' / ' + String(count).padStart(2, '0');
+    workCard.setAttribute('aria-busy', cardMoving ? 'true' : 'false');
+    dots.forEach(function (b, k) {
+      b.disabled = cardMoving;
+      b.setAttribute('aria-current', k === idx ? 'true' : 'false');
+    });
+    Array.prototype.forEach.call(slides.children, function (slide, k) {
+      slide.setAttribute('aria-hidden', k === idx ? 'false' : 'true');
+      slide.inert = k !== idx;
+    });
+  }
+  function unlockCard() {
+    clearTimeout(cardTimer);
+    cardMoving = false;
+    cardFinishedAt = performance.now();
+    // Release input with the animation, even if the trackpad keeps sending tiny tail events.
+    wheelTotal = 0;
+    deckWheelTotal = 0;
+    updateCards();
+  }
+  function go(n) {
+    if (cardMoving || geometry().y < geometry().B - 2) return;
+    n = clamp(n, 0, count - 1);
+    if (n === idx) { updateCards(); return; }
+    idx = n;
+    cardMoving = !reduce;
+    slides.style.transform = 'translateX(' + (-idx * 100) + '%)';
+    updateCards();
+    // Safety release if the browser cancels or omits transitionend.
+    if (cardMoving) cardTimer = setTimeout(unlockCard, 750);
+  }
+  slides.addEventListener('transitionend', function (e) {
+    if (e.target === slides && e.propertyName === 'transform') unlockCard();
+  });
+  slides.addEventListener('transitioncancel', function (e) {
+    if (e.target === slides && e.propertyName === 'transform') unlockCard();
+  });
+
+  // Snap full cards. Ignore the tail of a consumed gesture, and rearm on a new gesture.
+  var wheelTotal = 0, deckWheelTotal = 0, deckWheelUsed = true, deckWheelLast = -Infinity;
+  var previousWheelMagnitude = 0;
+  function inCardStage() {
+    var g = geometry();
+    return g.y >= g.B - 2 && g.y <= g.B + g.holdLength + 2;
+  }
+  window.addEventListener('wheel', function (e) {
+    if (e.ctrlKey || !inCardStage()) return;
+    var horizontal = e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY);
+    if (horizontal && !wCar.contains(e.target)) return;
+    var delta = horizontal ? (e.shiftKey && Math.abs(e.deltaX) < 1 ? e.deltaY : e.deltaX) : e.deltaY;
+    if (!delta) return;
+    var now = performance.now();
+    var magnitude = Math.abs(delta);
+    // Tiny momentum events must not keep the gesture locked forever.
+    if (magnitude < 4) { if (e.cancelable) e.preventDefault(); return; }
+    var gap = now - deckWheelLast;
+    var freshPush = !cardMoving && now - cardFinishedAt > 150 && magnitude >= 12 && magnitude > previousWheelMagnitude * 1.8;
+    deckWheelLast = now;
+    previousWheelMagnitude = magnitude;
+    if (now < deckLandingUntil || cardMoving) {
+      if (e.cancelable) e.preventDefault();
+      deckWheelUsed = true;
+      deckWheelTotal = 0;
+      return;
+    }
+    if (gap > 120 || freshPush) { deckWheelUsed = false; deckWheelTotal = 0; }
+    if (deckWheelUsed) { if (e.cancelable) e.preventDefault(); return; }
+    var direction = delta > 0 ? 1 : -1;
+    if (!horizontal && ((direction > 0 && idx === count - 1) || (direction < 0 && idx === 0))) {
+      if (direction > 0) deckReleased = true;
+      return;
+    }
+    if (e.cancelable) e.preventDefault();
+    delta *= e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 240 : 1;
+    if (deckWheelTotal * delta < 0) deckWheelTotal = 0;
+    deckWheelTotal += delta;
+    if (Math.abs(deckWheelTotal) >= 22) {
+      deckWheelUsed = true;
+      deckWheelTotal = 0;
+      go(idx + direction);
+    }
+  }, { passive: false });
+
+  var deckTouch = null;
+  window.addEventListener('touchstart', function (e) {
+    deckTouch = inCardStage() && e.touches.length === 1
+      ? { x: e.touches[0].clientX, y: e.touches[0].clientY, axis: '', used: cardMoving || performance.now() < deckLandingUntil } : null;
+  }, { passive: true });
+  window.addEventListener('touchmove', function (e) {
+    if (!deckTouch || e.touches.length !== 1) return;
+    var dx = deckTouch.x - e.touches[0].clientX, dy = deckTouch.y - e.touches[0].clientY;
+    if (!deckTouch.axis && Math.max(Math.abs(dx), Math.abs(dy)) > 8)
+      deckTouch.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+    if (!deckTouch.axis) return;
+    if (deckTouch.used || cardMoving) { if (e.cancelable) e.preventDefault(); return; }
+    var distance = deckTouch.axis === 'x' ? dx : dy;
+    var direction = distance > 0 ? 1 : -1;
+    if (deckTouch.axis === 'y' && ((direction > 0 && idx === count - 1) || (direction < 0 && idx === 0))) {
+      if (direction > 0) deckReleased = true;
+      return;
+    }
+    if (e.cancelable) e.preventDefault();
+    if (Math.abs(distance) >= 28) { deckTouch.used = true; go(idx + direction); }
+  }, { passive: false });
+  window.addEventListener('touchend', function () { deckTouch = null; }, { passive: true });
+  window.addEventListener('touchcancel', function () { deckTouch = null; }, { passive: true });
+  window.addEventListener('keydown', function (e) {
+    if (!inCardStage() || e.altKey || e.ctrlKey || e.metaKey ||
+      (e.target.closest && e.target.closest('input,textarea,select,button,a,[contenteditable]'))) return;
+    var direction = e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey) ? 1
+      : e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey) ? -1 : 0;
+    if (!direction) return;
+    if (direction > 0 && idx === count - 1 && !cardMoving) deckReleased = true;
+    if (cardMoving || (direction > 0 && idx < count - 1) || (direction < 0 && idx > 0)) {
+      e.preventDefault();
+      if (!e.repeat) go(idx + direction);
+    }
+  });
+  // Pointer motion lives on the image frame, independently of the plate's scroll zoom.
+  if (!reduce && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    var pointerStage = document.getElementById('stage');
+    var pointerTarget = { x: 0, y: 0, lightX: innerWidth / 2, lightY: innerHeight / 2, visible: 0 };
+    var pointerCurrent = { x: 0, y: 0, lightX: innerWidth / 2, lightY: innerHeight / 2, visible: 0 };
+    var pointerFrame = 0;
+    var cursorLayer = document.createElement('div');
+    cursorLayer.className = 'hand-cursor'; cursorLayer.setAttribute('aria-hidden', 'true');
+    var cursorTail = [];
+    for (var tailIndex = 0; tailIndex < 22; tailIndex++) {
+      var tail = document.createElement('i'); tail.className = 'hand-cursor-trail';
+      cursorLayer.appendChild(tail);
+      cursorTail.push({ element: tail, x: innerWidth / 2, y: innerHeight / 2 });
+    }
+    var cursorCore = document.createElement('div'); cursorCore.className = 'hand-cursor-core';
+    cursorLayer.appendChild(cursorCore); document.body.appendChild(cursorLayer);
+    var contactAmount = 0;
+
+    function drawHeroPointer() {
+      var unsettled = false;
+      Object.keys(pointerCurrent).forEach(function (key) {
+        var difference = pointerTarget[key] - pointerCurrent[key];
+        pointerCurrent[key] += difference * .085;
+        if (Math.abs(difference) > .015) unsettled = true;
+      });
+      pointerStage.style.setProperty('--hero-mouse-x', pointerCurrent.x.toFixed(3) + 'px');
+      pointerStage.style.setProperty('--hero-mouse-y', pointerCurrent.y.toFixed(3) + 'px');
+      pointerStage.style.setProperty('--hero-light-x', pointerCurrent.lightX.toFixed(2) + 'px');
+      pointerStage.style.setProperty('--hero-light-y', pointerCurrent.lightY.toFixed(2) + 'px');
+      pointerStage.style.setProperty('--hero-pointer-visible', pointerCurrent.visible.toFixed(4));
+      var weight = parseFloat(pointerStage.style.getPropertyValue('--hero-mouse-weight') || '1');
+      var cursorVisible = weight > .1 && pointerCurrent.visible > .05;
+      cursorLayer.classList.toggle('is-visible', cursorVisible);
+      document.body.classList.toggle('has-hand-cursor', cursorVisible);
+      var mouseX = pointerTarget.lightX, mouseY = pointerTarget.lightY;
+      var handBounds = plate.getBoundingClientRect();
+      // Index fingertip, measured from the artwork: approximately (289, 200) in 1024 × 640.
+      var fingerX = handBounds.left + handBounds.width * .282;
+      var fingerY = handBounds.top + handBounds.height * .313;
+      var distance = Math.hypot(mouseX - fingerX, mouseY - fingerY);
+      var touching = cursorVisible && distance < (contactAmount > .5 ? 78 : 60);
+      contactAmount += ((touching ? 1 : 0) - contactAmount) * .12;
+      if (Math.abs(contactAmount - (touching ? 1 : 0)) > .005) unsettled = true;
+      cursorLayer.classList.toggle('is-touching', touching);
+      cursorCore.style.transform = 'translate3d(' + mouseX + 'px,' + mouseY + 'px,0) rotate(' + (contactAmount * 32).toFixed(2) + 'deg)';
+      var trailX = mouseX, trailY = mouseY;
+      cursorTail.forEach(function (point, index) {
+        var follow = .27 - contactAmount * .12;
+        point.x += (trailX - point.x) * follow;
+        point.y += (trailY - point.y) * follow;
+        if (Math.abs(trailX - point.x) + Math.abs(trailY - point.y) > .1) unsettled = true;
+        var scale = (1 - index / 23) * (1.05 + contactAmount * 1.2);
+        point.element.style.transform = 'translate3d(' + point.x.toFixed(2) + 'px,' + point.y.toFixed(2) + 'px,0) scale(' + scale.toFixed(3) + ')';
+        point.element.style.opacity = ((1 - index / 22) * (.66 + contactAmount * .25)).toFixed(3);
+        trailX = point.x; trailY = point.y;
+      });
+      pointerFrame = unsettled ? requestAnimationFrame(drawHeroPointer) : 0;
+    }
+    function queueHeroPointer() { if (!pointerFrame) pointerFrame = requestAnimationFrame(drawHeroPointer); }
+    window.addEventListener('pointermove', function (e) {
+      if (document.documentElement.hasAttribute('data-intro') || e.pointerType !== 'mouse' || window.scrollY > geometry().start + geometry().L * .55) return;
+      pointerTarget.x = (e.clientX / innerWidth - .5) * 100;
+      pointerTarget.y = (e.clientY / innerHeight - .5) * 70;
+      pointerTarget.lightX = e.clientX;
+      pointerTarget.lightY = e.clientY;
+      pointerTarget.visible = 1;
+      queueHeroPointer();
+    }, { passive: true });
+    function resetHeroPointer() {
+      pointerTarget.x = 0; pointerTarget.y = 0; pointerTarget.visible = 0;
+      queueHeroPointer();
+    }
+    document.documentElement.addEventListener('pointerleave', resetHeroPointer);
+    window.addEventListener('blur', resetHeroPointer);
+    window.addEventListener('scroll', queueHeroPointer, { passive: true });
+  }
+  // Ambient coordinate telemetry evolves on its own, at a fixed screen position.
+  var heroTimeFormat = new Intl.DateTimeFormat('en-GB', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  function updateHeroCoordinates() {
+    if (document.hidden || !document.getElementById('stage').classList.contains('hero-decor-active')) return;
+    document.getElementById('heroClock').textContent = 'T ' + heroTimeFormat.format(new Date()) + '.' + String(new Date().getMilliseconds()).padStart(3, '0');
+    if (reduce) return;
+    var seconds = performance.now() / 1000;
+    var latitude = 35.6762 + Math.sin(seconds * 4.7) * .085 + Math.sin(seconds * 13.1) * .014 + Math.sin(seconds * 39.7) * .002;
+    var longitude = 139.6503 + Math.cos(seconds * 3.9) * .12 + Math.sin(seconds * 11.3) * .019 + Math.cos(seconds * 35.3) * .003;
+    document.getElementById('heroCoordX').textContent = latitude.toFixed(6) + '° N';
+    document.getElementById('heroCoordY').textContent = longitude.toFixed(6) + '° E';
+  }
+  updateHeroCoordinates();
+  setInterval(updateHeroCoordinates, reduce ? 1000 : 33);
+  var localeText = {
+    'Available for job': '开放工作机会', 'Work': '作品', 'About': '关于',
+    'Interaction Designer': '交互设计师', 'Human design system / Emerging technology': '以人为本的设计 / 新兴技术',
+    'Scroll / Explore': '滚动探索', 'My Work': '我的作品', 'SCROLL TO EXPLORE': '滚动浏览作品',
+    'A FEW PLACES TO START': '你可能想了解', 'Your design focus': '你的设计方向',
+    'Where should I start?': '推荐先看哪个项目？', 'Your role in the project': '你在项目中的职责',
+    'Prototyping & tools': '原型与工具', 'Roles & opportunities': '求职与合作', 'Contact & resume': '联系与简历',
+    'Ask Zhaolin': '与 Zhaolin 对话', 'PORTFOLIO Q&A / PREVIEW': '作品集问答 / 预览',
+    'SEND ↗': '发送 ↗', 'Contact': '联系', "Let's make it happen.": '一起让想法落地。',
+    'Moving toward feeling': '向感知靠近', 'Touchless kitchen tablet. Interaction concept.': '免触控厨房平板 · 交互概念',
+    'An experience-based concept.': '以体验为核心的概念探索。'
+  };
+  var localizedNodes = [];
+  var textWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  while (textWalker.nextNode()) {
+    var textNode = textWalker.currentNode;
+    var original = textNode.textContent.trim();
+    if (localeText[original]) localizedNodes.push({ node: textNode, en: textNode.textContent, zh: textNode.textContent.replace(original, localeText[original]) });
+  }
+  document.getElementById('navLanguage').addEventListener('change', function (e) {
+    var chinese = e.target.value === 'zh';
+    document.documentElement.lang = chinese ? 'zh-CN' : 'en';
+    localizedNodes.forEach(function (item) { item.node.textContent = chinese ? item.zh : item.en; });
+    queryInput.placeholder = chinese ? '你想了解 Zhaolin 的什么？' : 'Ask anything about Zhaolin';
+    dialogQuestion.placeholder = chinese ? '继续提问…' : 'Ask a follow-up question…';
+  });
+  // A brief opening sequence, once per tab session. It never waits for remote assets.
+  if (document.documentElement.hasAttribute('data-intro')) {
+    var opening = document.getElementById('opening');
+    var openingSkip = document.getElementById('openingSkip');
+    var openingFinished = false;
+    var openingSurfaces = [nav, track, document.getElementById('aboutPage'), contact];
+    openingSurfaces.forEach(function (element) { element.inert = true; });
+    openingSkip.focus({ preventScroll: true });
+    var openingTick = setInterval(function () {
+      var time = performance.now() / 1000;
+      document.getElementById('openingCoordinates').textContent = (35.6762 + Math.sin(time * 5) * .08).toFixed(6) + '° N / ' + (139.6503 + Math.cos(time * 4) * .12).toFixed(6) + '° E';
+    }, 50);
+    function finishOpening() {
+      if (openingFinished) return;
+      openingFinished = true;
+      clearInterval(openingTick);
+      clearTimeout(openingAuto);
+      try { sessionStorage.setItem('zhaolin-intro-seen','1'); } catch(e) {}
+      document.documentElement.setAttribute('data-intro','leaving');
+      setTimeout(function () {
+        document.documentElement.removeAttribute('data-intro');
+        openingSurfaces.forEach(function (element) { element.inert = false; });
+        opening.remove();
+        nav.querySelector('.nav-brand').focus({ preventScroll: true });
+      }, 880);
+    }
+    var openingAuto = setTimeout(finishOpening, 1800);
+    openingSkip.addEventListener('click', finishOpening);
+    opening.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') finishOpening();
+      if (e.key === 'Tab') { e.preventDefault(); openingSkip.focus(); }
+    });
+  } else document.getElementById('opening').remove();
+  updateCards();
+})();
+</script>
+
+</body></html>

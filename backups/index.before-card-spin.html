@@ -1,0 +1,527 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Zhaolin Hu Portfolio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Michroma&family=Manrope:wght@400;500;600&display=swap">
+<style>
+  /* Layout: one pinned stage holds three pages (hero, Ask glass, My Work) and is driven by scroll.
+     Each page has a reading hold; transitions follow native scroll position in both directions. */
+  :root {
+    --fog: #eeece9;
+    --ink: #45372d;
+    --ink-soft: #75685f;
+    --brown: #4b3f33;
+    --cream: #efe8df;
+    --card: #b4afa8;
+
+    --display: "Michroma", "Eurostile", Arial, sans-serif;
+    --body: "Manrope", "Helvetica Neue", Arial, sans-serif;
+    --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    --W: max(100vw, 160svh);
+    --focal: 0.36;
+    --L: min(0px, max(calc(100vw - var(--W)), calc(50vw - var(--focal) * var(--W))));
+    --nl: calc(var(--L) + var(--W) * 0.40);
+    --fs: min(calc(var(--W) * 0.058), calc((100vw - var(--nl) - 24px) / 8.9));
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--fog); }
+  body { margin: 0; background: var(--fog); color: var(--ink); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  .track { position: relative; height: 830svh; } /* Hero hold 80, scrub 300, Ask hold 100, dusk scrub 150, Work hold 100, viewport 100. */
+  .stage { position: sticky; top: 0; height: 100svh; width: 100%; overflow: hidden; background: var(--fog); }
+  .frame { position: absolute; left: var(--L); top: 50%; width: var(--W); aspect-ratio: 1024 / 640; transform: translateY(-50%); }
+  .plate { position: absolute; inset: 0; transform-origin: 20% 60%; will-change: transform; }
+  .plate img, .plate video { display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; user-select: none; -webkit-user-drag: none; }
+  .glow {
+    position: absolute; left: 37%; top: 48.5%; width: 16%; aspect-ratio: 1; margin: -8% 0 0 -8%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(255,170,160,.75), rgba(255,190,180,.28) 55%, rgba(255,200,190,0));
+    mix-blend-mode: multiply; opacity: 0; pointer-events: none;
+  }
+
+  /* hero furniture */
+  .deco { position: absolute; inset: 0; pointer-events: none; color: var(--ink-soft); }
+  .coords { position: absolute; left: 6.7%; top: 26%; font-family: var(--mono); font-size: clamp(9px, .72vw, 11px); letter-spacing: .12em; line-height: 1.5; }
+  .sq { position: absolute; left: 6.7%; top: 40%; width: 2.8%; aspect-ratio: 1; background: rgba(243,170,166,.55); box-shadow: 0 0 40px 18px rgba(255,170,165,.3); }
+  .vl { position: absolute; left: 8.1%; top: 38%; height: 24%; width: 1px; background: rgba(69,55,45,.22); }
+  .x { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; }
+  .x::before, .x::after { content: ""; position: absolute; background: rgba(69,55,45,.4); }
+  .x::before { left: 0; right: 0; top: 50%; height: 1px; }
+  .x::after { top: 0; bottom: 0; left: 50%; width: 1px; }
+
+  .type { position: absolute; left: var(--nl); top: calc(50% - var(--W) * 0.0719 - var(--fs) * 0.5); color: var(--ink); }
+  .name { margin: 0; font-family: var(--display); font-weight: 400; font-size: var(--fs); line-height: 1; letter-spacing: -0.01em; white-space: nowrap; display: flex; }
+  .name .ch { display: inline-block; will-change: transform, opacity, filter; }
+  .name .sp { display: inline-block; width: 0.34em; }
+  .tag { margin-top: calc(var(--fs) * 0.32); text-align: right; font-family: var(--mono); text-transform: uppercase; letter-spacing: .26em; will-change: opacity; }
+  .tag .role { display: block; font-size: max(12px, calc(var(--fs) * .2)); color: var(--ink); margin-right: -.26em; }
+  .tag .scope { display: block; margin: .7em -.26em 0 0; font-size: max(10px, calc(var(--fs) * .135)); font-weight: 300; color: var(--ink-soft); }
+
+  /* page 2: frosted glass over the same plate */
+  .glass {
+    position: absolute; left: 8.1%; right: 9.5%; top: 16%; bottom: 11%;
+    border-radius: clamp(28px, 5.6vw, 84px);
+    background: rgba(224,222,219,.46);
+    border: 1px solid rgba(255,255,255,.6);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 30px 80px rgba(70,50,40,.12);
+    display: grid; place-items: center; align-content: center; gap: 18px;
+    opacity: 0; visibility: hidden; pointer-events: none;
+  }
+  .ask {
+    width: min(62%, 760px); margin: 0;
+    display: flex; align-items: center;
+    background: rgba(255,255,255,.72);
+    border: 1px solid rgba(255,255,255,.95);
+    border-radius: 999px;
+    box-shadow: 0 10px 30px rgba(70,50,40,.10), inset 0 -1px 0 rgba(70,50,40,.06);
+    padding: 0 clamp(18px, 2.4vw, 34px);
+    height: clamp(46px, 6.6vw, 84px);
+    opacity: 0;
+  }
+  .ask input {
+    width: 100%; min-width: 0; border: 0; background: transparent; outline: none;
+    font-family: var(--display); font-size: clamp(14px, 2.1vw, 28px); color: var(--ink); letter-spacing: -.01em;
+  }
+  .ask input::placeholder { color: var(--ink); opacity: .92; }
+  .ask:focus-within { box-shadow: 0 10px 30px rgba(70,50,40,.10), 0 0 0 2px var(--ink); }
+  .note { margin: 0; min-height: 1.2em; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: var(--ink-soft); text-align: center; padding: 0 16px; }
+
+  /* grainy brown triangle, drawn on a canvas at low resolution so the grain stays coarse */
+  .dusk { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; pointer-events: none; image-rendering: pixelated; }
+
+  /* page 3: My Work lives on the same stage, above the brown, and fades in while the brown rises */
+  .works {
+    position: absolute; inset: 0; z-index: 4;
+    display: flex; flex-direction: column; justify-content: center;
+    padding-block: 11svh 5svh; color: var(--cream);
+    visibility: hidden; pointer-events: none;
+  }
+  .works-in { display: flex; flex-direction: column; gap: clamp(18px, 3svh, 34px); }
+  .works h2 { margin: 0; text-align: center; font-family: var(--display); font-weight: 400; font-size: clamp(22px, 3vw, 40px); letter-spacing: -.01em; will-change: opacity, transform; }
+  .carousel {
+    display: grid; grid-template-columns: minmax(32px, 1fr) minmax(0, 62%) minmax(32px, 1fr); align-items: center;
+    padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px));
+    will-change: opacity, transform;
+  }
+  .arrow { justify-self: center; width: clamp(32px, 6vw, 80px); aspect-ratio: 1; border: 0; background: none; color: var(--cream); cursor: pointer; display: grid; place-items: center; border-radius: 50%; }
+  .arrow svg { width: 52%; height: 100%; fill: none; stroke: currentColor; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+  .arrow:focus-visible { outline: 2px solid var(--cream); outline-offset: 2px; }
+  .arrow[disabled] { opacity: .25; cursor: default; }
+  .viewport { overflow: hidden; border-radius: clamp(24px, 3.6vw, 48px); border: 2px solid rgba(239,232,223,.22); background: var(--card); }
+  .slides { display: flex; transition: transform .6s cubic-bezier(.2,.7,.2,1); }
+  .slide { flex: 0 0 100%; min-width: 0; height: clamp(200px, 52svh, 620px); padding: clamp(18px, 3vw, 40px); display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; color: #2f261f; }
+  .slide b { font-family: var(--body); font-weight: 600; font-size: clamp(18px, 2.4vw, 30px); letter-spacing: -.01em; }
+  .slide span { font-size: clamp(12px, 1.2vw, 15px); color: #4d4238; }
+  .dots { display: flex; justify-content: center; gap: 12px; will-change: opacity; }
+  .dots button { width: 14px; height: 14px; padding: 0; border: 0; border-radius: 50%; background: rgba(239,232,223,.3); cursor: pointer; }
+  .dots button[aria-current="true"] { background: var(--cream); }
+  .dots button:focus-visible { outline: 2px solid var(--cream); outline-offset: 3px; }
+
+  .nav {
+    position: fixed; z-index: 6;
+    top: calc(env(safe-area-inset-top, 0px) + 22px);
+    left: max(24px, env(safe-area-inset-left, 0px));
+    display: flex; gap: 2.4rem;
+    font-family: var(--mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase;
+  }
+  .nav a { color: var(--ink); text-decoration: none; padding: 6px 0; border-bottom: 1px solid transparent; transition: color .25s; }
+  .nav a:hover, .nav a:focus-visible { border-bottom-color: currentColor; outline: none; }
+  .nav.on-dark a { color: var(--cream); }
+
+  .hint {
+    position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 6svh);
+    display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-soft);
+  }
+  .hint i { display: block; width: 1px; height: 38px; background: var(--ink-soft); transform-origin: top; animation: drip 2.4s ease-in-out infinite; }
+  @keyframes drip { 0% { transform: scaleY(0); opacity: 1; } 60% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
+
+  /* contact: brown fades out into fog, the hand comes back faintly behind the words */
+  .contact {
+    position: relative; overflow: hidden; min-height: 150svh;
+    display: flex; align-items: flex-end; justify-content: flex-end;
+    padding-bottom: calc(18svh + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(to bottom, var(--brown) 0, var(--brown) 6svh, var(--fog) 60svh);
+    color: var(--ink);
+  }
+  .contact::before {
+    content: ""; position: absolute; inset: 0;
+    background: url("../assets/images/fog-hand.jpg") 20% 62% / cover no-repeat;
+    mix-blend-mode: multiply; opacity: .85;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 38%, #000 66%);
+    mask-image: linear-gradient(to bottom, transparent 38%, #000 66%);
+  }
+  .contact-in {
+    position: relative; width: min(52%, 720px);
+    margin-right: max(24px, 8vw);
+    display: flex; flex-direction: column; align-items: flex-start; gap: 18px;
+    will-change: opacity, transform;
+  }
+  .contact .eyebrow { margin: 0; font-family: var(--mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-soft); }
+  .contact h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(26px, 4.6vw, 68px); line-height: 1.12; letter-spacing: -.02em; text-wrap: balance; }
+  .contact .lead { margin: 0; font-family: var(--mono); font-size: clamp(12px, 1.1vw, 15px); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-soft); }
+  .mail {
+    display: inline-flex; align-items: center; justify-content: space-between; gap: 24px;
+    max-width: 100%; min-height: clamp(46px, 5.4vw, 70px); padding: 0 clamp(18px, 2.2vw, 30px);
+    background: rgba(255,255,255,.72); border: 1px solid rgba(255,255,255,.95); border-radius: 999px;
+    box-shadow: 0 10px 30px rgba(70,50,40,.10);
+    color: var(--ink); cursor: pointer; font: inherit;
+  }
+  .mail:hover { background: rgba(255,255,255,.9); }
+  .mail:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .mail .addr { font-family: var(--display); font-size: clamp(13px, 1.6vw, 22px); min-width: 0; overflow-wrap: anywhere; text-align: left; }
+  .mail .copy { font-family: var(--mono); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-soft); flex: none; }
+  .note2 { margin: 0; min-height: 1.2em; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--ink-soft); }
+  .foot { position: absolute; left: max(24px, env(safe-area-inset-left, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); margin: 0; font-family: var(--mono); font-size: 11px; letter-spacing: .18em; color: var(--ink-soft); }
+
+  @media (max-aspect-ratio: 1/1) {
+    :root { --focal: 0.25; --fs: 10.4vw; }
+    .type { left: max(24px, env(safe-area-inset-left, 0px)); top: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 17svh); }
+    .tag { text-align: left; }
+    .tag .role, .tag .scope { margin-right: 0; }
+    .tag .role { font-size: 12px; }
+    .tag .scope { font-size: 10px; letter-spacing: .18em; }
+    .deco .coords, .deco .sq, .deco .vl { display: none; }
+    .nav { gap: 1.6rem; }
+    .glass { left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); top: 18svh; bottom: 22svh; }
+    .ask { width: 88%; }
+    .carousel { grid-template-columns: 30px minmax(0, 1fr) 30px; }
+    .arrow { width: 30px; }
+    .contact-in { width: auto; margin-inline: max(24px, env(safe-area-inset-left, 0px)) max(24px, env(safe-area-inset-right, 0px)); }
+    .contact { justify-content: flex-start; }
+    .contact::before { background-position: 22% 40%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hint i { animation: none; }
+    .slides { transition: none; }
+  }
+  a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+</style>
+
+<nav class="nav" id="nav" aria-label="Main">
+  <a href="#work">Work</a>
+  <a href="#about">About</a>
+  <a href="#contact">Contact</a>
+</nav>
+
+<section class="track" id="track" aria-label="Introduction">
+  <div class="stage" id="stage">
+    <div class="frame">
+      <div class="plate" id="plate">
+        <img id="plateImg" src="../assets/images/fog-hand.jpg" alt="A hand pressing softly against fogged glass, lit pink from within" width="1024" height="640" draggable="false">
+        <div class="glow" id="glow"></div>
+      </div>
+    </div>
+
+    <div class="deco" id="deco" aria-hidden="true">
+      <div class="coords">35.6762° N<br>139.6503° E<br>T 16:20:08</div>
+      <div class="sq"></div><div class="vl"></div>
+      <i class="x" style="left:16.5%;top:24%"></i>
+      <i class="x" style="left:8%;top:71%"></i>
+      <i class="x" style="left:95.5%;top:4%"></i>
+      <i class="x" style="left:93.8%;top:54%"></i>
+      <i class="x" style="left:95.5%;top:81%"></i>
+    </div>
+
+    <div class="type" id="about">
+      <h1 class="name" aria-label="Zhaolin Hu"><span class="ch" aria-hidden="true">Z</span><span class="ch" aria-hidden="true">H</span><span class="ch" aria-hidden="true">A</span><span class="ch" aria-hidden="true">O</span><span class="ch" aria-hidden="true">L</span><span class="ch" aria-hidden="true">I</span><span class="ch" aria-hidden="true">N</span><span class="sp" aria-hidden="true"></span><span class="ch" aria-hidden="true">H</span><span class="ch" aria-hidden="true">U</span></h1>
+      <div class="tag" id="tag">
+        <span class="role">Interaction Designer</span>
+        <span class="scope">Human design system / Emerging technology</span>
+      </div>
+    </div>
+
+    <div class="hint" id="hint" aria-hidden="true"><span>Scroll / Explore</span><i></i></div>
+
+    <div class="glass" id="glass">
+      <form class="ask" id="ask" autocomplete="off">
+        <label class="sr" for="q">Ask anything about Zhaolin</label>
+        <input id="q" type="text" placeholder="Ask anything about Zhaolin" enterkeyhint="send">
+      </form>
+      <p class="note" id="note" role="status" aria-live="polite"></p>
+    </div>
+
+    <canvas class="dusk" id="dusk" aria-hidden="true"></canvas>
+
+    <div class="works" id="work" aria-label="My Work">
+      <div class="works-in">
+        <h2 id="wTitle">My Work</h2>
+        <div class="carousel" id="wCar" role="group" aria-roledescription="carousel" aria-label="Selected work">
+          <button class="arrow" id="prev" type="button" aria-label="Previous project"><svg viewBox="0 0 40 100" aria-hidden="true"><path d="M34 6 6 50l28 44"/></svg></button>
+          <div class="viewport"><div class="slides" id="slides">
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="1 of 5"><b>Moving toward feeling</b><span>Touchless kitchen tablet. Interaction concept.</span></div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="2 of 5"><b>Human × AI</b><span>An experience-based concept.</span></div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="3 of 5"><b>Project 03</b><span>Placeholder for the next case study.</span></div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="4 of 5"><b>Project 04</b><span>Placeholder for the next case study.</span></div>
+            <div class="slide" role="group" aria-roledescription="slide" aria-label="5 of 5"><b>Project 05</b><span>Placeholder for the next case study.</span></div>
+          </div></div>
+          <button class="arrow" id="next" type="button" aria-label="Next project"><svg viewBox="0 0 40 100" aria-hidden="true"><path d="M6 6l28 44L6 94"/></svg></button>
+        </div>
+        <div class="dots" id="dots"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact" aria-label="Contact">
+  <div class="contact-in" id="contactIn">
+    <p class="eyebrow">Contact</p>
+    <h2>Have something<br>in mind?</h2>
+    <p class="lead">Let's make it happen.</p>
+    <button class="mail" id="mail" type="button" aria-label="Copy email address">
+      <span class="addr" id="addr">you@example.com</span>
+      <span class="copy" id="copyLabel">Copy</span>
+    </button>
+    <p class="note2" id="note2">Placeholder address. Replace it with your own.</p>
+  </div>
+  <p class="foot">© 2026 Zhaolin Hu</p>
+</section>
+
+<script>
+(function () {
+  // Set to a video URL (for example 'hero-scrub.mp4') to drive a clip with scroll instead of the CSS push-in.
+  var CLIP = '';
+
+  var docEl = document.documentElement;
+  var track = document.getElementById('track');
+  var nav = document.getElementById('nav');
+  var plate = document.getElementById('plate');
+  var glow = document.getElementById('glow');
+  var deco = document.getElementById('deco');
+  var tag = document.getElementById('tag');
+  var hint = document.getElementById('hint');
+  var glass = document.getElementById('glass');
+  var ask = document.getElementById('ask');
+  var dusk = document.getElementById('dusk');
+  var works = document.getElementById('work');
+  var wTitle = document.getElementById('wTitle');
+  var wCar = document.getElementById('wCar');
+  var dotsEl = document.getElementById('dots');
+  var contact = document.getElementById('contact');
+  var contactIn = document.getElementById('contactIn');
+  var letters = Array.prototype.slice.call(document.querySelectorAll('.name .ch'));
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var vid = null;
+  if (CLIP) {
+    vid = document.createElement('video');
+    vid.src = CLIP; vid.muted = true; vid.playsInline = true; vid.preload = 'auto';
+    vid.setAttribute('aria-hidden', 'true');
+    var img = document.getElementById('plateImg');
+    img.parentNode.replaceChild(vid, img);
+  }
+
+  function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
+  function ease(t) { return t * t * (3 - 2 * t); }
+
+  /* ---------- grainy brown triangle ---------- */
+  var dctx = dusk.getContext('2d');
+  var dW = 0, dH = 0, dNoise = null, dData = null, dBuf = null, dLast = -1;
+  var BROWN32 = (255 << 24 | 0x33 << 16 | 0x3f << 8 | 0x4b) >>> 0;
+  function sizeDusk() {
+    var S = 3;
+    dW = Math.max(1, Math.ceil(window.innerWidth / S));
+    dH = Math.max(1, Math.ceil(window.innerHeight / S));
+    dusk.width = dW; dusk.height = dH;
+    dNoise = new Uint8Array(dW * dH);
+    for (var i = 0; i < dNoise.length; i++) dNoise[i] = ((Math.random() + Math.random()) * 127.5) | 0;
+    dData = dctx.createImageData(dW, dH);
+    dBuf = new Uint32Array(dData.data.buffer);
+    dLast = -1;
+  }
+  function drawDusk(r) {
+    if (r === dLast) return;
+    dLast = r;
+    if (r <= 0.001) { dctx.clearRect(0, 0, dW, dH); return; }
+    var hh = 4 * dH * Math.pow(r, 1.6); // triangle height in canvas pixels
+    var b = 1.6 * hh;                   // half width of its base: wide and low, not a spike
+    var len = Math.sqrt(hh * hh + b * b);
+    var ya = dH - hh;
+    var cx = dW / 2;
+    var G = 0.5 * dH;                   // grain band: a long, loose gradient
+    dBuf.fill(0);
+    var y0 = Math.max(0, Math.floor(ya));
+    for (var y = y0; y < dH; y++) {
+      var base = (y - ya) * b;
+      var row = y * dW;
+      for (var x = 0; x < dW; x++) {
+        var d = (base - Math.abs(x - cx) * hh) / len;
+        if (d <= 0) continue;
+        var c = d / G;
+        if (c >= 1 || dNoise[row + x] < c * Math.sqrt(c) * 255) dBuf[row + x] = BROWN32;
+      }
+    }
+    dctx.putImageData(dData, 0, 0);
+  }
+
+  /* ---------- scroll-driven state ---------- */
+  function zoomAt(p) {
+    if (p <= 0.38) return 1 + 0.42 * ease(p / 0.38);
+    return 1.42 - 0.37 * ease(clamp((p - 0.38) / 0.5, 0, 1));
+  }
+
+  function apply(p, h) {
+    if (vid && vid.duration) {
+      try { vid.currentTime = p * vid.duration; } catch (e) {}
+      plate.style.transform = '';
+    } else {
+      plate.style.transform = 'scale(' + zoomAt(p).toFixed(4) + ')';
+    }
+
+    var pulse = Math.sin(Math.PI * clamp((p - 0.12) / 0.26, 0, 1));
+    glow.style.opacity = pulse.toFixed(3);
+    glow.style.transform = 'scale(' + (0.6 + pulse * 0.9).toFixed(3) + ')';
+
+    for (var i = 0; i < letters.length; i++) {
+      var t = ease(clamp((p - (0.17 + i * 0.022)) / 0.22, 0, 1));
+      var el = letters[i];
+      if (t === 0) { el.style.transform = ''; el.style.opacity = ''; el.style.filter = ''; continue; }
+      el.style.transform = 'translateX(' + (t * 2.8).toFixed(3) + 'em)';
+      el.style.opacity = (1 - t).toFixed(3);
+      el.style.filter = 'blur(' + (t * 8).toFixed(2) + 'px)';
+    }
+    tag.style.opacity = (1 - ease(clamp((p - 0.12) / 0.18, 0, 1))).toFixed(3);
+    deco.style.opacity = (1 - ease(clamp((p - 0.04) / 0.2, 0, 1))).toFixed(3);
+    hint.style.opacity = (1 - clamp(p / 0.05, 0, 1)).toFixed(3);
+
+    // Page 2: glass rises from p 0.5, holds while h = 0, then leaves as the brown comes up.
+    var ex = ease(clamp(h / 0.4, 0, 1));
+    var g = ease(clamp((p - 0.5) / 0.35, 0, 1));
+    glass.style.opacity = (g * (1 - ex)).toFixed(3);
+    glass.style.transform = 'translateY(' + ((1 - g) * 5 - ex * 6).toFixed(2) + '%) scale(' + (0.97 + 0.03 * g - 0.03 * ex).toFixed(4) + ')';
+    var bl = 'blur(' + (g * 22).toFixed(1) + 'px)';
+    glass.style.backdropFilter = bl; glass.style.webkitBackdropFilter = bl;
+    glass.style.visibility = (g * (1 - ex)) > 0.01 ? 'visible' : 'hidden';
+    glass.style.pointerEvents = (p > 0.9 && ex < 0.4) ? 'auto' : 'none';
+    var a = ease(clamp((p - 0.78) / 0.17, 0, 1));
+    ask.style.opacity = a.toFixed(3);
+    ask.style.transform = 'translateY(' + ((1 - a) * 16).toFixed(1) + 'px)';
+
+    // Transition: the grainy triangle rises (h 0.08 to 0.70), then My Work arrives on top of it (h 0.55 to 1).
+    drawDusk(ease(clamp((h - 0.08) / 0.62, 0, 1)));
+    var rv = clamp((h - 0.55) / 0.45, 0, 1);
+    var e1 = ease(clamp(rv / 0.5, 0, 1));
+    var e2 = ease(clamp((rv - 0.15) / 0.6, 0, 1));
+    var e3 = ease(clamp((rv - 0.6) / 0.4, 0, 1));
+    wTitle.style.opacity = e1.toFixed(3);
+    wTitle.style.transform = 'translateY(' + ((1 - e1) * 36).toFixed(1) + 'px)';
+    wCar.style.opacity = e2.toFixed(3);
+    wCar.style.transform = 'translateY(' + ((1 - e2) * 70).toFixed(1) + 'px) scale(' + (0.94 + 0.06 * e2).toFixed(4) + ')';
+    dotsEl.style.opacity = e3.toFixed(3);
+    works.style.visibility = rv > 0 ? 'visible' : 'hidden';
+    works.style.pointerEvents = h > 0.92 ? 'auto' : 'none';
+  }
+
+  function geometry() {
+    var y = window.scrollY, vh = window.innerHeight;
+    var H = track.getBoundingClientRect().top + y;
+    // Use the actual sticky viewport so mobile browser chrome does not shorten a hold.
+    var unit = document.getElementById('stage').offsetHeight;
+    var start = H + unit * 0.8;
+    var A = start + unit * 3;
+    var workStart = A + unit;
+    var B = workStart + unit * 1.5;
+    var C = docEl.scrollHeight - vh;
+    return { y: y, vh: vh, H: H, A: A, B: B, C: C, L: unit * 3,
+      start: start, workStart: workStart, transition: unit * 1.5 };
+  }
+
+  function render() {
+    var g = geometry();
+    var p = clamp((g.y - g.start) / g.L, 0, 1);
+    var h = clamp((g.y - g.workStart) / g.transition, 0, 1);
+    if (reduce) { p = p > 0.5 ? 1 : 0; h = h > 0.5 ? 1 : 0; }
+    apply(p, h);
+    var cTop = contact.getBoundingClientRect().top, cH = contact.offsetHeight;
+    nav.classList.toggle('on-dark', h > 0.7 && cTop > 30 - 0.15 * cH);
+    var t2 = ease(clamp(1 - cTop / (g.vh * 0.6), 0, 1));
+    contactIn.style.opacity = reduce ? '1' : (0.1 + 0.9 * t2).toFixed(3);
+    contactIn.style.transform = reduce ? '' : 'translateY(' + ((1 - t2) * 40).toFixed(1) + 'px)';
+  }
+
+  /* Native wheel, touch and keyboard scrolling keep every transition scrubbable.
+     No idle snapping: stopping your gesture stops the visual at that exact point. */
+  function goTo(target) {
+    window.scrollTo({ top: target, behavior: reduce ? 'instant' : 'smooth' });
+  }
+  var ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { ticking = false; render(); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', function () { sizeDusk(); onScroll(); });
+  sizeDusk();
+  render();
+
+  /* ---------- nav ---------- */
+  function navTo(sel, pick) {
+    document.querySelector('a[href="' + sel + '"]').addEventListener('click', function (e) {
+      e.preventDefault();
+      goTo(pick(geometry()));
+    });
+  }
+  navTo('#work', function (s) { return s.B; });
+  navTo('#about', function (s) { return s.H; });
+  navTo('#contact', function (s) { return s.C; });
+
+  /* ---------- ask field ---------- */
+  var note = document.getElementById('note');
+  ask.addEventListener('submit', function (e) {
+    e.preventDefault();
+    note.textContent = 'Prototype only. Answers are not connected yet.';
+  });
+
+  /* ---------- contact: copy the address ---------- */
+  var mail = document.getElementById('mail');
+  var addr = document.getElementById('addr');
+  var copyLabel = document.getElementById('copyLabel');
+  mail.addEventListener('click', function () {
+    var text = addr.textContent;
+    function done(ok) {
+      copyLabel.textContent = ok ? 'Copied' : 'Select';
+      setTimeout(function () { copyLabel.textContent = 'Copy'; }, 1600);
+    }
+    function fallback() {
+      try {
+        var r = document.createRange(); r.selectNodeContents(addr);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      } catch (err) {}
+      done(false);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, fallback);
+    } else { fallback(); }
+  });
+
+  /* ---------- carousel ---------- */
+  var slides = document.getElementById('slides');
+  var prev = document.getElementById('prev');
+  var next = document.getElementById('next');
+  var count = slides.children.length, idx = 0, dots = [];
+  for (var d = 0; d < count; d++) {
+    (function (n) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.setAttribute('aria-label', 'Go to project ' + (n + 1));
+      b.addEventListener('click', function () { go(n); });
+      dotsEl.appendChild(b); dots.push(b);
+    })(d);
+  }
+  function go(n) {
+    idx = clamp(n, 0, count - 1);
+    slides.style.transform = 'translateX(' + (-idx * 100) + '%)';
+    prev.disabled = idx === 0; next.disabled = idx === count - 1;
+    dots.forEach(function (b, k) { b.setAttribute('aria-current', k === idx ? 'true' : 'false'); });
+  }
+  prev.addEventListener('click', function () { go(idx - 1); });
+  next.addEventListener('click', function () { go(idx + 1); });
+  go(0);
+})();
+</script>
+
+</body></html>
