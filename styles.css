@@ -1,3 +1,8 @@
+@font-face { font-family: "Manrope"; src: url("assets/fonts/manrope-regular.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Manrope"; src: url("assets/fonts/manrope-medium.ttf") format("truetype"); font-style: normal; font-weight: 500; font-display: swap; }
+@font-face { font-family: "Manrope"; src: url("assets/fonts/manrope-semibold.ttf") format("truetype"); font-style: normal; font-weight: 600; font-display: swap; }
+@font-face { font-family: "DM Mono"; src: url("assets/fonts/dm-mono-regular.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "DM Mono"; src: url("assets/fonts/dm-mono-medium.ttf") format("truetype"); font-style: normal; font-weight: 500; font-display: swap; }
 @font-face { font-family: "Michroma"; src: url("assets/fonts/michroma-regular.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
 :root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
 
@@ -12,9 +17,9 @@
     --cream: #F6F5F1;
     --card: #b4afa8;
 
-    --display: var(--body);
-    --body: "Michroma", "Eurostile", Arial, sans-serif;
-    --mono: var(--body);
+    --display: "Michroma", "Eurostile", Arial, sans-serif;
+    --body: "Manrope", "Helvetica Neue", Arial, sans-serif;
+    --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
     --W: max(100vw, 160svh);
     --focal: 0.36;
@@ -432,7 +437,7 @@
     left: max(5vw, env(safe-area-inset-left, 0px), 24px); right: max(5vw, env(safe-area-inset-right, 0px), 24px);
     display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px;
     padding: 0; border: 0; background: transparent; box-shadow: none;
-    font: 12px/1.5 var(--mono); letter-spacing: .13em; text-transform: uppercase; color: var(--nav-band);
+    font: 12px/1.5 var(--display); letter-spacing: .13em; text-transform: uppercase; color: var(--nav-band);
   }
   .nav::before {
     content: ""; position: absolute; z-index: -1; left: 0; right: 0; top: 50%; height: 1.5em;
@@ -440,8 +445,8 @@
     pointer-events: none; transition: opacity .15s ease;
   }
   .nav a { padding: 8px 0; color: inherit; text-decoration: none; white-space: nowrap; transition: color .15s ease; }
-  .nav .nav-availability { justify-self: start; font: 10px/1.5 var(--mono); letter-spacing: .08em; }
-  .nav .nav-brand { font: 500 12px/1.5 var(--mono); letter-spacing: .14em; }
+  .nav .nav-availability { justify-self: start; font: 10px/1.5 var(--display); letter-spacing: .08em; }
+  .nav .nav-brand { font: 500 12px/1.5 var(--display); letter-spacing: .14em; }
   .nav-menu { justify-self: center; display: flex; align-items: center; gap: 30px; }
   .nav-language { justify-self: end; display: flex; align-items: center; gap: 18px; transition: color .15s ease; }
   .nav-language select { border: 0; color: inherit; background: transparent; padding: 8px 0; font: inherit; cursor: pointer; }

@@ -31,7 +31,7 @@ python3 -m http.server 8001 --bind 127.0.0.1
 开屏播放规则：`intro.js`。
 
 问答目前使用本地预设回复；联系邮箱和简历仍待更新。
-全站使用原 Hero 标题的 Michroma 字体，字体文件位于 `assets/fonts/michroma-regular.ttf`，无需请求 Google Fonts。
+字体搭配：Michroma 用于 Hero 大标题与导航，DM Mono 用于辅助文字，Manrope 用于正文。字体在 `assets/fonts/` 本地加载，无需请求 Google Fonts。
 
 部署时保留上述运行文件及 `assets` 的相对目录；`backups` 可不部署。
 
