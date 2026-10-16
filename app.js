@@ -272,9 +272,9 @@
   var dialogQuestion = document.getElementById('dialogQuestion');
   function portfolioReply(question) {
     if (/focus|approach|design direction|设计方向/i.test(question)) return 'I’m an interaction designer with a background in product design, pursuing an MFA in Interactive Design at SCAD. My interests sit at the intersection of AI experiences, embodied interaction, and creative technology.';
-    if (/start|which project|推荐/i.test(question)) return 'Start with “Moving toward feeling,” the touchless kitchen tablet interaction concept in My Work. It introduces the kind of interaction experiences I explore.';
-    if (/role|contribution|职责/i.test(question) && !/looking|opportunit/i.test(question)) return 'This preview introduces the projects, but detailed role and contribution breakdowns have not been added yet. The full case studies will provide that context.';
-    if (/tool|prototyp|工具/i.test(question)) return 'Interaction prototyping is part of my practice. The detailed tools and implementation notes for these projects have not been added to this preview yet.';
+    if (/start|which project|推荐/i.test(question)) return 'Start with HOVR in My Work. It is a kitchen-focused tablet experience using gestures for recipes, entertainment, and interruptions. Open its case study to see the interaction process and prototype.';
+    if (/role|contribution|职责/i.test(question) && !/looking|opportunit/i.test(question)) return 'HOVR is an individual project. I designed the UX/UI and prototyped gesture input, mode switching, and simulated interruptions for a kitchen-focused iPad experience.';
+    if (/tool|prototyp|工具/i.test(question)) return 'For HOVR, I designed in Figma and built the interaction prototype in Unity using MediaPipe for hand tracking, then built for iPad through Xcode. Calls and messages are simulated in the prototype.';
     if (/opportunit|looking|collaborat|求职/i.test(question)) return 'For current role interests, availability, or collaboration opportunities, please get in touch. Those details are still being finalized for this portfolio.';
     if (/contact|resume|email|联系|简历/i.test(question)) return 'You can find the Contact section at the end of the portfolio. The final email address and resume link are still being updated in this preview.';
     return 'This preview currently covers the suggested portfolio questions. More detailed answers will be added with the full project case studies.';
@@ -685,6 +685,7 @@
   updateHeroCoordinates();
   setInterval(updateHeroCoordinates, reduce ? 1000 : 33);
   var localeText = {
+    'Hands busy. Flow uninterrupted.': '双手忙碌，体验不断。', 'View case study ↗': '查看项目详情 ↗',
     'Available for job': '开放工作机会', 'Work': '作品', 'About': '关于',
     'Interaction Designer': '交互设计师', 'Human design system / Emerging technology': '以人为本的设计 / 新兴技术',
     'Scroll / Explore': '滚动探索', 'My Work': '我的作品', 'SCROLL TO EXPLORE': '滚动浏览作品',
@@ -743,4 +744,10 @@
     });
   } else document.getElementById('opening').remove();
   updateCards();
+  // Restore a project visitor directly to the requested portfolio section.
+  requestAnimationFrame(function () {
+    if (location.hash === '#work') goTo(geometry().B);
+    else if (location.hash === '#about') goTo(document.getElementById('aboutPage').getBoundingClientRect().top + window.scrollY);
+    else if (location.hash === '#contact') goTo(geometry().C);
+  });
 })();

@@ -532,3 +532,14 @@
   .mobile-track > .stage.scene-fixed { position: fixed; top: 0; left: 0; }
   .mobile-track > .stage.scene-ended { top: auto; bottom: 0; }
 }
+
+/* The first project card opens the full HOVR case study. */
+.hovr-card-link { position:absolute; inset:0; display:flex; align-items:flex-end; padding:clamp(20px,3vw,40px); color:#fff; text-decoration:none; }
+.hovr-card-link img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.hovr-card-link::after { content:""; position:absolute; inset:0; background:linear-gradient(transparent 30%,rgba(30,35,25,.78)); }
+.hovr-card-copy { position:relative; z-index:1; display:flex; flex-direction:column; gap:8px; }
+.slide .hovr-card-copy span { color:#fff; }
+.slide .hovr-card-copy b { font-size:clamp(28px,4vw,48px); }
+.slide .hovr-card-copy .hovr-card-cta { font:11px/1.5 var(--mono); margin-top:8px; text-decoration:underline; text-underline-offset:4px; }
+.hovr-card-link:focus-visible { outline:3px solid #fff; outline-offset:-8px; }
+@media(hover:hover) and (pointer:fine) { .hovr-card-link:hover .hovr-card-cta { text-decoration-thickness:2px; } }

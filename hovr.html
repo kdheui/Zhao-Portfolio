@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HOVR — Zhaolin Hu</title>
+<meta name="description" content="HOVR: a gesture-controlled kitchen tablet experience. UX/UI design and an interactive Unity + MediaPipe prototype by Zhaolin Hu.">
+<meta name="theme-color" content="#f6f5f1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Manrope:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css?v=hovr-project">
+<link rel="stylesheet" href="hovr.css?v=hovr-project">
+</head>
+<body class="case-page">
+<a class="case-skip" href="#case-main">Skip to case study</a>
+<nav class="nav" aria-label="Main navigation">
+<div class="nav-menu">
+<a class="nav-brand" href="index.html#home" aria-label="Zhaolin Hu home">@zhaolin hu</a>
+<a href="index.html#work">Work</a>
+<a href="index.html#about">About</a>
+</div>
+<a class="case-back" href="index.html#work">← Back</a>
+</nav>
+<main id="case-main">
+<article class="page" aria-labelledby="case-title">
+<img class="hero-image" src="assets/hovr/imgHovrKitchenConceptHero.png" alt="A hand operating HOVR beside a kitchen counter" fetchpriority="high" width="1024" height="577">
+<section class="stack" id="overview">
+<p class="eyebrow">INDIVIDUAL PROJECT / Q2 2026</p>
+<h1 id="case-title" class="case-title">HOVR</h1>
+<h2 class="case-tagline" style="font-size:clamp(40px,4vw,56px)">Hands busy.<br>Flow uninterrupted.</h2>
+<p class="body-copy">A kitchen-focused tablet experience that combines gesture input, Kitchen Mode, and Entertainment Mode for hands-free multitasking.</p>
+<dl class="facts" style="margin:0">
+<div>
+<dt class="fact-label">MY ROLE</dt>
+<dd style="margin:0">UX/UI Designer<br>Interaction Prototyper</dd>
+</div>
+<div>
+<dt class="fact-label">TOOLS</dt>
+<dd style="margin:0">Figma · Unity<br>MediaPipe · Xcode</dd>
+</div>
+<div>
+<dt class="fact-label">FOCUS</dt>
+<dd style="margin:0">Gesture interaction<br>Kitchen UX</dd>
+</div>
+<div>
+<dt class="fact-label">OUTPUT</dt>
+<dd style="margin:0">Interactive<br>iPad prototype</dd>
+</div>
+</dl>
+</section>
+<section class="stack" id="problem">
+<p class="section-label">01 / THE PROBLEM</p>
+<h2>Cooking occupies your hands.<br>Touch interrupts your flow.</h2>
+<p class="body-copy">While cooking, people need to follow recipes, manage timers, enjoy media, and respond to communication. When their hands are occupied or messy, touching a device means pausing to wash and dry their hands.</p>
+<div class="opportunity">
+<h2>How might we enable hands-free multitasking while cooking without disrupting workflow?</h2>
+</div>
+</section>
+<section class="stack" id="experience">
+<p class="section-label">02 / CORE EXPERIENCE</p>
+<h2>Two modes. One continuous workflow.</h2>
+<div class="grid">
+<div class="stack">
+<img class="screen" src="assets/hovr/imgRecipeInterface.png" alt="Kitchen Mode interface" loading="lazy" width="604" height="431">
+<h3>Kitchen Mode</h3>
+<p>Keep recipes, ingredients, and timers accessible in a cooking-focused interface.</p>
+</div>
+<div class="stack">
+<img class="screen" src="assets/hovr/imgEntertainmentInterface.png" alt="Entertainment Mode interface" loading="lazy" width="604" height="431">
+<h3>Entertainment Mode</h3>
+<p>Browse media, play or pause content, and enjoy entertainment while cooking.</p>
+</div>
+</div>
+</section>
+<section class="stack" id="gestures">
+<p class="section-label">03 / HANDS-FREE CONTROL</p>
+<h2>Small gestures. Clear actions.</h2>
+<p class="body-copy">The prototype maps real-time hand gestures to cursor movement, selection, scrolling, and interruption handling.</p>
+<div class="gesture">
+<img class="gesture-icon" src="assets/hovr/imgIndexFingerGestureIllustration.png" alt="Index finger gesture" loading="lazy" width="64" height="64">
+<div class="gesture-text">
+<h3>Index finger</h3>
+<p class="small">Move the cursor.</p>
+</div>
+</div>
+<div class="gesture">
+<img class="gesture-icon" src="assets/hovr/imgPinchGestureIllustration.png" alt="Pinch gesture" loading="lazy" width="64" height="64">
+<div class="gesture-text">
+<h3>Pinch</h3>
+<p class="small">Select an item.</p>
+</div>
+</div>
+<div class="gesture">
+<img class="gesture-icon" src="assets/hovr/imgLGestureMovementGestureIllustration.png" alt="L gesture + movement gesture" loading="lazy" width="64" height="64">
+<div class="gesture-text">
+<h3>L gesture + movement</h3>
+<p class="small">Scroll up or down.</p>
+</div>
+</div>
+<div class="gesture">
+<img class="gesture-icon svg" src="assets/hovr/imgOriginalThumbsUpGesture.svg" alt="Thumbs up gesture" loading="lazy">
+<div class="gesture-text">
+<h3>Thumbs up</h3>
+<p class="small">Accept an incoming call or message.</p>
+</div>
+</div>
+<div class="gesture">
+<img class="gesture-icon" src="assets/hovr/imgPalmFacingCameraGestureIllustration.png" alt="Palm facing camera gesture" loading="lazy" width="64" height="64">
+<div class="gesture-text">
+<h3>Palm facing camera</h3>
+<p class="small">Dismiss a notification or reject a call.</p>
+</div>
+</div>
+</section>
+<section class="stack" id="flow">
+<p class="section-label">04 / USER FLOW</p>
+<h2>From launch to multitasking.</h2>
+<div class="grid">
+<div class="stack">
+<h3>01 / Home</h3>
+<img class="screen" src="assets/hovr/img01HomeScreen.png" alt="01 / Home interface" loading="lazy" width="604" height="431">
+<p class="small">Pinch to start.</p>
+</div>
+<div class="stack">
+<h3>02 / Main</h3>
+<img class="screen" src="assets/hovr/img02MainScreen.png" alt="02 / Main interface" loading="lazy" width="604" height="431">
+<p class="small">Choose a mode or shortcut.</p>
+</div>
+<div class="stack">
+<h3>03 / Kitchen</h3>
+<img class="screen" src="assets/hovr/imgRecipeInterface.png" alt="03 / Kitchen interface" loading="lazy" width="604" height="431">
+<p class="small">Choose a recipe and follow its steps.</p>
+</div>
+<div class="stack">
+<h3>04 / Entertainment</h3>
+<img class="screen" src="assets/hovr/img04EntertainmentScreen.png" alt="04 / Entertainment interface" loading="lazy" width="604" height="431">
+<p class="small">Browse and control media.</p>
+</div>
+</div>
+<h2>Handle interruptions, then return to cooking.</h2>
+<p class="body-copy">Calls and messages are simulated in Unity. Thumbs up accepts; a palm facing the camera dismisses. A shortcut area supports switching between cooking and entertainment.</p>
+<div class="grid">
+<figure class="stack">
+<img class="screen" src="assets/hovr/imgIncomingCall.png" alt="Incoming call interface" loading="lazy" width="604" height="431">
+<figcaption class="small">Incoming call</figcaption>
+</figure>
+<figure class="stack">
+<img class="screen" src="assets/hovr/imgMessageNotification.png" alt="Message notification interface" loading="lazy" width="604" height="431">
+<figcaption class="small">Message notification</figcaption>
+</figure>
+</div>
+</section>
+<section class="stack" id="prototype">
+<p class="section-label">05 / PROTOTYPE IMPLEMENTATION</p>
+<h2>Making gestures work on screen.</h2>
+<p class="body-copy">The interaction prototype was built in Unity using MediaPipe for hand tracking, then built for iPad through Xcode for on-device testing.</p>
+<img class="demo-image" src="assets/hovr/imgDemoPoster.png" alt="Unity prototype and camera tracking preview" loading="lazy" width="1024" height="670">
+<a class="demo-link" href="https://www.figma.com/design/BLVSIJrju0HxRa18AE6Sw9?node-id=3-412" target="_blank" rel="noopener">View interaction demo in Figma</a>
+<p class="small muted">Unity system mock-up → iPad build → on-device interaction testing</p>
+<p class="body-copy">The prototype demonstrates interaction behavior. Live calling, messaging, and app installation are outside the implemented prototype; interruptions are simulated in Unity.</p>
+</section>
+<footer class="case-footer">
+<a href="index.html#work">← Back to selected work</a>
+<p>© 2026 Zhaolin Hu</p>
+</footer>
+</article>
+</main>
+</body>
+</html>

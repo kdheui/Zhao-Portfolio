@@ -34,3 +34,7 @@ python3 -m http.server 8001 --bind 127.0.0.1
 字体通过 Google Fonts 加载，需要联网。
 
 部署时保留上述运行文件及 `assets` 的相对目录；`backups` 可不部署。
+
+## HOVR 项目
+
+首页第一张卡片链接到 `hovr.html`。详情页根据 Figma 节点 `3:412` 与历史版本恢复，样式在 `hovr.css`，图片在 `assets/hovr/`。页面包含项目背景、模式、手势、流程、原型说明和 Figma 演示入口。
