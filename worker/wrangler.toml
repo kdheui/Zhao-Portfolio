@@ -1,0 +1,16 @@
+name = "zhaolin-portfolio-ask"
+main = "index.mjs"
+compatibility_date = "2026-10-16"
+workers_dev = true
+
+[vars]
+ALLOWED_ORIGINS = "https://kdheui.github.io"
+OPENAI_MODEL = "gpt-4.1-mini"
+
+[[durable_objects.bindings]]
+name = "RATE_LIMITS"
+class_name = "AskRateLimiter"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["AskRateLimiter"]

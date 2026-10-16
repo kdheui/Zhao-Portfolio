@@ -279,16 +279,96 @@
     if (/contact|resume|email|联系|简历/i.test(question)) return 'You can find the Contact section at the end of the portfolio. The final email address and resume link are still being updated in this preview.';
     return 'This preview currently covers the suggested portfolio questions. More detailed answers will be added with the full project case studies.';
   }
-  function addExchange(question) {
-    [['user', question], ['reply', portfolioReply(question)]].forEach(function (item) {
-      var message = document.createElement('p');
-      message.className = 'chat-message chat-message--' + item[0];
-      message.textContent = item[1];
-      dialogMessages.appendChild(message);
-    });
-    dialogMessages.scrollTop = dialogMessages.scrollHeight;
+  var chatHistory = [], chatRequest = null, chatGeneration = 0;
+  var chatStatus = document.getElementById('chatStatus');
+  var chatRetry = document.getElementById('chatRetry');
+  var chatPrivacy = document.getElementById('chatPrivacy');
+  var dialogSend = document.querySelector('#dialogCompose button');
+  var failedQuestion = '';
+  function chatText(en, zh) { return document.documentElement.lang === 'zh-CN' ? zh : en; }
+  function chatEndpoint() { return window.PORTFOLIO_ASK && window.PORTFOLIO_ASK.endpoint || ''; }
+  function setChatBusy(busy) {
+    dialogQuestion.disabled = busy;
+    dialogSend.disabled = busy;
+    askDialog.setAttribute('aria-busy', String(busy));
   }
+  function appendChat(role, text) {
+    var message = document.createElement('p');
+    message.className = 'chat-message chat-message--' + role;
+    message.textContent = text;
+    dialogMessages.appendChild(message);
+    dialogMessages.scrollTop = dialogMessages.scrollHeight;
+    return message;
+  }
+  function cancelChat() {
+    chatGeneration++;
+    if (chatRequest) chatRequest.abort();
+    chatRequest = null;
+    failedQuestion = '';
+    chatRetry.hidden = true;
+    setChatBusy(false);
+  }
+  async function addExchange(question, retry) {
+    if (chatRequest) return;
+    if (!question || question.length > 2000) {
+      chatStatus.textContent = chatText('Please keep your question under 2,000 characters.', '请将问题控制在 2000 字以内。');
+      return;
+    }
+    chatRetry.hidden = true;
+    failedQuestion = '';
+    var endpoint = chatEndpoint();
+    document.getElementById('chatMode').textContent = endpoint ? 'AI PORTFOLIO GUIDE' : 'PORTFOLIO Q&A / PREVIEW';
+    chatPrivacy.hidden = !endpoint;
+    chatPrivacy.textContent = chatText('AI answers about this portfolio. Your messages are sent to OpenAI; avoid sharing private information.', 'AI 作品集助手。问题会发送给 OpenAI，请勿输入私人信息。');
+    if (!retry) appendChat('user', question);
+    if (!endpoint) {
+      appendChat('reply', portfolioReply(question));
+      chatStatus.textContent = chatText('Preview answer · AI connection is not enabled yet.', '预设回答 · AI 服务尚未启用。');
+      return;
+    }
+    var controller = new AbortController();
+    chatRequest = controller;
+    var generation = chatGeneration;
+    var timeout = setTimeout(function () { controller.abort(); }, 30000);
+    setChatBusy(true);
+    chatStatus.textContent = chatText('Thinking…', '正在思考…');
+    try {
+      var messages = chatHistory.slice(-6).concat({ role: 'user', content: question });
+      while (messages.reduce(function (n, m) { return n + m.content.length; }, 0) > 16000 && messages.length > 1) messages.splice(0, 2);
+      var response = await fetch(endpoint, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: messages }), signal: controller.signal, credentials: 'omit'
+      });
+      if (!response.ok) {
+        var error = new Error('chat_request_failed');
+        error.status = response.status;
+        throw error;
+      }
+      var data = await response.json();
+      if (typeof data.reply !== 'string' || !data.reply.trim() || data.reply.length > 6000) throw new Error('empty_response');
+      if (generation !== chatGeneration) return;
+      appendChat('reply', data.reply);
+      chatHistory = messages.concat({ role: 'assistant', content: data.reply }).slice(-6);
+      chatStatus.textContent = chatText('Answered with OpenAI · AI can make mistakes.', '由 OpenAI 生成 · AI 回答可能有误。');
+    } catch (error) {
+      if (generation !== chatGeneration) return;
+      failedQuestion = question;
+      chatRetry.hidden = false;
+      chatStatus.textContent = error.status === 429
+        ? chatText('Too many questions right now. Please try again later.', '当前提问较多，请稍后重试。')
+        : error.name === 'AbortError'
+          ? chatText('The answer took too long. Please try again.', '回答超时，请重试。')
+          : chatText('Could not connect to the AI guide. Please try again.', '暂时无法连接 AI 助手，请重试。');
+    } finally {
+      clearTimeout(timeout);
+      if (generation === chatGeneration) { chatRequest = null; setChatBusy(false); }
+    }
+  }
+  chatRetry.addEventListener('click', function () { if (failedQuestion) addExchange(failedQuestion, true); });
   function openConversation(question) {
+    cancelChat();
+    chatHistory = [];
+    chatStatus.textContent = "";
     typingMode(false);
     queryInput.blur();
     dialogMessages.replaceChildren();
@@ -306,6 +386,7 @@
     }, reduce ? 0 : 950);
   }
   function closeConversation() {
+    cancelChat();
     clearTimeout(chatFocusTimer);
     askDialog.inert = true;
     askDialog.setAttribute('aria-hidden', 'true');
@@ -321,12 +402,15 @@
   document.getElementById('dialogCompose').addEventListener('submit', function (e) {
     e.preventDefault();
     var question = dialogQuestion.value.trim();
-    if (!question) return;
+    if (!question || chatRequest) return;
     addExchange(question);
     dialogQuestion.value = '';
     dialogQuestion.focus({ preventScroll: true });
   });
   var queryInput = document.getElementById('q');
+  var askDisclosure = document.getElementById('askDisclosure');
+  askDisclosure.hidden = !chatEndpoint();
+  askDisclosure.textContent = chatText('AI portfolio guide · Questions are sent to OpenAI. Please avoid private information.', 'AI 作品集助手 · 问题将发送至 OpenAI，请勿输入私人信息。');
   var askSuggestions = document.getElementById('askSuggestions');
   askSuggestions.querySelectorAll('.suggestion-chip').forEach(function (button) {
     button.addEventListener('click', function () {

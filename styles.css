@@ -550,3 +550,15 @@
 .slide .hovr-card-copy .hovr-card-cta { font:11px/1.5 var(--mono); margin-top:8px; text-decoration:underline; text-underline-offset:4px; }
 .hovr-card-link:focus-visible { outline:3px solid #fff; outline-offset:-8px; }
 @media(hover:hover) and (pointer:fine) { .hovr-card-link:hover .hovr-card-cta { text-decoration-thickness:2px; } }
+
+/* Chat states stay inside the existing Ask dialog. */
+.chat-feedback { display:flex; align-items:center; gap:12px; flex-shrink:0; }
+#chatStatus,.chat-privacy { margin:0; color:var(--ink-soft); font:10px/1.5 var(--body); }
+#chatStatus { flex:1; min-width:0; }
+.chat-privacy { font-size:9px; margin-top:8px; }
+#chatRetry { border:1px solid rgba(69,55,45,.2); border-radius:8px; background:transparent; color:var(--ink); min-height:44px; padding:6px 12px; font:11px var(--body); cursor:pointer; }
+.dialog-compose :disabled { opacity:.55; cursor:wait; }
+.chat-message { overflow-wrap:anywhere; }
+
+.ask-disclosure { margin:8px 16px; max-width:600px; color:var(--ink-soft); font:10px/1.5 var(--body); text-align:center; }
+.glass.is-chat .ask-disclosure,.glass.is-typing .ask-disclosure { display:none; }

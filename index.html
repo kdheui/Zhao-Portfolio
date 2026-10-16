@@ -6,10 +6,11 @@
   <meta name="claude:viewport-fit-sides" content="cover">
   <title>Zhaolin Hu Portfolio</title>
   <!-- Run before painting so the opening overlay never flashes in late. -->
-  <script src="intro.js?v=original-type-mix"></script>
+  <script src="intro.js?v=ask-api"></script>
 <link rel="preload" href="assets/fonts/michroma-regular.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=original-type-mix">
-  <script defer src="app.js?v=original-type-mix"></script>
+  <link rel="stylesheet" href="styles.css?v=ask-api">
+  <script defer src="ask-config.js?v=ask-api"></script>
+  <script defer src="app.js?v=ask-api"></script>
 </head>
 <body>
 <div class="opening" id="opening" role="dialog" aria-label="Welcome to Zhaolin Hu’s portfolio" aria-modal="true">
@@ -57,7 +58,7 @@
     <div class="glass" id="glass">
       <form class="ask" id="ask" autocomplete="off">
         <label class="sr" for="q">Ask anything about Zhaolin</label>
-        <input id="q" type="text" placeholder="Ask anything about Zhaolin" enterkeyhint="send" aria-controls="askKeyboard" aria-expanded="false">
+        <input id="q" maxlength="2000" type="text" placeholder="Ask anything about Zhaolin" enterkeyhint="send" aria-controls="askKeyboard" aria-expanded="false">
       </form>
       <div class="ask-suggestions" id="askSuggestions" role="group" aria-label="Suggested questions">
         <p class="suggestions-label">A FEW PLACES TO START</p>
@@ -70,12 +71,15 @@
           <button class="suggestion-chip" type="button" data-question="How can I contact you or get your resume?">Contact & resume</button>
         </div>
       </div>
+      <p class="ask-disclosure" id="askDisclosure" hidden></p>
       <p class="note" id="note" role="status" aria-live="polite"></p>
       <div class="ask-keyboard" id="askKeyboard" role="group" aria-label="On-screen keyboard" aria-hidden="true" inert></div>
 <section class="ask-dialog" id="askDialog" aria-labelledby="dialogTitle" aria-hidden="true" inert>
-  <header class="dialog-header"><div><h2 id="dialogTitle">Ask Zhaolin</h2><p>PORTFOLIO Q&A / PREVIEW</p></div><button class="dialog-close" id="dialogClose" type="button" aria-label="Back to suggested questions">←</button></header>
+  <header class="dialog-header"><div><h2 id="dialogTitle">Ask Zhaolin</h2><p id="chatMode">PORTFOLIO Q&A / PREVIEW</p></div><button class="dialog-close" id="dialogClose" type="button" aria-label="Back to suggested questions">←</button></header>
   <div class="dialog-messages" id="dialogMessages" role="log" aria-label="Conversation" aria-live="polite"></div>
-  <form class="dialog-compose" id="dialogCompose"><input id="dialogQuestion" aria-label="Ask a follow-up question" placeholder="Ask a follow-up question…" required><button type="submit">SEND ↗</button></form>
+  <div class="chat-feedback"><p id="chatStatus" role="status" aria-live="polite"></p><button id="chatRetry" type="button" hidden>Retry / 重试</button></div>
+  <p id="chatPrivacy" class="chat-privacy" hidden></p>
+  <form class="dialog-compose" id="dialogCompose"><input id="dialogQuestion" maxlength="2000" aria-label="Ask a follow-up question" placeholder="Ask a follow-up question…" required><button type="submit">SEND ↗</button></form>
 </section>
     </div>
 

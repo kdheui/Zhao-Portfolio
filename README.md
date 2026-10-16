@@ -30,7 +30,7 @@ python3 -m http.server 8001 --bind 127.0.0.1
 调整交互行为：`app.js`。
 开屏播放规则：`intro.js`。
 
-问答目前使用本地预设回复；联系邮箱和简历仍待更新。
+Ask 已准备好接入 OpenAI Responses API；Cloudflare Worker 与密钥配置完成前，线上保留明确标注的预设回答。部署说明见 `worker/README.md`。联系邮箱和简历仍待更新。
 字体搭配：Michroma 用于 Hero 大标题与导航，DM Mono 用于辅助文字，Manrope 用于正文。字体在 `assets/fonts/` 本地加载，无需请求 Google Fonts。
 
 部署时保留上述运行文件及 `assets` 的相对目录；`backups` 可不部署。
@@ -38,3 +38,9 @@ python3 -m http.server 8001 --bind 127.0.0.1
 ## HOVR 项目
 
 首页第一张卡片链接到 `hovr.html`。详情页根据 Figma 节点 `3:412` 与历史版本恢复，样式在 `hovr.css`，图片在 `assets/hovr/`。页面包含项目背景、模式、手势、流程、原型说明和 Figma 演示入口。
+
+## Ask AI 接口
+
+- `ask-config.js`：公开 Worker 接口地址，不放密钥。
+- `worker/`：Cloudflare Worker、已核实的作品集上下文、请求限制与自动化测试。
+- 首次启用需要登录 Cloudflare 并设置 `OPENAI_API_KEY` Secret。详见 `worker/README.md`。
