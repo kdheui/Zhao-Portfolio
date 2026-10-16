@@ -1,30 +1,36 @@
-# Zhaolin Hu — Local Portfolio
+# Zhaolin Hu Portfolio
 
-Open `index.html` directly in Chrome, Safari, or Edge. No installation is required.
+静态作品集，不需要安装依赖或构建。
 
-For a local HTTP server, open a terminal in this folder and run:
+## 工程结构
+
+- `index.html`：页面结构与内容（首页、Ask、Work、About、Contact）。
+- `styles.css`：布局、字体、主题色、响应式样式及动画。
+- `app.js`：滚动转场、卡片吸附、鼠标互动、键盘、问答、导航与语言切换。
+- `intro.js`：在页面绘制前决定是否播放开屏动画。
+- `assets/images/`：首页背景与个人照片。
+- `backups/`：历史版本；不参与当前页面运行。
+
+## 本地预览
+
+在这个目录运行：
 
 ```sh
-python3 -m http.server 8000
+python3 -m http.server 8001 --bind 127.0.0.1
 ```
 
-Then open http://localhost:8000 . Press Ctrl+C to stop.
-On Windows, use `py -m http.server 8000` if `python3` is unavailable.
+浏览器访问 `http://127.0.0.1:8001/`。如已有预览服务器，无需重复启动。
 
-Pages: Home, HOVR, About. Desktop and mobile share one responsive stylesheet.
-File structure:
+开屏默认每个标签页会话播放一次。要重播，在地址后添加 `?intro=replay`。
 
-- index.html — page shell, navigation, and opening animation text.
-- styles.css — typography, colors, responsive layouts, hover and opening animations.
-- app.js — Home, HOVR, and About content, image mappings, and navigation.
-- assets/ — project images, gesture illustrations, and local fonts.
+## 修改位置
 
-Edit the page copy and add projects in app.js. Change the visual design in styles.css.
-Put new images or videos into assets/ and reference them by relative path.
-The home page foregrounds gesture interaction and the HOVR prototype. The generated background is decorative and visibly attributed.
-`app.bundle.js` is the browser entry point; the current dependency-free `app.js` can be copied directly into it after edits.
-The original Figma embedded video remains available through the Figma link; this copy uses its preview image.
-Unfinished project placeholders are omitted from the homepage. Contact placeholders on the existing About and HOVR pages still need real details.
-This version is a snapshot of the current Figma design and does not automatically sync future changes.
+编辑内容和项目卡片：`index.html`。
+调整视觉和动画：`styles.css`。
+调整交互行为：`app.js`。
+开屏播放规则：`intro.js`。
 
-Hero artwork: `assets/hero-atmosphere-v2.png`, edited with the built-in ImageGen tool. Final prompt: remove all text and UI overlays from the supplied reference; preserve the hand, pale fog, faint head shadow and pink edge glow; no readable shoulders, neck, torso or white ribbon.
+问答目前使用本地预设回复；联系邮箱和简历仍待更新。
+字体通过 Google Fonts 加载，需要联网。
+
+部署时保留上述运行文件及 `assets` 的相对目录；`backups` 可不部署。
