@@ -715,7 +715,6 @@
         document.documentElement.removeAttribute('data-intro');
         openingSurfaces.forEach(function (element) { element.inert = false; });
         opening.remove();
-        nav.querySelector('.nav-brand').focus({ preventScroll: true });
       }, 880);
     }
     var openingAuto = setTimeout(finishOpening, 1800);
