@@ -379,7 +379,7 @@
     if (/role|contribution|职责/i.test(question) && !/looking|opportunit/i.test(question)) return 'HOVR is an individual project. I designed the UX/UI and prototyped gesture input, mode switching, and simulated interruptions for a kitchen-focused iPad experience.';
     if (/tool|prototyp|工具/i.test(question)) return 'For HOVR, I designed in Figma and built the interaction prototype in Unity using MediaPipe for hand tracking, then built for iPad through Xcode. Calls and messages are simulated in the prototype.';
     if (/opportunit|looking|collaborat|求职/i.test(question)) return 'For current role interests, availability, or collaboration opportunities, please get in touch. Those details are still being finalized for this portfolio.';
-    if (/contact|resume|email|联系|简历/i.test(question)) return 'You can find the Contact section at the end of the portfolio. The final email address and resume link are still being updated in this preview.';
+    if (/contact|resume|email|联系|简历/i.test(question)) return 'You can reach me at zhaohu21@student.scad.edu. The resume link is still being updated.';
     return 'This preview currently covers the suggested portfolio questions. More detailed answers will be added with the full project case studies.';
   }
   var chatHistory = [], chatRequest = null, chatGeneration = 0;
