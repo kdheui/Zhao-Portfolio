@@ -22,7 +22,7 @@ window.createHeroVideo = function (plate, reduce) {
   var ready = false, entered = false, held = false, playing = false;
   var progress = 0, target = HOLD, frame = 0, failed = false;
   var restingFrame = false, arrived = false;
-  var naturalHold = false, videoFrame = 0;
+  var naturalHold = false, videoFrame = 0, seekFrame = 0;
   function revealHeroInterface() {
     document.documentElement.setAttribute('data-hero-arrival', 'ready');
   }
@@ -52,7 +52,7 @@ window.createHeroVideo = function (plate, reduce) {
   function seek() {
     if (!ready || failed || video.seeking || playing) return;
     if (naturalHold && progress === 0) return;
-    if (Math.abs(video.currentTime - target) > 0.001) video.currentTime = target;
+    if (Math.abs(video.currentTime - target) >= 1 / 120) video.currentTime = target;
   }
   function hold(onTargetFrame) {
     playing = false; held = true; video.pause();
@@ -117,7 +117,10 @@ window.createHeroVideo = function (plate, reduce) {
   video.addEventListener('canplay', enter);
   video.addEventListener('seeked', function () {
     if (held && video.currentTime >= HOLD - .04) restingFrame = true;
-    reveal(); paintGlow(); seek();
+    reveal(); paintGlow();
+    if (!seekFrame) seekFrame = requestAnimationFrame(function () {
+      seekFrame = 0; seek();
+    });
   });
   video.addEventListener('error', function () {
     image.src = 'assets/hero-hold.jpg?v=settled-hold-2';
@@ -129,7 +132,7 @@ window.createHeroVideo = function (plate, reduce) {
   document.addEventListener('visibilitychange', function () {
     if (document.hidden && playing) hold(); else enter();
   });
-  video.src = 'assets/hero-scroll.mp4?v=settled-hold-2';
+  video.src = 'assets/hero-scroll-seekable.mp4?v=intraframe-1';
   return {
     update: function (p) {
       progress = p;
