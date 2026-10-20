@@ -782,7 +782,7 @@
   wCar.addEventListener('touchend', function () {galleryTouch=null;}, {passive:true});
   // Accumulate wheel intent and advance the actual document every animation frame.
   // Sticky sections, video and the gallery therefore share the same moving position.
-  var flowTarget = window.scrollY, flowFrame = 0, flowLastTime = 0;
+  var flowTarget = window.scrollY, flowFrame = 0, flowLastTime = 0, flowResponse = 100;
   function stopScrollFlow() {
     if (flowFrame) cancelAnimationFrame(flowFrame);
     flowFrame = 0; flowLastTime = 0; flowTarget = window.scrollY;
@@ -793,7 +793,7 @@
     var max = Math.max(0, docEl.scrollHeight - innerHeight);
     flowTarget = clamp(flowTarget, 0, max);
     var current = window.scrollY, distance = flowTarget - current;
-    var next = Math.abs(distance) < 1.2 ? flowTarget : current + distance * (1 - Math.exp(-dt / 155));
+    var next = Math.abs(distance) < 1.2 ? flowTarget : current + distance * (1 - Math.exp(-dt / flowResponse));
     window.scrollTo({top:next, behavior:'instant'});
     if (Math.abs(flowTarget - window.scrollY) > 1.2 && Math.abs(next - current) > .01) {
       flowFrame = requestAnimationFrame(advanceScrollFlow);
@@ -816,6 +816,16 @@
       if (/auto|scroll/.test(overflow) && el.scrollHeight > el.clientHeight + 1) return;
     }
     if (!delta || !e.cancelable) return;
+    var mouseWheel = e.deltaMode !== 0 || (Math.abs(e.deltaX) < 1 && Math.abs(e.deltaY) >= 48 && Number.isInteger(e.deltaY));
+    if (mouseWheel) {
+      // A physical wheel notch should cover a meaningful part of the long scenes.
+      var notch = Math.max(1, Math.min(3, Math.abs(delta) / 100));
+      delta = Math.sign(delta) * Math.max(280, innerHeight * .55) * notch;
+      flowResponse = 125;
+    } else {
+      delta *= 1.25;
+      flowResponse = 85;
+    }
     e.preventDefault(); smoothScrollBy(delta);
   }, {passive:false});
   window.addEventListener('touchstart', stopScrollFlow, {passive:true});
