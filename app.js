@@ -215,14 +215,17 @@
     var B = workStart + unit * 2.4;
     var C = docEl.scrollHeight - vh;
     return { y: y, vh: vh, H: H, A: A, B: B, C: C, L: unit * 3,
-      start: start, workStart: workStart, holdLength: unit, transition: unit * 2.4, galleryLength: unit * 2.4, galleryEnd: B + unit * 2.4, exitLength: unit * 2.4 };
+      start: start, workStart: workStart, holdLength: unit, transition: unit * 2.4, veilLength: unit * .65, galleryStart: B + unit * .65, galleryLength: unit * 2.4, galleryEnd: B + unit * 3.05, exitLength: unit * 2.4 };
   }
 
   function render() {
     positionStage();
     var g = geometry();
     stage.classList.remove('work-locked');
-    if (slides && typeof galleryTarget === 'number') moveGallery(clamp((g.y - g.B) / g.galleryLength, 0, 1) * galleryMax());
+    var veilProgress = reduce ? 1 : ease(clamp((g.y - g.B) / g.veilLength, 0, 1));
+    works.style.setProperty('--work-veil-reveal', (veilProgress * 100).toFixed(3) + '%');
+    works.classList.toggle('work-veiled', veilProgress < .98);
+    if (slides && typeof galleryTarget === 'number') moveGallery(clamp((g.y - g.galleryStart) / g.galleryLength, 0, 1) * galleryMax());
     var p = clamp((g.y - g.start) / g.L, 0, 1);
     var h = clamp((g.y - g.workStart) / g.transition, 0, 1);
     if (reduce) { p = p > 0.5 ? 1 : 0; h = h > 0.5 ? 1 : 0; }
@@ -701,7 +704,7 @@
   }
   function scrollGallery(value) {
     var g = geometry();
-    window.scrollTo({ top: g.B + clamp(value / Math.max(1, galleryMax()), 0, 1) * g.galleryLength, behavior: 'instant' });
+    window.scrollTo({ top: g.galleryStart + clamp(value / Math.max(1, galleryMax()), 0, 1) * g.galleryLength, behavior: 'instant' });
     onScroll();
   }
   function positionGallery() { scrollGallery(idx / Math.max(1, count - 1) * galleryMax()); }

@@ -37,9 +37,9 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
   button, input, select, textarea { font-family: var(--body); }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-  .track { position: relative; height: 980svh; } /* Hero hold 80, scrub 300, Ask hold 100, dusk scrub 240, exit 240, viewport 100. */
+  .track { position: relative; height: 1045svh; } /* Hero hold 80, scrub 300, Ask hold 100, dusk scrub 240, exit 240, viewport 100. */
   .stage { position: sticky; top: 0; height: 100svh; height: 100dvh; width: 100%; overflow: hidden; background: var(--fog); }
-  @supports (height: 100dvh) { .track { height: 980dvh; } }
+  @supports (height: 100dvh) { .track { height: 1045dvh; } }
   .frame { position: absolute; left: var(--L); top: 50%; width: var(--W); aspect-ratio: 1024 / 640; transform: translateY(-50%); }
   @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
     .frame {
@@ -551,7 +551,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 /* A stable full-size scene avoids Safari toolbar gaps and sticky repaint lag. */
 @media (max-width: 800px), (pointer: coarse) {
   :root { --W: max(100vw, 160lvh); }
-  .track { height: 980lvh; }
+  .track { height: 1045lvh; }
   .stage { height: 100lvh; }
   .frame { min-height: calc(100% + 24px); }
   .plate { inset: -12px 0; }
@@ -841,3 +841,8 @@ html[data-intro] .opening { transition:transform .6s cubic-bezier(.76,0,.24,1); 
 .glass.is-chat .ask-dialog > * { transition-delay:.28s; }
 .glass.is-chat .ask-dialog .dialog-compose { transition-delay:.38s; }
 @media(prefers-reduced-motion:reduce) { .ask-dialog { transition:none; } }
+
+/* A soft optical veil wipes down each cover before the horizontal browse begins. */
+.slide::before { content:''; position:absolute; inset:0; z-index:4; pointer-events:none; border-radius:inherit; background:radial-gradient(ellipse at 68% 35%,rgba(248,192,207,.38),transparent 62%),radial-gradient(ellipse at 28% 67%,rgba(248,245,235,.34),transparent 57%),linear-gradient(145deg,rgba(224,221,214,.48),rgba(165,153,144,.38)); backdrop-filter:blur(22px) saturate(.45); -webkit-backdrop-filter:blur(22px) saturate(.45); box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -1px 0 rgba(255,248,240,.35); clip-path:inset(var(--work-veil-reveal,0%) 0 0 0 round 12px); will-change:clip-path; }
+.work-veiled .slide a { pointer-events:none; }
+@media(prefers-reduced-motion:reduce) { .slide::before { display:none; } }
