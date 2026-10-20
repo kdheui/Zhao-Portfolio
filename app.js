@@ -1,6 +1,4 @@
 (function () {
-  // Set to a video URL (for example 'hero-scrub.mp4') to drive a clip with scroll instead of the CSS push-in.
-  var CLIP = '';
 
   var deckReleased = false, deckLanded = false, deckLandingUntil = 0;
   var navigationTarget = null, navigationTimer = 0;
@@ -8,7 +6,6 @@
   var track = document.getElementById('track');
   var nav = document.getElementById('nav');
   var plate = document.getElementById('plate');
-  var glow = document.getElementById('glow');
   var deco = document.getElementById('deco');
   var tag = document.getElementById('tag');
   var hint = document.getElementById('hint');
@@ -27,6 +24,23 @@
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var mobileStage = window.matchMedia('(max-width: 800px), (pointer: coarse)');
   var stage = document.getElementById('stage');
+  var aboutTrack = document.getElementById('aboutPage');
+  var aboutScene = aboutTrack.querySelector('.about-page');
+  var aboutEntering = false;
+  var contactTrack = document.getElementById('contactTrack');
+  var contactVideo = document.getElementById('contactVideo');
+  var contactVideoTarget = 0;
+  var contactDusk = document.getElementById('contactDusk');
+  var contactDuskContext = contactDusk.getContext('2d');
+  var contactDuskLast = -1;
+  function seekContactVideo() {
+    if (contactVideo.readyState < 1 || contactVideo.seeking) return;
+    if (Math.abs(contactVideo.currentTime - contactVideoTarget) > 1 / 120)
+      contactVideo.currentTime = contactVideoTarget;
+  }
+  contactVideo.addEventListener('loadedmetadata', seekContactVideo);
+  contactVideo.addEventListener('seeked', seekContactVideo);
+
 
   // WebKit can move a sticky layer before resizing it as browser chrome collapses.
   // Pin the mobile scene explicitly; keep it inside its track at either boundary.
@@ -43,21 +57,14 @@
     stage.classList.toggle('scene-ended', end);
   }
 
-  var vid = null;
-  if (CLIP) {
-    vid = document.createElement('video');
-    vid.src = CLIP; vid.muted = true; vid.playsInline = true; vid.preload = 'auto';
-    vid.setAttribute('aria-hidden', 'true');
-    var img = document.getElementById('plateImg');
-    img.parentNode.replaceChild(vid, img);
-  }
+  var heroVideo = window.createHeroVideo(plate, reduce);
 
   function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
   function ease(t) { return t * t * (3 - 2 * t); }
 
-  /* ---------- grainy brown triangle ---------- */
+  /* ---------- grain rises from below and adheres to the top ---------- */
   var dctx = dusk.getContext('2d');
-  var dW = 0, dH = 0, dNoise = null, dData = null, dBuf = null, dLast = -1;
+  var dW = 0, dH = 0, dNoise = null, dWave = null, dEdge = null, dData = null, dBuf = null, dLast = -1;
   var BROWN32 = (255 << 24 | 0x33 << 16 | 0x41 << 8 | 0x4d) >>> 0;
   function sizeDusk() {
     var S = 3;
@@ -65,53 +72,93 @@
     dH = Math.max(1, Math.ceil(window.innerHeight / S));
     dusk.width = dW; dusk.height = dH;
     dNoise = new Uint8Array(dW * dH);
-    for (var i = 0; i < dNoise.length; i++) dNoise[i] = ((Math.random() + Math.random()) * 127.5) | 0;
+    for (var i = 0; i < dNoise.length; i++) dNoise[i] = (Math.random() * 255) | 0;
+    dWave = new Float32Array(dW);
+    dEdge = new Float32Array(dW);
+    for (var x = 0; x < dW; x++) {
+      var u = x / Math.max(1, dW - 1);
+      dWave[x] = dH * (.025 * Math.sin(u * Math.PI) + .008 * Math.sin(u * Math.PI * 4));
+    }
     dData = dctx.createImageData(dW, dH);
     dBuf = new Uint32Array(dData.data.buffer);
     dLast = -1;
+    contactDusk.width = dW; contactDusk.height = dH;
+    contactDuskLast = -1;
   }
-  function drawDusk(r) {
-    if (r === dLast) return;
-    dLast = r;
+  function drawDusk(r, exiting) {
+    var key = exiting ? -2 - r : r;
+    if (key === dLast) return;
+    dLast = key;
     if (r <= 0.001) { dctx.clearRect(0, 0, dW, dH); return; }
-    var hh = 4 * dH * Math.pow(r, 1.6); // triangle height in canvas pixels
-    var b = 1.6 * hh;                   // half width of its base: wide and low, not a spike
-    var len = Math.sqrt(hh * hh + b * b);
-    var ya = dH - hh;
-    var cx = dW / 2;
-    var G = 0.5 * dH;                   // grain band: a long, loose gradient
+    // Rise from the bottom first. Once the crest meets the ceiling, keep it
+    // attached there and spread sideways until the entire screen is filled.
+    var band = dH * .22;
+    // The whole mass starts as separated grains, including its centre.
+    // Only later do those grains accumulate into an uninterrupted solid.
+    var cohesion = .12 + .88 * ease(clamp((r - .25) / .75, 0, 1));
+    var rise = clamp(r / .58, 0, 1);
+    var spread = ease(clamp((r - .58) / .42, 0, 1));
+    var crest = dH * (1 - rise) + band * (1 - 2 * rise);
+    for (var x = 0; x < dW; x++) {
+      var side = Math.abs(x / Math.max(1, dW - 1) * 2 - 1);
+      // A wide, shallow crest: use viewport width so its obtuse angle remains
+      // consistent on both portrait phones and wide desktop screens.
+      dEdge[x] = crest + (exiting ? -rise : 1) * dW * .28 * (1 - spread) * side + dWave[x] * (1 - spread);
+    }
     dBuf.fill(0);
-    var y0 = Math.max(0, Math.floor(ya));
-    for (var y = y0; y < dH; y++) {
-      var base = (y - ya) * b;
+    for (var y = 0; y < dH; y++) {
       var row = y * dW;
       for (var x = 0; x < dW; x++) {
-        var d = (base - Math.abs(x - cx) * hh) / len;
-        if (d <= 0) continue;
-        var c = d / G;
-        if (c >= 1 || dNoise[row + x] < c * Math.sqrt(c) * 255) dBuf[row + x] = BROWN32;
+        var sampleY = exiting ? dH - 1 - y : y;
+        var c = clamp((sampleY - dEdge[x]) / band, 0, 1);
+        var density = c * c * (3 - 2 * c) * cohesion;
+        if (density >= 1 || (density > 0 && dNoise[row + x] < density * 255)) dBuf[row + x] = BROWN32;
       }
     }
     dctx.putImageData(dData, 0, 0);
   }
 
-  /* ---------- scroll-driven state ---------- */
-  function zoomAt(p) {
-    if (p <= 0.38) return 1 + 0.42 * ease(p / 0.38);
-    return 1.42 - 0.37 * ease(clamp((p - 0.38) / 0.5, 0, 1));
+  function drawDuskExit(progress) {
+    // Mirror the entry vertically and play its exact grain/triangle timeline backward.
+    drawDusk(1 - ease(clamp((progress - .04) / .80, 0, 1)), true);
   }
 
-  function apply(p, h) {
-    if (vid && vid.duration) {
-      try { vid.currentTime = p * vid.duration; } catch (e) {}
-      plate.style.transform = '';
-    } else {
-      plate.style.transform = 'scale(' + zoomAt(p).toFixed(4) + ')';
+  function drawContactExit(progress) {
+    if (progress === contactDuskLast) return;
+    contactDuskLast = progress;
+    // A broad dissolution wake, rather than a thin noisy outline. The solid
+    // front retreats first and leaves a full triangular field of grains behind.
+    var t = ease(clamp((progress - .04) / .80, 0, 1));
+    var band = dH * .22;
+    var wake = dH * 1.05;
+    var crest = dH + wake - t * (dH + 2 * wake + dW * .28);
+    var slope = dW * .28 * (1 - t);
+    dBuf.fill(0);
+    for (var x = 0; x < dW; x++) {
+      var side = Math.abs(x / Math.max(1, dW - 1) * 2 - 1);
+      dEdge[x] = crest + slope * side + dWave[x] * Math.sin(Math.PI * t);
     }
+    for (var y = 0; y < dH; y++) {
+      var row = y * dW;
+      for (var x = 0; x < dW; x++) {
+        var distance = dEdge[x] - y;
+        var c = clamp(distance / wake, 0, 1);
+        // Use the entry's grain cohesion curve across the entire moving wake.
+        var cohesion = .12 + .88 * ease(clamp((c - .25) / .75, 0, 1));
+        var fringe = ease(clamp(distance / band, 0, 1));
+        var density = fringe * cohesion;
+        if (density >= 1 || (density > 0 && dNoise[row + x] < density * 255))
+          dBuf[row + x] = BROWN32;
+      }
+    }
+    contactDuskContext.putImageData(dData, 0, 0);
+  }
 
-    var pulse = Math.sin(Math.PI * clamp((p - 0.12) / 0.26, 0, 1));
-    glow.style.opacity = pulse.toFixed(3);
-    glow.style.transform = 'scale(' + (0.6 + pulse * 0.9).toFixed(3) + ')';
+  /* ---------- scroll-driven state ---------- */
+  function apply(p, h, departure) {
+    heroVideo.update(p);
+    plate.style.transform = '';
+
 
     for (var i = 0; i < letters.length; i++) {
       var t = ease(clamp((p - (0.17 + i * 0.022)) / 0.22, 0, 1));
@@ -125,9 +172,9 @@
     deco.style.opacity = (1 - ease(clamp((p - 0.04) / 0.2, 0, 1))).toFixed(3);
     hint.style.opacity = (1 - clamp(p / 0.05, 0, 1)).toFixed(3);
 
-    // Page 2: glass rises from p 0.5, holds while h = 0, then leaves as the brown comes up.
+    // Page 2: glass rises from p 0.5, holds while h = 0, then recedes as the grain rises from below.
     if (h > .02 && glass.classList.contains('is-typing')) { typingMode(false); queryInput.blur(); }
-    var ex = ease(clamp(h / 0.4, 0, 1));
+    var ex = ease(clamp((h - .18) / .5, 0, 1));
     var g = ease(clamp((p - 0.5) / 0.35, 0, 1));
     glass.style.opacity = (g * (1 - ex)).toFixed(3);
     glass.style.transform = 'translateY(' + ((1 - g) * 5 - ex * 6).toFixed(2) + '%) scale(' + (0.97 + 0.03 * g - 0.03 * ex).toFixed(4) + ')';
@@ -139,10 +186,12 @@
     ask.style.opacity = a.toFixed(3);
     ask.style.transform = 'translateY(' + ((1 - a) * 16).toFixed(1) + 'px)';
 
-    // Transition: the grainy triangle rises (h 0.08 to 0.70), then My Work arrives on top of it (h 0.55 to 1).
-    drawDusk(ease(clamp((h - 0.08) / 0.62, 0, 1)));
+    // Transition: grain rises from below, pins to the ceiling, then spreads (h .04 to .84).
+    if (departure > 0) drawDuskExit(departure);
+    else drawDusk(ease(clamp(h / 0.84, 0, 1)));
     var rv = clamp((h - 0.55) / 0.45, 0, 1);
     var e1 = ease(clamp(rv / 0.5, 0, 1));
+    works.style.setProperty('--work-atmosphere', e1.toFixed(3));
     var e2 = ease(clamp((rv - 0.15) / 0.6, 0, 1));
     var e3 = ease(clamp((rv - 0.6) / 0.4, 0, 1));
     wTitle.style.opacity = e1.toFixed(3);
@@ -162,22 +211,26 @@
     var unit = document.getElementById('stage').offsetHeight;
     var start = H + unit * 0.8;
     var A = start + unit * 3;
-    var workStart = A + unit;
-    var B = workStart + unit * 1.5;
+    var workStart = A + unit * .2;
+    var B = workStart + unit * 2.4;
     var C = docEl.scrollHeight - vh;
     return { y: y, vh: vh, H: H, A: A, B: B, C: C, L: unit * 3,
-      start: start, workStart: workStart, holdLength: unit, transition: unit * 1.5 };
+      start: start, workStart: workStart, holdLength: unit, transition: unit * 2.4, galleryLength: unit * 2.4, galleryEnd: B + unit * 2.4, exitLength: unit * 2.4 };
   }
 
   function render() {
     positionStage();
     var g = geometry();
+    stage.classList.remove('work-locked');
+    if (slides && typeof galleryTarget === 'number') moveGallery(clamp((g.y - g.B) / g.galleryLength, 0, 1) * galleryMax());
     var p = clamp((g.y - g.start) / g.L, 0, 1);
     var h = clamp((g.y - g.workStart) / g.transition, 0, 1);
     if (reduce) { p = p > 0.5 ? 1 : 0; h = h > 0.5 ? 1 : 0; }
     document.getElementById('stage').style.setProperty('--hero-mouse-weight', (1 - ease(clamp(p / .55, 0, 1))).toFixed(4));
     document.getElementById('stage').classList.toggle('hero-decor-active', p < .55);
-    apply(p, h);
+    var departure = clamp((g.y - g.galleryEnd) / document.getElementById('stage').offsetHeight, 0, 1);
+    if (reduce) departure = departure > .5 ? 1 : 0;
+    apply(p, h, 0);
     // Spawn and spin with the Ask-to-Work reveal; face forward when the transition ends.
     var spin = reduce ? 1 : ease(clamp((h - 0.55) / 0.45, 0, 1));
     var lift = Math.sin(Math.PI * spin);
@@ -201,27 +254,84 @@
     var shine = hold > 0 ? hold : spin;
     workCard.style.setProperty('--shine-x', (-140 + 280 * shine).toFixed(2) + '%');
     workCard.style.setProperty('--shine-opacity', (.85 * Math.sin(Math.PI * shine)).toFixed(3));
+    // Hold both scenes in the viewport while the grain leaves upwards. The
+    // About placeholder preserves document height during the fixed handoff.
+    var entering = false;
+    if (entering !== aboutEntering) {
+      if (entering) aboutTrack.style.minHeight = aboutTrack.offsetHeight + 'px';
+      aboutTrack.classList.toggle('is-entering', entering);
+      if (!entering) aboutTrack.style.minHeight = '';
+      aboutEntering = entering;
+    }
+    stage.classList.toggle('work-exiting', entering);
+    stage.classList.toggle('work-departed', departure >= 1);
+    works.inert = departure > 0;
+    aboutScene.inert = entering;
+    works.style.opacity = '1';
+    works.style.transform = '';
+    if (departure > 0) {
+      works.style.pointerEvents = 'none';
+      works.classList.remove('is-ready');
+    }
+    var aboutReveal = ease(clamp((departure - .2) / .65, 0, 1));
+    aboutScene.querySelectorAll('.about-copy, .about-portrait').forEach(function (element) {
+      element.style.opacity = entering ? aboutReveal.toFixed(3) : '';
+      element.style.transform = entering ? 'translateY(' + (24 * (1 - aboutReveal)).toFixed(2) + 'px)' : '';
+    });
     var cTop = contact.getBoundingClientRect().top, cH = contact.offsetHeight;
     var aboutTop = document.getElementById('aboutPage').getBoundingClientRect().top;
-    nav.classList.toggle('on-dark', h > .7 && aboutTop > 35);
+    var archiveProgress = clamp(-aboutTop / (aboutTrack.offsetHeight - aboutScene.offsetHeight), 0, 1);
+    var open = reduce ? 1 : ease(clamp(archiveProgress / .24, 0, 1));
+    var lift = reduce ? 1 : ease(clamp((archiveProgress - .18) / .25, 0, 1));
+    var feed = reduce ? 1 : clamp((archiveProgress - .3) / .48, 0, 1);
+    var paper = aboutScene.querySelector('.archive-paper');
+    var output = aboutScene.querySelector('.archive-output');
+    var reading = ease(clamp((archiveProgress - .78) / .22, 0, 1));
+    var overflow = Math.max(0, paper.offsetHeight - (aboutScene.offsetHeight - output.offsetTop) + 24);
+    aboutScene.style.setProperty('--archive-open', open);
+    aboutScene.style.setProperty('--archive-lift', lift);
+    aboutScene.style.setProperty('--archive-feed', feed);
+    // After feeding, move the entire archive upward for reading. Moving only
+    // the sheet would pull it back into the printer slot and look like a bounce.
+    aboutScene.style.setProperty('--archive-overflow', overflow.toFixed(2) + 'px');
+    aboutScene.style.setProperty('--archive-scene-read', (-overflow * reading).toFixed(2) + 'px');
+    aboutScene.style.setProperty('--archive-read', '0px');
+    aboutScene.style.setProperty('--archive-intro', (ease(clamp((archiveProgress - .2) / .12, 0, 1)) * (1 - ease(clamp((archiveProgress - .4) / .1, 0, 1)))).toFixed(3));
+    paper.inert = feed < .05;
+    nav.classList.toggle('on-dark', h > .7 && cTop > 35);
     var activeNav = aboutTop <= g.vh * .35 ? '#about' : g.y >= g.workStart ? '#work' : '#home';
     nav.querySelectorAll('a[href="#home"],a[href="#work"],a[href="#about"]').forEach(function (link) {
       if (link.getAttribute('href') === activeNav && cTop > 0) link.setAttribute('aria-current', 'page');
       else link.removeAttribute('aria-current');
     });
-    var t2 = ease(clamp(1 - cTop / (g.vh * 0.6), 0, 1));
-    contactIn.style.opacity = reduce ? '1' : (0.1 + 0.9 * t2).toFixed(3);
-    contactIn.style.transform = reduce ? '' : 'translateY(' + ((1 - t2) * 40).toFixed(1) + 'px)';
+    var returnTop = contactTrack.getBoundingClientRect().top;
+    var returnProgress = clamp(-returnTop / Math.max(1, contactTrack.offsetHeight - contact.offsetHeight), 0, 1);
+    var exitProgress = reduce ? 1 : clamp(returnProgress / .6, 0, 1);
+    var returnReveal = ease(exitProgress);
+    if (returnTop < g.vh * 1.2) drawContactExit(exitProgress);
+    contact.style.setProperty('--contact-dark', (1 - returnReveal).toFixed(4));
+    contactVideoTarget = reduce ? 2.5 : Math.round(ease(clamp((returnProgress - .38) / .5, 0, 1)) * 2.5 * 60) / 60;
+    seekContactVideo();
+    var t2 = reduce ? 1 : ease(clamp((returnProgress - .35) / .4, 0, 1));
+    contactIn.style.opacity = t2.toFixed(3);
+    contactIn.style.transform = 'translateY(' + ((1 - t2) * 32).toFixed(1) + 'px)';
+    if (returnTop <= 0) nav.classList.toggle('on-dark', returnReveal < .6);
+
   }
 
   /* Native wheel, touch and keyboard scrolling keep every transition scrubbable.
      No idle snapping: stopping your gesture stops the visual at that exact point. */
   function goTo(target) {
+    stopScrollFlow();
     clearTimeout(navigationTimer);
     navigationTarget = target;
     navigationTimer = setTimeout(function () { navigationTarget = null; }, 2200);
     deckReleased = target > geometry().B + 2;
-    window.scrollTo({ top: target, behavior: reduce ? 'instant' : 'smooth' });
+    if (reduce) window.scrollTo({top:target,behavior:'instant'});
+    else {
+      flowTarget = target;
+      if (!flowFrame) flowFrame = requestAnimationFrame(advanceScrollFlow);
+    }
   }
   var ticking = false;
   function onScroll() {
@@ -230,20 +340,7 @@
       navigationTarget = null;
       clearTimeout(navigationTimer);
     }
-    if (navigationTarget === null && bounds.y < bounds.B - 20) { deckReleased = false; deckLanded = false; }
-    if (navigationTarget === null && !deckReleased && !deckLanded && bounds.y >= bounds.B - 2) {
-      deckLanded = true;
-      deckLandingUntil = performance.now() + 650;
-      deckWheelUsed = true;
-      deckWheelLast = performance.now();
-      window.scrollTo(0, bounds.B);
-    }
-    // Catch native momentum, touch flings and scrollbar jumps before they skip the deck.
-    if (navigationTarget === null && !deckReleased && bounds.y > bounds.B) {
-      window.scrollTo(0, bounds.B);
-      deckWheelUsed = true;
-      deckWheelLast = performance.now();
-    }
+    stage.classList.remove('work-locked');
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(function () { ticking = false; render(); });
@@ -264,6 +361,9 @@
   navTo('#home', function (s) { return s.H; });
   navTo('#about', function (s) { return document.getElementById('aboutPage').getBoundingClientRect().top + window.scrollY; });
   navTo('#contact', function (s) { return s.C; });
+  document.getElementById('heroNext').addEventListener('click', function () {
+    goTo(geometry().A);
+  });
 
   /* ---------- ask field ---------- */
   var chatFocusTimer = 0;
@@ -550,7 +650,7 @@
   /* ---------- carousel ---------- */
   var slides = document.getElementById('slides');
   var count = slides.children.length, idx = 0, dots = [];
-  var cardMoving = false, cardTimer = 0, cardFinishedAt = -Infinity;
+  var cardMoving = false, cardTimer = 0;
   for (var d = 0; d < count; d++) {
     (function (n) {
       var b = document.createElement('button');
@@ -567,17 +667,71 @@
       b.setAttribute('aria-current', k === idx ? 'true' : 'false');
     });
     Array.prototype.forEach.call(slides.children, function (slide, k) {
-      slide.setAttribute('aria-hidden', k === idx ? 'false' : 'true');
-      slide.inert = k !== idx;
+      var first = window.innerWidth < 800 ? idx : Math.min(idx, count - 3);
+      var visible = k >= first && k < first + (window.innerWidth < 800 ? 2 : 3);
+      slide.setAttribute('aria-hidden', visible ? 'false' : 'true');
+      slide.inert = !visible;
     });
   }
+  var galleryTarget = 0, galleryCurrent = 0, galleryFrame = 0, galleryLast = 0;
+  function galleryMax() { return Math.max(0, slides.scrollWidth - workCard.clientWidth); }
+  function paintGallery(time) {
+    var dt = galleryLast ? Math.min(64, time - galleryLast) : 16;
+    galleryLast = time;
+    galleryCurrent += (galleryTarget - galleryCurrent) * (reduce ? 1 : 1 - Math.exp(-dt / 40));
+    if (Math.abs(galleryTarget - galleryCurrent) < .15) galleryCurrent = galleryTarget;
+    slides.style.transform = 'translateX(' + (-galleryCurrent).toFixed(2) + 'px)';
+    var max = galleryMax(), progress = max ? galleryCurrent / max : 0;
+    dotsEl.style.setProperty('--gallery-progress', progress);
+    dotsEl.setAttribute('aria-valuenow', Math.round(progress * 100));
+    idx = Math.round((max ? galleryTarget / max : 0) * (count - 1));
+    Array.prototype.forEach.call(slides.children, function (slide) {
+      var left = slide.offsetLeft - galleryCurrent;
+      var visible = left + slide.offsetWidth > 0 && left < workCard.clientWidth;
+      slide.inert = !visible;
+      slide.setAttribute('aria-hidden', visible ? 'false' : 'true');
+    });
+    dots.forEach(function (dot, k) { dot.setAttribute('aria-current', k === idx ? 'true' : 'false'); });
+    galleryFrame = galleryCurrent !== galleryTarget ? requestAnimationFrame(paintGallery) : 0;
+    if (!galleryFrame) galleryLast = 0;
+  }
+  function moveGallery(value) {
+    galleryTarget = clamp(value, 0, galleryMax());
+    if (!galleryFrame) galleryFrame = requestAnimationFrame(paintGallery);
+  }
+  function scrollGallery(value) {
+    var g = geometry();
+    window.scrollTo({ top: g.B + clamp(value / Math.max(1, galleryMax()), 0, 1) * g.galleryLength, behavior: 'instant' });
+    onScroll();
+  }
+  function positionGallery() { scrollGallery(idx / Math.max(1, count - 1) * galleryMax()); }
+  dotsEl.setAttribute('role', 'slider');
+  dotsEl.setAttribute('aria-label', 'Browse projects');
+  dotsEl.setAttribute('aria-valuemin', '0'); dotsEl.setAttribute('aria-valuemax', '100'); dotsEl.setAttribute('aria-valuenow', '0');
+  dotsEl.tabIndex = 0;
+  var rulerDragging = false;
+  function dragRuler(e) {
+    var rect = dotsEl.getBoundingClientRect();
+    scrollGallery(clamp((e.clientX - rect.left) / rect.width, 0, 1) * galleryMax());
+  }
+  dotsEl.addEventListener('pointerdown', function (e) {
+    if (!inCardStage()) return;
+    e.preventDefault(); rulerDragging = true; dotsEl.setPointerCapture(e.pointerId); dragRuler(e);
+  });
+  dotsEl.addEventListener('pointermove', function (e) { if (rulerDragging) dragRuler(e); });
+  dotsEl.addEventListener('pointerup', function () { rulerDragging = false; });
+  dotsEl.addEventListener('pointercancel', function () { rulerDragging = false; });
+  dotsEl.addEventListener('click', function (e) { e.stopImmediatePropagation(); }, true);
+  dotsEl.addEventListener('keydown', function (e) {
+    if (!/^(ArrowLeft|ArrowRight|Home|End)$/.test(e.key)) return;
+    e.preventDefault();
+    scrollGallery(e.key === 'Home' ? 0 : e.key === 'End' ? galleryMax() : galleryTarget + (e.key === 'ArrowRight' ? 1 : -1) * workCard.clientWidth * .3);
+  });
   function unlockCard() {
     clearTimeout(cardTimer);
     cardMoving = false;
-    cardFinishedAt = performance.now();
-    // Release input with the animation, even if the trackpad keeps sending tiny tail events.
-    wheelTotal = 0;
-    deckWheelTotal = 0;
+    // Finish the animation, but keep its gesture consumed until momentum ends.
+
     updateCards();
   }
   function go(n) {
@@ -586,7 +740,7 @@
     if (n === idx) { updateCards(); return; }
     idx = n;
     cardMoving = !reduce;
-    slides.style.transform = 'translateX(' + (-idx * 100) + '%)';
+    positionGallery();
     updateCards();
     // Safety release if the browser cancels or omits transitionend.
     if (cardMoving) cardTimer = setTimeout(unlockCard, 750);
@@ -598,85 +752,76 @@
     if (e.target === slides && e.propertyName === 'transform') unlockCard();
   });
 
-  // Snap full cards. Ignore the tail of a consumed gesture, and rearm on a new gesture.
-  var wheelTotal = 0, deckWheelTotal = 0, deckWheelUsed = true, deckWheelLast = -Infinity;
-  var previousWheelMagnitude = 0;
+  // Vertical input remains native across every section, including gallery boundaries.
   function inCardStage() {
     var g = geometry();
-    return g.y >= g.B - 2 && g.y <= g.B + g.holdLength + 2;
+    return g.y >= g.B - 2 && g.y <= g.galleryEnd + 2;
   }
   window.addEventListener('wheel', function (e) {
-    if (e.ctrlKey || !inCardStage()) return;
+    if (e.ctrlKey || !inCardStage() || !wCar.contains(e.target)) return;
     var horizontal = e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY);
-    if (horizontal && !wCar.contains(e.target)) return;
-    var delta = horizontal ? (e.shiftKey && Math.abs(e.deltaX) < 1 ? e.deltaY : e.deltaX) : e.deltaY;
-    if (!delta) return;
-    var now = performance.now();
-    var magnitude = Math.abs(delta);
-    // Tiny momentum events must not keep the gesture locked forever.
-    if (magnitude < 4) { if (e.cancelable) e.preventDefault(); return; }
-    var gap = now - deckWheelLast;
-    var freshPush = !cardMoving && now - cardFinishedAt > 150 && magnitude >= 12 && magnitude > previousWheelMagnitude * 1.8;
-    deckWheelLast = now;
-    previousWheelMagnitude = magnitude;
-    if (now < deckLandingUntil || cardMoving) {
-      if (e.cancelable) e.preventDefault();
-      deckWheelUsed = true;
-      deckWheelTotal = 0;
-      return;
-    }
-    if (gap > 120 || freshPush) { deckWheelUsed = false; deckWheelTotal = 0; }
-    if (deckWheelUsed) { if (e.cancelable) e.preventDefault(); return; }
-    var direction = delta > 0 ? 1 : -1;
-    if (!horizontal && ((direction > 0 && idx === count - 1) || (direction < 0 && idx === 0))) {
-      if (direction > 0) deckReleased = true;
-      return;
-    }
+    if (!horizontal) return;
+    var delta = e.shiftKey && Math.abs(e.deltaX) < 1 ? e.deltaY : e.deltaX;
+    delta *= e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1;
     if (e.cancelable) e.preventDefault();
-    delta *= e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 240 : 1;
-    if (deckWheelTotal * delta < 0) deckWheelTotal = 0;
-    deckWheelTotal += delta;
-    if (Math.abs(deckWheelTotal) >= 22) {
-      deckWheelUsed = true;
-      deckWheelTotal = 0;
-      go(idx + direction);
-    }
-  }, { passive: false });
-
-  var deckTouch = null;
-  window.addEventListener('touchstart', function (e) {
-    deckTouch = inCardStage() && e.touches.length === 1
-      ? { x: e.touches[0].clientX, y: e.touches[0].clientY, axis: '', used: cardMoving || performance.now() < deckLandingUntil } : null;
-  }, { passive: true });
-  window.addEventListener('touchmove', function (e) {
-    if (!deckTouch || e.touches.length !== 1) return;
-    var dx = deckTouch.x - e.touches[0].clientX, dy = deckTouch.y - e.touches[0].clientY;
-    if (!deckTouch.axis && Math.max(Math.abs(dx), Math.abs(dy)) > 8)
-      deckTouch.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
-    if (!deckTouch.axis) return;
-    if (deckTouch.used || cardMoving) { if (e.cancelable) e.preventDefault(); return; }
-    var distance = deckTouch.axis === 'x' ? dx : dy;
-    var direction = distance > 0 ? 1 : -1;
-    if (deckTouch.axis === 'y' && ((direction > 0 && idx === count - 1) || (direction < 0 && idx === 0))) {
-      if (direction > 0) deckReleased = true;
-      return;
-    }
+    smoothScrollBy(delta);
+  }, {passive:false});
+  var galleryTouch = null;
+  wCar.addEventListener('touchstart', function (e) {
+    galleryTouch = e.touches.length === 1 ? {x:e.touches[0].clientX,y:e.touches[0].clientY,axis:''} : null;
+  }, {passive:true});
+  wCar.addEventListener('touchmove', function (e) {
+    if (!galleryTouch || !inCardStage() || e.touches.length !== 1) return;
+    var dx = galleryTouch.x - e.touches[0].clientX, dy = galleryTouch.y - e.touches[0].clientY;
+    if (!galleryTouch.axis && Math.max(Math.abs(dx),Math.abs(dy)) > 6) galleryTouch.axis = Math.abs(dx)>Math.abs(dy)?'x':'y';
+    if (galleryTouch.axis !== 'x') return;
     if (e.cancelable) e.preventDefault();
-    if (Math.abs(distance) >= 28) { deckTouch.used = true; go(idx + direction); }
-  }, { passive: false });
-  window.addEventListener('touchend', function () { deckTouch = null; }, { passive: true });
-  window.addEventListener('touchcancel', function () { deckTouch = null; }, { passive: true });
+    window.scrollBy({top:dx,behavior:'instant'});
+    galleryTouch.x=e.touches[0].clientX; galleryTouch.y=e.touches[0].clientY;
+  }, {passive:false});
+  wCar.addEventListener('touchend', function () {galleryTouch=null;}, {passive:true});
+  // Accumulate wheel intent and advance the actual document every animation frame.
+  // Sticky sections, video and the gallery therefore share the same moving position.
+  var flowTarget = window.scrollY, flowFrame = 0, flowLastTime = 0;
+  function stopScrollFlow() {
+    if (flowFrame) cancelAnimationFrame(flowFrame);
+    flowFrame = 0; flowLastTime = 0; flowTarget = window.scrollY;
+  }
+  function advanceScrollFlow(time) {
+    var dt = flowLastTime ? Math.min(50, time - flowLastTime) : 16.67;
+    flowLastTime = time;
+    var max = Math.max(0, docEl.scrollHeight - innerHeight);
+    flowTarget = clamp(flowTarget, 0, max);
+    var current = window.scrollY, distance = flowTarget - current;
+    var next = Math.abs(distance) < 1.2 ? flowTarget : current + distance * (1 - Math.exp(-dt / 155));
+    window.scrollTo({top:next, behavior:'instant'});
+    if (Math.abs(flowTarget - window.scrollY) > 1.2 && Math.abs(next - current) > .01) {
+      flowFrame = requestAnimationFrame(advanceScrollFlow);
+    } else { flowFrame = 0; flowLastTime = 0; }
+  }
+  function smoothScrollBy(delta) {
+    if (reduce) { window.scrollBy({top:delta,behavior:'instant'}); return; }
+    if (!flowFrame) flowTarget = window.scrollY;
+    flowTarget = clamp(flowTarget + delta, 0, Math.max(0, docEl.scrollHeight - innerHeight));
+    navigationTarget = null; clearTimeout(navigationTimer);
+    if (!flowFrame) flowFrame = requestAnimationFrame(advanceScrollFlow);
+  }
+  window.addEventListener('wheel', function (e) {
+    if (e.defaultPrevented || e.ctrlKey || document.documentElement.hasAttribute('data-intro')) return;
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    var delta = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1);
+    // Leave text fields, dialogs and other independently scrollable panels native.
+    for (var el = e.target instanceof Element ? e.target : null; el && el !== document.body; el = el.parentElement) {
+      var overflow = getComputedStyle(el).overflowY;
+      if (/auto|scroll/.test(overflow) && el.scrollHeight > el.clientHeight + 1) return;
+    }
+    if (!delta || !e.cancelable) return;
+    e.preventDefault(); smoothScrollBy(delta);
+  }, {passive:false});
+  window.addEventListener('touchstart', stopScrollFlow, {passive:true});
+  window.addEventListener('pointerdown', stopScrollFlow, {passive:true});
   window.addEventListener('keydown', function (e) {
-    if (!inCardStage() || e.altKey || e.ctrlKey || e.metaKey ||
-      (e.target.closest && e.target.closest('input,textarea,select,button,a,[contenteditable]'))) return;
-    var direction = e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey) ? 1
-      : e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey) ? -1 : 0;
-    if (!direction) return;
-    if (direction > 0 && idx === count - 1 && !cardMoving) deckReleased = true;
-    if (cardMoving || (direction > 0 && idx < count - 1) || (direction < 0 && idx > 0)) {
-      e.preventDefault();
-      if (!e.repeat) go(idx + direction);
-    }
+    if (/^(ArrowUp|ArrowDown|PageUp|PageDown|Home|End| )$/.test(e.key)) stopScrollFlow();
   });
   // Pointer motion lives on the image frame, independently of the plate's scroll zoom.
   if (!reduce && matchMedia('(hover: hover) and (pointer: fine)').matches) {
@@ -686,15 +831,10 @@
     var pointerFrame = 0;
     var cursorLayer = document.createElement('div');
     cursorLayer.className = 'hand-cursor'; cursorLayer.setAttribute('aria-hidden', 'true');
-    var cursorTail = [];
-    for (var tailIndex = 0; tailIndex < 22; tailIndex++) {
-      var tail = document.createElement('i'); tail.className = 'hand-cursor-trail';
-      cursorLayer.appendChild(tail);
-      cursorTail.push({ element: tail, x: innerWidth / 2, y: innerHeight / 2 });
-    }
     var cursorCore = document.createElement('div'); cursorCore.className = 'hand-cursor-core';
+    var cursorCoordinates = document.createElement('span'); cursorCoordinates.className = 'cursor-coordinates';
+    cursorCore.appendChild(cursorCoordinates);
     cursorLayer.appendChild(cursorCore); document.body.appendChild(cursorLayer);
-    var contactAmount = 0;
 
     function drawHeroPointer() {
       var unsettled = false;
@@ -713,27 +853,10 @@
       cursorLayer.classList.toggle('is-visible', cursorVisible);
       document.body.classList.toggle('has-hand-cursor', cursorVisible);
       var mouseX = pointerTarget.lightX, mouseY = pointerTarget.lightY;
-      var handBounds = plate.getBoundingClientRect();
-      // Index fingertip, measured from the artwork: approximately (289, 200) in 1024 × 640.
-      var fingerX = handBounds.left + handBounds.width * .282;
-      var fingerY = handBounds.top + handBounds.height * .313;
-      var distance = Math.hypot(mouseX - fingerX, mouseY - fingerY);
-      var touching = cursorVisible && distance < (contactAmount > .5 ? 78 : 60);
-      contactAmount += ((touching ? 1 : 0) - contactAmount) * .12;
-      if (Math.abs(contactAmount - (touching ? 1 : 0)) > .005) unsettled = true;
-      cursorLayer.classList.toggle('is-touching', touching);
-      cursorCore.style.transform = 'translate3d(' + mouseX + 'px,' + mouseY + 'px,0) rotate(' + (contactAmount * 32).toFixed(2) + 'deg)';
-      var trailX = mouseX, trailY = mouseY;
-      cursorTail.forEach(function (point, index) {
-        var follow = .27 - contactAmount * .12;
-        point.x += (trailX - point.x) * follow;
-        point.y += (trailY - point.y) * follow;
-        if (Math.abs(trailX - point.x) + Math.abs(trailY - point.y) > .1) unsettled = true;
-        var scale = (1 - index / 23) * (1.05 + contactAmount * 1.2);
-        point.element.style.transform = 'translate3d(' + point.x.toFixed(2) + 'px,' + point.y.toFixed(2) + 'px,0) scale(' + scale.toFixed(3) + ')';
-        point.element.style.opacity = ((1 - index / 22) * (.66 + contactAmount * .25)).toFixed(3);
-        trailX = point.x; trailY = point.y;
-      });
+      var nextButton = document.getElementById('heroNext');
+      cursorLayer.classList.toggle('is-touching', !nextButton.disabled && nextButton.matches(':hover'));
+      cursorCore.style.transform = 'translate3d(' + mouseX + 'px,' + mouseY + 'px,0)';
+      cursorCoordinates.textContent = 'X ' + String(Math.round(mouseX)).padStart(4, '0') + '\nY ' + String(Math.round(mouseY)).padStart(4, '0');
       pointerFrame = unsettled ? requestAnimationFrame(drawHeroPointer) : 0;
     }
     function queueHeroPointer() { if (!pointerFrame) pointerFrame = requestAnimationFrame(drawHeroPointer); }
@@ -803,24 +926,22 @@
     var openingSurfaces = [nav, track, document.getElementById('aboutPage'), contact];
     openingSurfaces.forEach(function (element) { element.inert = true; });
     openingSkip.focus({ preventScroll: true });
-    var openingTick = setInterval(function () {
-      var time = performance.now() / 1000;
-      document.getElementById('openingCoordinates').textContent = (35.6762 + Math.sin(time * 5) * .08).toFixed(6) + '° N / ' + (139.6503 + Math.cos(time * 4) * .12).toFixed(6) + '° E';
-    }, 50);
+    var openingVideo = document.getElementById('openingVideo');
+    openingVideo.playbackRate = 2;
+    openingVideo.play().catch(function () {});
     function finishOpening() {
       if (openingFinished) return;
       openingFinished = true;
-      clearInterval(openingTick);
       clearTimeout(openingAuto);
-      try { sessionStorage.setItem('zhaolin-intro-seen','1'); } catch(e) {}
       document.documentElement.setAttribute('data-intro','leaving');
       setTimeout(function () {
         document.documentElement.removeAttribute('data-intro');
         openingSurfaces.forEach(function (element) { element.inert = false; });
+        openingVideo.pause();
         opening.remove();
-      }, 880);
+      }, 600);
     }
-    var openingAuto = setTimeout(finishOpening, 1800);
+    var openingAuto = setTimeout(finishOpening, 2400);
     openingSkip.addEventListener('click', finishOpening);
     opening.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') finishOpening();
@@ -830,8 +951,10 @@
   updateCards();
   // Restore a project visitor directly to the requested portfolio section.
   requestAnimationFrame(function () {
-    if (location.hash === '#work') goTo(geometry().B);
+    if (document.documentElement.hasAttribute('data-intro')) window.scrollTo(0, 0);
+    else if (location.hash === '#work') goTo(geometry().B);
     else if (location.hash === '#about') goTo(document.getElementById('aboutPage').getBoundingClientRect().top + window.scrollY);
     else if (location.hash === '#contact') goTo(geometry().C);
+    else if (new URLSearchParams(location.search).get('intro') === 'replay') window.scrollTo(0, 0);
   });
 })();

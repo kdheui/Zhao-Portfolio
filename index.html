@@ -6,17 +6,17 @@
   <meta name="claude:viewport-fit-sides" content="cover">
   <title>Zhaolin Hu Portfolio</title>
   <!-- Run before painting so the opening overlay never flashes in late. -->
-  <script src="intro.js?v=ask-api"></script>
+  <script src="intro.js?v=ask-transition-responsive-26"></script>
 <link rel="preload" href="assets/fonts/michroma-regular.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=ask-api">
+  <link rel="stylesheet" href="styles.css?v=ask-transition-responsive-26">
   <script defer src="ask-config.js?v=ask-api"></script>
-  <script defer src="app.js?v=ask-api"></script>
+  <script defer src="hero-video.js?v=ask-transition-responsive-26"></script>
+  <script defer src="app.js?v=ask-transition-responsive-26"></script>
 </head>
 <body>
 <div class="opening" id="opening" role="dialog" aria-label="Welcome to Zhaolin Hu’s portfolio" aria-modal="true">
-  <div class="opening-top"><span>ZHAOLIN HU / PORTFOLIO 2026</span><button class="opening-skip" id="openingSkip" type="button">SKIP ↗</button></div>
-  <div class="opening-center"><p class="opening-name">ZHAOLIN HU</p><p class="opening-role">INTERACTION DESIGN / EMERGING TECHNOLOGY</p><div class="opening-line" aria-hidden="true"><i></i></div></div>
-  <div class="opening-bottom"><span class="opening-coordinates" id="openingCoordinates" aria-hidden="true">35.676200° N<br>139.650300° E</span><span>MOVE. FEEL. EXPLORE.</span></div>
+  <button class="opening-skip" id="openingSkip" type="button" aria-label="Skip introduction">SKIP ↗</button>
+  <div class="opening-art"><video class="opening-video" id="openingVideo" muted playsinline preload="auto" aria-label="Two hands reaching toward a shared point of light"><source src="assets/opening-metallic-touch.mp4" type="video/mp4"></video><p><span class="opening-copy-first">Curious about people.</span> <span class="opening-copy-second">Driven by interaction.</span></p></div>
 </div>
 
 <nav class="nav" id="nav" aria-label="Main navigation">
@@ -28,11 +28,13 @@
   <div class="stage" id="stage">
     <div class="frame">
       <div class="plate" id="plate">
-        <img id="plateImg" src="assets/images/fog-hand.jpg" alt="A hand pressing softly against fogged glass, lit pink from within" width="1024" height="640" draggable="false">
+        <img id="plateImg" src="assets/hero-start.jpg?v=settled-hold-2" alt="A hand approaching fogged glass, lit pink from within" width="1920" height="1080" draggable="false">
         <div class="glow" id="glow"></div>
+        <button class="hero-next" id="heroNext" type="button" aria-label="Continue to Ask" aria-hidden="true" disabled></button>
       </div>
     </div>
 
+    <div class="hero-entrance" id="heroEntrance">
     <div class="hero-pointer-glow" aria-hidden="true"></div>
     <div class="hero-orbit" aria-hidden="true"><i class="hero-orbit-ring"></i><i class="hero-orbit-ring hero-orbit-ring--inner"></i><i class="hero-orbit-point"></i></div>
     <div class="deco" id="deco" aria-hidden="true">
@@ -55,6 +57,7 @@
 
     <div class="hint" id="hint" aria-hidden="true"><span>Scroll / Explore</span><i></i></div>
 
+    </div>
     <div class="glass" id="glass">
       <form class="ask" id="ask" autocomplete="off">
         <label class="sr" for="q">Ask anything about Zhaolin</label>
@@ -87,7 +90,7 @@
 
     <div class="works" id="work" aria-label="My Work">
       <div class="works-in">
-        <h2 id="wTitle">My Work</h2>
+        <h2 id="wTitle">(Featured work)</h2>
         <div class="carousel" id="wCar" role="group" aria-roledescription="carousel" aria-label="Selected work">
           <span class="card-trail card-trail--far" aria-hidden="true"></span><span class="card-trail card-trail--near" aria-hidden="true"></span><div class="viewport"><div class="slides" id="slides">
             <div class="slide" role="group" aria-roledescription="slide" aria-label="1 of 5 — HOVR"><a class="hovr-card-link" href="hovr.html" aria-label="Read the HOVR case study"><img src="assets/hovr/imgHovrProjectCover.png" alt="HOVR tablet interface in a kitchen" loading="lazy" width="600" height="360"><div class="hovr-card-copy"><b>HOVR</b><span>Hands busy. Flow uninterrupted.</span><span class="hovr-card-cta">View case study ↗</span></div></a></div>
@@ -104,18 +107,29 @@
 </section>
 
 <div class="about-track" id="aboutPage"><section class="about-page" aria-labelledby="aboutTitle">
-  <div class="about-copy"><p class="about-kicker">ABOUT / ZHAOLIN HU</p>
-    <h2 id="aboutTitle">Curious about people.<br>Driven by interaction.</h2>
-    <div class="about-bio"><h3>A little about me</h3>
-      <p>I’m Zhaolin Hu, an interaction designer with a background in product design, pursuing an MFA in Interactive Design at SCAD.</p>
-      <p>My interests sit at the intersection of AI experiences, embodied interaction, and creative technology.</p>
+  <h2 id="aboutTitle" class="archive-slot"><span>(about</span><i aria-hidden="true"></i><span>me)</span></h2>
+  <p class="archive-intro">Zhaolin Hu — interaction designer.<br>Curious about people. Driven by interaction.</p>
+  <div class="archive-output"><article class="archive-paper" aria-label="Zhaolin Hu personal profile">
+    <header class="archive-paper-head"><span>ZHAOLIN HU / ABOUT</span><span>DESIGN & EXPLORATION</span></header>
+    <div class="archive-paper-grid">
+      <div class="about-copy">
+        <p class="about-kicker">INTERACTION DESIGNER</p>
+        <h3 class="archive-name">Zhaolin<br>Hu.</h3>
+        <div class="about-bio"><h3>A little about me</h3>
+          <p>I’m Zhaolin Hu, an interaction designer with a background in product design, pursuing an MFA in Interactive Design at SCAD.</p>
+          <p>My interests sit at the intersection of AI experiences, embodied interaction, and creative technology.</p>
+        </div>
+        <div class="about-practice"><h3>Research → Interaction → Prototyping</h3><p>AI EXPERIENCE DESIGN<br>EMBODIED INTERACTION<br>UNITY / UNREAL / FIGMA<br>CREATIVE CODING</p></div>
+      </div>
+      <figure class="about-portrait"><div class="about-photo-slot" id="aboutPhotoSlot"><img src="assets/images/zhaolin-portrait.jpg" alt="Zhaolin Hu" width="2533" height="3377" loading="lazy"></div><figcaption><span>ZHAOLIN HU</span><span>INTERACTION DESIGNER</span></figcaption></figure>
     </div>
-    <div class="about-practice"><h3>Research → Interaction → Prototyping</h3><p>AI EXPERIENCE DESIGN<br>EMBODIED INTERACTION<br>UNITY / UNREAL / FIGMA<br>CREATIVE CODING</p></div>
-  </div>
-  <figure class="about-portrait"><div class="about-photo-slot" id="aboutPhotoSlot"><img src="assets/images/zhaolin-portrait.jpg" alt="Zhaolin Hu" width="2533" height="3377" loading="lazy"></div><figcaption><span>ZHAOLIN HU</span><span>INTERACTION DESIGNER</span></figcaption></figure>
+    <footer class="archive-paper-foot">HUMAN DESIGN SYSTEM / EMERGING TECHNOLOGY <span></span></footer>
+  </article></div>
 </section></div>
 
-<section class="contact" id="contact" aria-label="Contact">
+<div class="contact-track" id="contactTrack"><section class="contact" id="contact" aria-label="Contact">
+  <video class="contact-video" id="contactVideo" muted playsinline preload="metadata" poster="assets/hero-start.jpg" aria-hidden="true"><source src="assets/hero-scroll.mp4" type="video/mp4"></video>
+  <canvas class="contact-dusk" id="contactDusk" aria-hidden="true"></canvas>
   <div class="contact-in" id="contactIn">
     <p class="eyebrow">Contact</p>
     <h2>Have something<br>in mind?</h2>
@@ -127,6 +141,6 @@
     <p class="note2" id="note2">Placeholder address. Replace it with your own.</p>
   </div>
   <p class="foot">© 2026 Zhaolin Hu</p>
-</section>
+</section></div>
 </body>
 </html>
