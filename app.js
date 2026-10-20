@@ -820,11 +820,11 @@
     if (mouseWheel) {
       // A physical wheel notch should cover a meaningful part of the long scenes.
       var notch = Math.max(1, Math.min(3, Math.abs(delta) / 100));
-      delta = Math.sign(delta) * Math.max(280, innerHeight * .55) * notch;
-      flowResponse = 125;
+      delta = Math.sign(delta) * Math.max(560, innerHeight * 1.1) * notch;
+      flowResponse = 240;
     } else {
-      delta *= 1.25;
-      flowResponse = 85;
+      delta *= 2.5;
+      flowResponse = 170;
     }
     e.preventDefault(); smoothScrollBy(delta);
   }, {passive:false});
