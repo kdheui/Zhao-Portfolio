@@ -177,7 +177,7 @@
     var ex = ease(clamp((h - .18) / .5, 0, 1));
     var g = ease(clamp((p - 0.5) / 0.35, 0, 1));
     glass.style.opacity = (g * (1 - ex)).toFixed(3);
-    glass.style.transform = 'translateY(' + ((1 - g) * 5 - ex * 6).toFixed(2) + '%) scale(' + (0.97 + 0.03 * g - 0.03 * ex).toFixed(4) + ')';
+    glass.style.transform = 'translateY(' + ((1 - g) * 10 - ex * 6).toFixed(2) + '%) scaleX(' + (.82 + .18 * g - .03 * ex).toFixed(4) + ') scaleY(' + (.46 + .54 * g - .03 * ex).toFixed(4) + ')';
     var bl = 'blur(' + (g * 22).toFixed(1) + 'px)';
     glass.style.backdropFilter = bl; glass.style.webkitBackdropFilter = bl;
     glass.style.visibility = (g * (1 - ex)) > 0.01 ? 'visible' : 'hidden';
