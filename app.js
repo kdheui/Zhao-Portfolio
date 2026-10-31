@@ -376,7 +376,7 @@
   function portfolioReply(question) {
     if (/focus|approach|design direction|设计方向/i.test(question)) return 'I’m an interaction designer pursuing UX engineering and creative technology roles. I connect user research with interaction design and working prototypes: SCADpro shows my research practice, while HOVR shows my Unity and MediaPipe implementation.';
     if (/epic door|fixed scream|unreal|\bue\b|虚幻|街机|传送门/i.test(question)) return 'Epic Door and Fixed Scream are my first-semester Unreal Engine projects from Fall 2025. Epic Door shows a third-person sci-fi environment and portal sequence; Fixed Scream shows a fixed-screen arcade platforming arena. Both have full demo videos in Work.';
-    if (/academic|paper|学术|论文/i.test(question)) return 'Academic Search is my individual IXDS710 Figma prototype connecting Search, Library, and Map. It includes structured paper summaries, a design system, and documented usability observations. Open its case study in Work; the AI behavior is demonstrated at prototype level.';
+    if (/academic|paper|学术|论文/i.test(question)) return 'Smart Research is my individual IXDS710 Figma prototype connecting Search, Library, and Map. It includes structured paper summaries, a design system, and documented usability observations. Open its case study in Work; the AI behavior is demonstrated at prototype level.';
     if (/robinhood|invest|junior|投资/i.test(question)) return 'Robinhood Junior is a team course concept for learning investing through virtual-money simulations, lessons, and a dictionary. The team includes Yifan Tang, Shivani Varandani, Zhaolin Hu, and Quy Ho. The case study presents our shared research and four-user prototype evaluation; it is not a launched Robinhood product.';
     if (/scadpro|deloitte|avatar|research|调研|研究/i.test(question)) return 'In SCADpro × Deloitte Digital, I refined interview tools, participated in field interviews, cleaned records, and contributed to affinity analysis and findings. The team studied government-service experiences and opportunities for AI Avatar support. Open the SCADpro case study in Work to see the evidence and design requirements; the proposals have not been validated as product outcomes.';
     if (/start|which project|推荐/i.test(question)) return 'Start with HOVR in My Work. It is a kitchen-focused tablet experience using gestures for recipes, entertainment, and interruptions. Open its case study to see the interaction process and prototype.';
@@ -912,8 +912,8 @@
     'Unreal Engine · Sci-fi environment & portal': 'Unreal Engine · 科幻场景与传送门',
     'Unreal Engine · Fixed-screen arcade platformer': 'Unreal Engine · 固定画面街机平台游戏',
     'Watch project demo ↗': '观看项目演示 ↗',
-    'Academic Search': '学术检索系统',
-    'Paper discovery · Structured summaries · Research continuity': '论文发现 · 结构化摘要 · 研究路径',
+    'Smart Research': '智能学术检索',
+    'Academic search · Tags · Research map': '学术检索 · 标签整理 · 研究地图',
     'Investing education · Simulation · Team research': '投资学习 · 模拟体验 · 团队研究',
     'Interaction Designer / Creative Technologist': '交互设计师 / 创意技术',
     'User research / Interactive systems': '用户研究 / 交互系统',
@@ -986,4 +986,5 @@
     else if (new URLSearchParams(location.search).get('intro') === 'replay') window.scrollTo(0, 0);
   });
 })();
+
 
