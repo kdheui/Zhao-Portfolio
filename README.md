@@ -78,3 +78,7 @@ Work → About：最后一张卡片后继续滚动，深色从实色散成颗粒
 ## SCADpro 研究案例
 
 `scadpro.html` 与 `scadpro.css` 展示访谈设计、现场研究、亲和分析和交互要求，使用 `assets/scadpro/` 中的团队工作照片。数据为团队范围，设计方向不代表已部署或已验证效果。首页第二张项目卡片链接到案例。
+
+## First-semester Unreal Engine projects
+
+`epic-door.html` and `fixed-scream.html` present Fall 2025 project demos. Full-length web-optimized videos, original audio, retained on-screen credits, and extracted screenshots are in `assets/ue/`. The home gallery now contains six projects.
