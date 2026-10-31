@@ -360,7 +360,7 @@
       goTo(pick(geometry()));
     });
   }
-  navTo('#work', function (s) { return s.B; });
+  navTo('#work', function (s) { return s.galleryStart + 1; });
   navTo('#home', function (s) { return s.H; });
   navTo('#about', function (s) { return document.getElementById('aboutPage').getBoundingClientRect().top + window.scrollY; });
   navTo('#contact', function (s) { return s.C; });
@@ -374,11 +374,12 @@
   var dialogMessages = document.getElementById('dialogMessages');
   var dialogQuestion = document.getElementById('dialogQuestion');
   function portfolioReply(question) {
-    if (/focus|approach|design direction|设计方向/i.test(question)) return 'I’m an interaction designer with a background in product design, pursuing an MFA in Interactive Design at SCAD. My interests sit at the intersection of AI experiences, embodied interaction, and creative technology.';
+    if (/focus|approach|design direction|设计方向/i.test(question)) return 'I’m an interaction designer pursuing UX engineering and creative technology roles. I connect user research with interaction design and working prototypes: SCADpro shows my research practice, while HOVR shows my Unity and MediaPipe implementation.';
+    if (/scadpro|deloitte|avatar|research|调研|研究/i.test(question)) return 'In SCADpro × Deloitte Digital, I refined interview tools, participated in field interviews, cleaned records, and contributed to affinity analysis and findings. The team studied government-service experiences and opportunities for AI Avatar support. Open the SCADpro case study in Work to see the evidence and design requirements; the proposals have not been validated as product outcomes.';
     if (/start|which project|推荐/i.test(question)) return 'Start with HOVR in My Work. It is a kitchen-focused tablet experience using gestures for recipes, entertainment, and interruptions. Open its case study to see the interaction process and prototype.';
     if (/role|contribution|职责/i.test(question) && !/looking|opportunit/i.test(question)) return 'HOVR is an individual project. I designed the UX/UI and prototyped gesture input, mode switching, and simulated interruptions for a kitchen-focused iPad experience.';
     if (/tool|prototyp|工具/i.test(question)) return 'For HOVR, I designed in Figma and built the interaction prototype in Unity using MediaPipe for hand tracking, then built for iPad through Xcode. Calls and messages are simulated in the prototype.';
-    if (/opportunit|looking|collaborat|求职/i.test(question)) return 'For current role interests, availability, or collaboration opportunities, please get in touch. Those details are still being finalized for this portfolio.';
+    if (/opportunit|looking|collaborat|求职/i.test(question)) return 'I’m pursuing UX engineering and creative technology roles that connect research, interaction design, and development. HOVR shows my implementation work; SCADpro shows my contribution to qualitative research and synthesis.';
     if (/contact|resume|email|联系|简历/i.test(question)) return 'You can reach me at zhaohu21@student.scad.edu. Open Resume in the navigation to view my PDF resume.';
     return 'This preview currently covers the suggested portfolio questions. More detailed answers will be added with the full project case studies.';
   }
@@ -905,6 +906,10 @@
   updateHeroCoordinates();
   setInterval(updateHeroCoordinates, reduce ? 1000 : 33);
   var localeText = {
+    'Interaction Designer / Creative Technologist': '交互设计师 / 创意技术',
+    'User research / Interactive systems': '用户研究 / 交互系统',
+    'Gesture-controlled kitchen tablet · Unity + MediaPipe': '手势控制厨房平板 · Unity + MediaPipe',
+    'Public-service research · From interviews to interaction requirements': '公共服务研究 · 从访谈到交互要求',
     'Hands busy. Flow uninterrupted.': '双手忙碌，体验不断。', 'View case study ↗': '查看项目详情 ↗',
     'Available for job': '开放工作机会', 'Work': '作品', 'About': '关于',
     'Interaction Designer': '交互设计师', 'Human design system / Emerging technology': '以人为本的设计 / 新兴技术',
@@ -952,6 +957,7 @@
         openingSurfaces.forEach(function (element) { element.inert = false; });
         openingVideo.pause();
         opening.remove();
+        if (location.hash === '#work') goTo(geometry().galleryStart + 1);
       }, 600);
     }
     var openingAuto = setTimeout(finishOpening, 2400);
@@ -965,7 +971,7 @@
   // Restore a project visitor directly to the requested portfolio section.
   requestAnimationFrame(function () {
     if (document.documentElement.hasAttribute('data-intro')) window.scrollTo(0, 0);
-    else if (location.hash === '#work') goTo(geometry().B);
+    else if (location.hash === '#work') goTo(geometry().galleryStart + 1);
     else if (location.hash === '#about') goTo(document.getElementById('aboutPage').getBoundingClientRect().top + window.scrollY);
     else if (location.hash === '#contact') goTo(geometry().C);
     else if (new URLSearchParams(location.search).get('intro') === 'replay') window.scrollTo(0, 0);
