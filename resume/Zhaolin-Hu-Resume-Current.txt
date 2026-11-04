@@ -1,0 +1,39 @@
+Zhaolin Hu
+Interaction Designer / Creative Technologist
+Savannah, GA | zhaohu21@student.scad.edu
+Portfolio: kdheui.github.io/Zhao-Portfolio/ | LinkedIn: linkedin.com/in/zhaolin-hu-9b152038a
+EDUCATION
+Savannah College of Art and Design	Savannah, GA
+MFA, Interactive Design	Sep 2025 - Nov 2027 (expected)
+Hubei University of Technology
+BA, Product Design	Sep 2021 - Jun 2025
+PROFESSIONAL EXPERIENCE
+SCADpro × Deloitte Digital - Sponsored Course	Savannah, GA
+User Experience Researcher	Jun - Aug 2026
+•	Developed interview questions, moderator scripts, recorder forms, and fieldwork plans for a team study of government services involving 33 interview participants and 236 survey responses.
+•	Added positive-experience questions and optional probes; participated in field interviews, cleaned records, and contributed to affinity analysis and research findings.
+•	Helped translate findings into proposed AI assistance requirements: service continuity, clear status feedback, and accountable handoff to human support.
+SELECTED PROJECTS
+HOVR - Gesture-Controlled Kitchen Tablet	Q2 2026
+UX/UI Designer & Interaction Prototyper | Individual | Figma, Unity, MediaPipe, Xcode
+•	Designed Kitchen and Entertainment modes, mapping hand gestures to selection, scrolling, and simulated interruption handling.
+•	Built real-time hand tracking in Unity with MediaPipe; deployed to iPad through Xcode and tested interactions on-device.
+Smart Research - Academic Search Experience	Winter 2026
+UX/UI & Interaction Designer | Individual | Figma
+•	Designed Search, Library, and Map workflows with contextual paper review, personal tags, and reusable components for loading, confirmation, and fallback states.
+•	Evaluated the Figma prototype with two users; identified opportunities to clarify related-content entry points and the research map. AI retrieval remained a simulated interaction.
+Robinhood Junior - Investing Education Concept	Winter 2026
+Team Member | Academic UX Design Project
+•	Collaborated on an investing education concept combining virtual-money scenarios, short lessons, and contextual definitions; the team evaluated the prototype with four users.
+Epic Door & Fixed Scream - Real-Time Interactive Experiences	Fall 2025
+Creator | Unreal Engine
+•	Built a third-person portal environment and a fixed-screen arcade platformer, exploring spatial interaction, level layout, and gameplay feedback; documented both through running-project demos.
+EXTRACURRICULAR & LEADERSHIP
+SCAD Hack IX - Hackathon Participant	Oct 1, 2026
+•	Conducted early research and designed the end-to-end gamification flow for a team concept supporting neurodivergent college freshmen through progressive campus scenarios and feedback.
+Hubei University of Technology - Product Design Program
+•	Spoke at the Outstanding Graduate Sharing Session, sharing personal experience with fellow students.
+SKILLS
+Design & Research: UX research, interview design, affinity analysis, interaction design, usability testing, design systems, gamification
+Tools: Figma, Unity, Unreal Engine, MediaPipe, Xcode, Rhino 3D
+Development: JavaScript, creative coding, AI-assisted development
