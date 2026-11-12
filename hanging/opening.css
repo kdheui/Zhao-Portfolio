@@ -1,7 +1,7 @@
 @font-face{font-family:Michroma;src:url("../assets/fonts/michroma-regular.ttf") format("truetype");font-display:swap}
 @font-face{font-family:"DM Mono";src:url("../assets/fonts/dm-mono-regular.ttf") format("truetype");font-display:swap}
 .opening{display:none}
-html[data-intro] .opening{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f6f5f1;color:#4d4133;transform:translateY(0);transition:transform .6s cubic-bezier(.76,0,.24,1)}
+html[data-intro] .opening{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--page-background,#e4e4e4);color:#4d4133;transform:translateY(0);transition:transform .6s cubic-bezier(.76,0,.24,1)}
 html[data-intro="leaving"] .opening{transform:translateY(-101%);pointer-events:none}
 .opening-art{width:min(27vw,560px);text-align:center}
 .opening-video{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;animation:opening-video-close .35s cubic-bezier(.65,0,.35,1) 2.05s both}
