@@ -1,151 +1,84 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="claude:viewport-fit-sides" content="cover">
-  <title>Zhaolin Hu · Research, Interaction & Creative Technology</title>
-  <meta name="description" content="Zhaolin Hu is an interaction designer exploring UX engineering and creative technology, connecting user research with working interactive systems.">
-  <!-- Run before painting so the opening overlay never flashes in late. -->
-  <script src="intro.js?v=nav-resume-35"></script>
-<link rel="preload" href="assets/fonts/michroma-regular.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=nav-resume-35">
-  <script defer src="ask-config.js?v=ask-api"></script>
-  <script defer src="hero-video.js?v=nav-resume-35"></script>
-  <script defer src="app.js?v=smart-research-39"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zhaolin Hu — Interaction Designer</title>
+<link rel="stylesheet" href="./hanging/style.css">
 </head>
-<body>
-<div class="opening" id="opening" role="dialog" aria-label="Welcome to Zhaolin Hu’s portfolio" aria-modal="true">
-  <button class="opening-skip" id="openingSkip" type="button" aria-label="Skip introduction">SKIP ↗</button>
-  <div class="opening-art"><video class="opening-video" id="openingVideo" muted playsinline preload="auto" aria-label="Two hands reaching toward a shared point of light"><source src="assets/opening-metallic-touch.mp4" type="video/mp4"></video><p><span class="opening-copy-first">Curious about people.</span> <span class="opening-copy-second">Driven by interaction.</span></p></div>
-</div>
+<body data-view="enter">
+<header class="masthead" inert>
+  <nav aria-label="Main navigation">
+    <a class="nav-home" href="#work" inert aria-label="Zhaolin Hu — home"><h1 id="gallery-title">ZHAOLIN HU</h1></a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+    <a href="./resume/Zhaolin-Hu-Resume-2026-11-04.pdf" target="_blank" rel="noopener">Resume</a>
+  </nav>
+  <div class="tools"><button type="button" id="language-toggle" class="locale" aria-label="Switch to Chinese">EN / 中文</button></div>
+</header>
+<main id="work" aria-label="Interactive hanging portfolio">
+  <div id="stage"></div>
+  <div id="labels"></div>
+</main>
 
-<nav class="nav" id="nav" aria-label="Main navigation">
-  <a class="nav-availability" href="#contact"><span>Available for job</span></a>
-  <div class="nav-menu"><a class="nav-brand" href="#home" aria-label="Zhaolin Hu home">@zhaolin hu</a><a href="#work">Work</a><a href="#about">About</a><a href="resume/Zhaolin-Hu-Resume-2026-11-04.pdf" target="_blank" rel="noopener">Resume</a></div><label class="nav-language"><span>LAN</span><select id="navLanguage" aria-label="Language"><option value="en">EN</option><option value="zh">中文</option></select></label>
-</nav>
-
-<section class="track" id="track" aria-label="Introduction">
-  <div class="stage" id="stage">
-    <div class="frame">
-      <div class="plate" id="plate">
-        <img id="plateImg" src="assets/hero-start.jpg?v=settled-hold-2" alt="A hand approaching fogged glass, lit pink from within" width="1920" height="1080" draggable="false">
-        <div class="glow" id="glow"></div>
-        <button class="hero-next" id="heroNext" type="button" aria-label="Continue to Ask" aria-hidden="true" disabled></button>
-      </div>
-    </div>
-
-    <div class="hero-entrance" id="heroEntrance">
-    <div class="hero-pointer-glow" aria-hidden="true"></div>
-    <div class="hero-orbit" aria-hidden="true"><i class="hero-orbit-ring"></i><i class="hero-orbit-ring hero-orbit-ring--inner"></i><i class="hero-orbit-point"></i></div>
-    <div class="deco" id="deco" aria-hidden="true">
-      <div class="coords" aria-hidden="true"><span id="heroCoordX">35.6762° N</span><br><span id="heroCoordY">139.6503° E</span><br><span id="heroClock">T 00:00:00</span></div>
-      <div class="sq"></div><div class="vl"></div>
-      <i class="x" style="left:16.5%;top:24%"></i>
-      <i class="x" style="left:8%;top:71%"></i>
-      <i class="x" style="left:95.5%;top:4%"></i>
-      <i class="x" style="left:93.8%;top:54%"></i>
-      <i class="x" style="left:95.5%;top:81%"></i>
-    </div>
-
-    <div class="type" id="about">
-      <h1 class="name" aria-label="Zhaolin Hu"><span class="ch" aria-hidden="true">Z</span><span class="ch" aria-hidden="true">H</span><span class="ch" aria-hidden="true">A</span><span class="ch" aria-hidden="true">O</span><span class="ch" aria-hidden="true">L</span><span class="ch" aria-hidden="true">I</span><span class="ch" aria-hidden="true">N</span><span class="sp" aria-hidden="true"></span><span class="ch" aria-hidden="true">H</span><span class="ch" aria-hidden="true">U</span></h1>
-      <div class="tag" id="tag">
-        <span class="role">Interaction Designer / Creative Technologist</span>
-        <span class="scope">User research / Interactive systems</span>
-      </div>
-    </div>
-
-    <div class="hint" id="hint" aria-hidden="true"><span>Scroll / Explore</span><i></i></div>
-
-    </div>
-    <div class="glass" id="glass">
-      <form class="ask" id="ask" autocomplete="off">
-        <label class="sr" for="q">Ask anything about Zhaolin</label>
-        <input id="q" maxlength="2000" type="text" placeholder="Ask anything about Zhaolin" enterkeyhint="send" aria-controls="askKeyboard" aria-expanded="false">
-      </form>
-      <div class="ask-suggestions" id="askSuggestions" role="group" aria-label="Suggested questions">
-        <p class="suggestions-label">A FEW PLACES TO START</p>
-        <div class="suggestion-list">
-          <button class="suggestion-chip" type="button" data-question="How would you describe your design focus and approach?">Your design focus</button>
-          <button class="suggestion-chip" type="button" data-question="Which project should I start with, and why?">Where should I start?</button>
-          <button class="suggestion-chip" type="button" data-question="What was your role and contribution in your featured project?">Your role in the project</button>
-          <button class="suggestion-chip" type="button" data-question="What tools do you use to build and test interactive prototypes?">Prototyping & tools</button>
-          <button class="suggestion-chip" type="button" data-question="What kinds of roles or collaborations are you looking for?">Roles & opportunities</button>
-          <button class="suggestion-chip" type="button" data-question="How can I contact you or get your resume?">Contact & resume</button>
-        </div>
-      </div>
-      <p class="ask-disclosure" id="askDisclosure" hidden></p>
-      <p class="note" id="note" role="status" aria-live="polite"></p>
-      <div class="ask-keyboard" id="askKeyboard" role="group" aria-label="On-screen keyboard" aria-hidden="true" inert></div>
-<section class="ask-dialog" id="askDialog" aria-labelledby="dialogTitle" aria-hidden="true" inert>
-  <header class="dialog-header"><div><h2 id="dialogTitle">Ask Zhaolin</h2><p id="chatMode">PORTFOLIO Q&A / PREVIEW</p></div><button class="dialog-close" id="dialogClose" type="button" aria-label="Back to suggested questions">←</button></header>
-  <div class="dialog-messages" id="dialogMessages" role="log" aria-label="Conversation" aria-live="polite"></div>
-  <div class="chat-feedback"><p id="chatStatus" role="status" aria-live="polite"></p><button id="chatRetry" type="button" hidden>Retry / 重试</button></div>
-  <p id="chatPrivacy" class="chat-privacy" hidden></p>
-  <form class="dialog-compose" id="dialogCompose"><input id="dialogQuestion" maxlength="2000" aria-label="Ask a follow-up question" placeholder="Ask a follow-up question…" required><button type="submit">SEND ↗</button></form>
-</section>
-    </div>
-
-    <canvas class="dusk" id="dusk" aria-hidden="true"></canvas>
-
-    <div class="works" id="work" aria-label="My Work">
-      <div class="works-in">
-        <h2 id="wTitle">(Featured work)</h2>
-        <div class="carousel" id="wCar" role="group" aria-roledescription="carousel" aria-label="Selected work">
-          <span class="card-trail card-trail--far" aria-hidden="true"></span><span class="card-trail card-trail--near" aria-hidden="true"></span><div class="viewport"><div class="slides" id="slides">
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="1 of 6 — HOVR"><a class="hovr-card-link" href="hovr.html" aria-label="Read the HOVR case study"><img src="assets/hovr/imgHovrProjectCover.png" alt="HOVR tablet interface in a kitchen" loading="lazy" width="600" height="360"><div class="hovr-card-copy"><b>HOVR</b><span>Gesture-controlled kitchen tablet · Unity + MediaPipe</span><span class="hovr-card-cta">View case study ↗</span></div></a></div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="2 of 6 — SCADpro AI Avatar research"><a class="hovr-card-link" href="scadpro.html" aria-label="Read the SCADpro research case study"><img src="assets/scadpro/workshop.jpg" alt="Team mapping government-service journeys during a research workshop" loading="lazy" width="600" height="360"><div class="hovr-card-copy"><b>SCADpro × Deloitte Digital</b><span>Public-service research · From interviews to interaction requirements</span><span class="hovr-card-cta">View case study ↗</span></div></a></div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="3 of 6 — Smart Research"><a class="hovr-card-link" href="academic-search.html" aria-label="Read the Smart Research case study"><img src="assets/scad/smart-research-home.jpg" alt="Smart Research original interface designs" loading="lazy" width="1440" height="900"><div class="hovr-card-copy"><b>Smart Research</b><span>Academic search · Tags · Research map</span><span class="hovr-card-cta">View case study ↗</span></div></a></div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="4 of 6 — Robinhood Junior"><a class="hovr-card-link" href="robinhood-junior.html" aria-label="Read the Robinhood Junior case study"><img src="assets/scad/junior-cover.jpg" alt="Robinhood Junior original interface designs" loading="lazy" width="1440" height="900"><div class="hovr-card-copy"><b>Robinhood Junior</b><span>Investing education · Simulation · Team research</span><span class="hovr-card-cta">View case study ↗</span></div></a></div>
-
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="5 of 6 — Epic Door"><a class="hovr-card-link" href="epic-door.html" aria-label="Read the Epic Door project"><img src="assets/ue/epic-door-cover.jpg" alt="Epic Door Unreal Engine project demo" loading="lazy" width="1280" height="720"><div class="hovr-card-copy"><b>Epic Door</b><span>Unreal Engine · Sci-fi environment & portal</span><span class="hovr-card-cta">Watch project demo ↗</span></div></a></div>
-            <div class="slide" role="group" aria-roledescription="slide" aria-label="6 of 6 — Fixed Scream"><a class="hovr-card-link" href="fixed-scream.html" aria-label="Read the Fixed Scream project"><img src="assets/ue/fixed-scream-cover.jpg" alt="Fixed Scream Unreal Engine project demo" loading="lazy" width="1280" height="720"><div class="hovr-card-copy"><b>Fixed Scream</b><span>Unreal Engine · Fixed-screen arcade platformer</span><span class="hovr-card-cta">Watch project demo ↗</span></div></a></div>
-          </div></div>
-        </div>
-        <div class="work-browse" id="workBrowse"><div class="dots" id="dots"></div><p class="browse-hint"><span class="browse-bar" aria-hidden="true"></span> SCROLL TO EXPLORE <span class="browse-count" id="browseCount">01 / 06</span></p></div>
-      </div>
-    </div>
+<section class="intro" id="home-intro" aria-labelledby="gallery-title" tabindex="-1">
+  <div class="wordmark-spacer" aria-hidden="true"></div>
+  <div class="bio">
+    <strong>Interaction designer</strong>
+    <p>I connect user research with working interactive systems through UX engineering, prototyping, and creative technology.</p>
   </div>
+  <div class="project-summary" id="project-summary" aria-live="polite" hidden><strong></strong><p></p></div>
+  <p class="hint">HOVER TO FLIP<br>CLICK TO OPEN · DRAG TO MOVE</p>
 </section>
-
-<div class="about-track" id="aboutPage"><section class="about-page" aria-labelledby="aboutTitle">
-  <h2 id="aboutTitle" class="archive-slot"><span>(about</span><i aria-hidden="true"></i><span>me)</span></h2>
-  <p class="archive-intro">Zhaolin Hu — interaction designer.<br>From research questions to working interactions.</p>
-  <div class="archive-output"><article class="archive-paper" aria-label="Zhaolin Hu personal profile">
-    <header class="archive-paper-head"><span>ZHAOLIN HU / ABOUT</span><span>DESIGN & EXPLORATION</span></header>
-    <div class="archive-paper-grid">
-      <div class="about-copy">
-        <p class="about-kicker">INTERACTION DESIGNER</p>
-        <h3 class="archive-name">Zhaolin<br>Hu.</h3>
-        <div class="about-bio"><h3>A little about me</h3>
+<section class="about-view portrait-about" id="about" aria-labelledby="about-title" inert>
+  <div class="profile-layout">
+    <header class="profile-heading">
+      <h2 id="about-title" tabindex="-1">(about me)</h2>
+      <p>Zhaolin Hu — interaction designer.<br>From research questions to working interactions.</p>
+    </header>
+    <article class="profile-sheet" aria-label="Zhaolin Hu personal profile">
+      <header><span>ZHAOLIN HU / ABOUT</span><span>DESIGN &amp; EXPLORATION</span></header>
+      <div class="profile-grid">
+        <div class="profile-copy">
+          <p class="profile-kicker">INTERACTION DESIGNER</p>
+          <h3>Zhaolin Hu.</h3>
+          <strong>A little about me</strong>
           <p>I’m Zhaolin Hu, an interaction designer with a background in product design, pursuing an MFA in Interactive Design at SCAD.</p>
           <p>I connect user research with interaction design and working prototypes. I’m pursuing UX engineering and creative technology roles, with a focus on embodied interaction and emerging technology.</p>
+          <div class="profile-practice"><strong>Research → Interaction → Prototyping</strong><br>USER RESEARCH &amp; SYNTHESIS · EMBODIED INTERACTION<br>UNITY / UNREAL / FIGMA · CREATIVE CODING</div>
         </div>
-        <div class="about-practice"><h3>Research → Interaction → Prototyping</h3><p>USER RESEARCH & SYNTHESIS<br>EMBODIED INTERACTION<br>UNITY / UNREAL / FIGMA<br>CREATIVE CODING</p></div>
+        <figure class="profile-portrait">
+          <img src="./hanging/assets/zhaolin-portrait.jpg" alt="Zhaolin Hu" width="2533" height="3377">
+          <figcaption><span>ZHAOLIN HU</span><span>INTERACTION DESIGNER</span></figcaption>
+        </figure>
       </div>
-      <figure class="about-portrait"><div class="about-photo-slot" id="aboutPhotoSlot"><img src="assets/images/zhaolin-portrait.jpg" alt="Zhaolin Hu" width="2533" height="3377" loading="lazy"></div><figcaption><span>ZHAOLIN HU</span><span>INTERACTION DESIGNER</span></figcaption></figure>
-    </div>
-    <footer class="archive-paper-foot">HUMAN DESIGN SYSTEM / EMERGING TECHNOLOGY <span></span></footer>
-  </article></div>
-</section></div>
-
-<div class="contact-track" id="contactTrack"><section class="contact" id="contact" aria-label="Contact">
-  <video class="contact-video" id="contactVideo" muted playsinline preload="metadata" poster="assets/hero-start.jpg" aria-hidden="true"><source src="assets/hero-scroll-seekable.mp4" type="video/mp4"></video>
-  <canvas class="contact-dusk" id="contactDusk" aria-hidden="true"></canvas>
-  <div class="contact-in" id="contactIn">
-    <p class="eyebrow">Contact</p>
-    <h2>Have something<br>in mind?</h2>
-    <p class="lead">Let's make it happen.</p>
-    <button class="mail" id="mail" type="button" aria-label="Copy email address">
-      <span class="addr" id="addr">zhaohu21@student.scad.edu</span>
-      <span class="copy" id="copyLabel">Copy</span>
-    </button>
+      <footer><a class="back-work" href="#work">↑ BACK TO HOME</a><a href="#contact">GET IN TOUCH ↗</a></footer>
+    </article>
   </div>
-  <p class="foot">© 2026 Zhaolin Hu</p>
-</section></div>
+</section>
+<section class="about-view" id="contact" aria-labelledby="contact-title" inert>
+  <div class="about-layout">
+    <p class="about-index">CONTACT / ZHAOLIN HU</p>
+    <h2 id="contact-title">Have something<br>in mind?</h2>
+    <div class="about-copy">
+      <p>Let’s make it happen.</p>
+      <a class="contact-email" href="mailto:zhaohu21@student.scad.edu">zhaohu21@student.scad.edu</a>
+      <button type="button" class="copy-email">Copy email</button>
+      <p class="copy-result" role="status"></p>
+    </div>
+    <a class="back-work" href="#work">↑ BACK TO HOME</a>
+  </div>
+</section>
+<section class="work-notes" hidden>
+  <a href="./hovr.html" target="_blank" rel="noopener"><strong>HOVR</strong><span>Gesture-controlled kitchen tablet.</span></a>
+  <a href="./scadpro.html" target="_blank" rel="noopener"><strong>SCADpro × Deloitte Digital</strong><span>Research for public-service AI avatars.</span></a>
+  <a href="./academic-search.html" target="_blank" rel="noopener"><strong>Smart Research</strong><span>Academic search, tags, and research maps.</span></a>
+  <a href="./robinhood-junior.html" target="_blank" rel="noopener"><strong>Robinhood Junior</strong><span>Investing education through simulation.</span></a>
+  <a href="./epic-door.html" target="_blank" rel="noopener"><strong>Epic Door</strong><span>Sci-fi environment and portal in Unreal Engine.</span></a>
+</section>
+<p id="space-hint">SPACE TO PAUSE CARD MOTION</p>
+<p id="scroll-cue"><span>SCROLL TO EXPLORE</span><span class="scroll-arrow" aria-hidden="true">↓</span></p>
+<p id="status" role="status">Loading cards…</p>
+<script type="module" src="./hanging/gallery.js"></script>
 </body>
 </html>
-
-
-
