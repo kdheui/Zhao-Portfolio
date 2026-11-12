@@ -280,71 +280,6 @@ function clipAt(parent,bounds) {
   return connector;
 }
 
-function coverLightColors(image,index) {
-  const fallback=[0xd87970,0xab8ab8,0x769bc8,0x75b69f,0x957fb7];
-  const counts=Array(18).fill(0), sums=Array.from({length:18},()=>[0,0,0]);
-  try {
-    const canvas=document.createElement('canvas');
-    canvas.width=canvas.height=64;
-    const ctx=canvas.getContext('2d',{willReadFrequently:true});
-    ctx.drawImage(image,0,0,64,64);
-    const pixels=ctx.getImageData(0,0,64,64).data;
-    const c=new T.Color(), hsl={};
-    for(let p=0;p<pixels.length;p+=4) {
-      const r=pixels[p]/255,g=pixels[p+1]/255,b=pixels[p+2]/255;
-      c.setRGB(r,g,b).getHSL(hsl);
-      if(pixels[p+3]<128||hsl.s<.25||hsl.l<.12||hsl.l>.84)continue;
-      const k=Math.min(17,Math.floor(hsl.h*18));
-      const weight=hsl.s*(1-Math.abs(hsl.l-.53));
-      counts[k]+=weight;
-      sums[k][0]+=r*weight;sums[k][1]+=g*weight;sums[k][2]+=b*weight;
-    }
-  } catch {}
-  const ranked=counts.map((_,i)=>i).sort((a,b)=>counts[b]-counts[a]);
-  const first=ranked[0], second=ranked.find(i=>Math.min(Math.abs(i-first),18-Math.abs(i-first))>=2&&counts[i]>counts[first]*.13);
-  const tint=(i,lightness)=>{
-    const c=counts[i]>0 ? new T.Color().setRGB(...sums[i].map(n=>n/counts[i])) : new T.Color(fallback[index]).convertLinearToSRGB();
-    const hsl={};c.getHSL(hsl);
-    return c.setHSL(hsl.h,Math.min(.75,Math.max(.38,hsl.s)),lightness).convertSRGBToLinear();
-  };
-  return [tint(first,.57),tint(second??first,.71)];
-}
-
-
-function frostedVolume(material,image,index) {
-  const [pigment,accent]=coverLightColors(image,index);
-  const deep=pigment.clone().multiplyScalar(.44);
-  const pale=accent.clone().lerp(new T.Color(0xfff0ef),.61);
-  material.onBeforeCompile=shader=>{
-    Object.assign(shader.uniforms,{bodyTint:{value:pigment},bodyDeep:{value:deep},
-      bodyLight:{value:pale},bodyBias:{value:[-.085,.055,-.047,.042,.018][index]}});
-    shader.vertexShader='varying vec2 vBodyUV;\n'+shader.vertexShader;
-    shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',
-      '#include <begin_vertex>\nvBodyUV=uv;');
-    shader.fragmentShader='varying vec2 vBodyUV; uniform vec3 bodyTint,bodyDeep,bodyLight; uniform float bodyBias;\n'+shader.fragmentShader;
-    shader.fragmentShader=shader.fragmentShader.replace('#include <transmission_fragment>',`
-      #include <transmission_fragment>
-      vec2 p=vBodyUV-.5;
-      p.x-=bodyBias;
-      // One connected pigment volume, with a softly focused inner facet.
-      vec2 cloud=(p-vec2(.028,.064))*vec2(2.67,2.24);
-      float field=exp(-dot(cloud,cloud));
-      float axis=p.x+.36*p.y-.034;
-      float facet=exp(-pow(axis/.082,2.))*exp(-pow((p.y-.132)/.206,2.));
-      facet*=smoothstep(-.14,.04,p.y);
-      vec2 lit=(p-vec2(-.094,-.109))*vec2(4.05,4.65);
-      float bloom=exp(-dot(lit,lit));
-      vec2 inner=(p-vec2(-.061,.086))*vec2(4.56,3.7);
-      float lift=exp(-dot(inner,inner));
-      vec2 edges=1.-smoothstep(vec2(.32,.36),vec2(.502),abs(vBodyUV-.5));
-      float mask=edges.x*edges.y;
-      totalDiffuse=mix(totalDiffuse,bodyTint,field*mask*.62);
-      totalDiffuse=mix(totalDiffuse,bodyDeep,facet*field*mask*.66);
-      totalDiffuse=mix(totalDiffuse,bodyLight,max(bloom*.58,lift*.46)*field*mask);
-    `);
-  };
-}
-
 function addCard(root, index) {
   const id = String(index + 1).padStart(2,'0');
   const prefix = 'Card_' + id;
@@ -353,7 +288,7 @@ function addCard(root, index) {
   root.position.set(0,0,0);
   root.scale.z *= 2.05; // slightly emphasize the real layer separation at gallery scale
   const faces = [], backContent = [];
-  let frostMap, coverImage;
+  let frostMap;
   root.traverse(o => {
     if (/_Frosted_Title$/.test(o.name)) { o.visible=false; return; }
     if (/_Clear_(Title|Cover)$/.test(o.name)) {
@@ -377,7 +312,6 @@ function addCard(root, index) {
       faces.push(o);
     } else if (/_Cover$/.test(o.name) && o.material.map) {
       const old = o.material;
-      if (/_Clear_Cover$/.test(o.name))coverImage=old.map.image;
       const isFrost=/_Frosted_Cover$/.test(o.name);
       if(isFrost) { frostMap=frostedArtwork(old.map); o.visible=false; return; }
       o.material = new T.MeshBasicMaterial({
@@ -414,7 +348,6 @@ function addCard(root, index) {
       envMapIntensity:.72, bumpMap:groundGlassGrain(), bumpScale:.0032,
       toneMapped:false
     });
-    frostedVolume(matte,coverImage,index);
     pane.material=matte;
   }
   // The hover zone keeps the card's face-on size even halfway through a flip.
@@ -1226,6 +1159,7 @@ async function start() {
       result.textContent=language==='zh'?'已选中邮箱，按 Ctrl+C 复制。':'Email selected. Press Ctrl+C to copy.';
     }
   });
+  await window.portfolioOpening;
   renderer.setAnimationLoop(frame);
   status.hidden=true;
   document.body.dataset.ready=String(cards.length);

@@ -5,8 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Zhaolin Hu — Interaction Designer</title>
 <link rel="stylesheet" href="./hanging/style.css">
+<link rel="stylesheet" href="./hanging/opening.css">
+<script src="./intro.js?v=nav-resume-35"></script>
 </head>
 <body data-view="enter">
+<div class="opening" id="opening" role="dialog" aria-label="Welcome to Zhaolin Hu’s portfolio" aria-modal="true">
+  <button class="opening-skip" id="openingSkip" type="button" aria-label="Skip introduction">SKIP ↗</button>
+  <div class="opening-art"><video class="opening-video" id="openingVideo" muted playsinline preload="auto" aria-label="Two hands reaching toward a shared point of light"><source src="assets/opening-metallic-touch.mp4" type="video/mp4"></video><p><span class="opening-copy-first">Curious about people.</span> <span class="opening-copy-second">Driven by interaction.</span></p></div>
+</div>
+<script src="./hanging/opening.js"></script>
 <header class="masthead" inert>
   <nav aria-label="Main navigation">
     <a class="nav-home" href="#work" inert aria-label="Zhaolin Hu — home"><h1 id="gallery-title">ZHAOLIN HU</h1></a>

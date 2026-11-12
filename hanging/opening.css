@@ -1,0 +1,17 @@
+@font-face{font-family:Michroma;src:url("../assets/fonts/michroma-regular.ttf") format("truetype");font-display:swap}
+@font-face{font-family:"DM Mono";src:url("../assets/fonts/dm-mono-regular.ttf") format("truetype");font-display:swap}
+.opening{display:none}
+html[data-intro] .opening{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f6f5f1;color:#4d4133;transform:translateY(0);transition:transform .6s cubic-bezier(.76,0,.24,1)}
+html[data-intro="leaving"] .opening{transform:translateY(-101%);pointer-events:none}
+.opening-art{width:min(27vw,560px);text-align:center}
+.opening-video{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;animation:opening-video-close .35s cubic-bezier(.65,0,.35,1) 2.05s both}
+.opening-art p{margin:24px -10vw 0;font:400 clamp(10px,1.05vw,18px)/1.5 Michroma,Arial,sans-serif;color:#4d4133}
+.opening-art p span{display:inline-block;animation:opening-copy-in .45s cubic-bezier(.22,.7,.25,1) both}
+.opening-art .opening-copy-first{animation-delay:.15s}
+.opening-art .opening-copy-second{animation-delay:.8s}
+.opening-skip{position:absolute;right:26px;bottom:22px;opacity:0;border:0;background:transparent;padding:8px 0 8px 16px;font:10px/1.5 "DM Mono",monospace;color:#75685f;cursor:pointer}
+.opening-skip:hover,.opening-skip:focus-visible{opacity:1}
+.opening-skip:focus-visible{outline:1px solid currentColor;outline-offset:6px}
+@keyframes opening-copy-in{from{opacity:0;transform:translateY(7px);filter:blur(3px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+@keyframes opening-video-close{from{clip-path:inset(0 0)}to{clip-path:inset(50% 0)}}
+@media(max-width:799px){.opening-art{width:68vw}.opening-art p{margin:18px -12vw 0;font-size:10px}}
