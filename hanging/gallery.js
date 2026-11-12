@@ -1165,6 +1165,7 @@ async function start() {
   document.body.dataset.ready=String(cards.length);
 }
 start().catch(error=>{
-  status.textContent='Could not load the cards. Open the local preview server and check that WebGL is enabled.';
+  status.textContent='Could not load the cards. Refresh the page and check that WebGL is enabled.';
+  status.hidden=false;
   console.error(error);
 });
