@@ -4,16 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Zhaolin Hu — Interaction Designer</title>
-<link rel="stylesheet" href="./hanging/style.css">
-<link rel="stylesheet" href="./hanging/opening.css">
-<script src="./intro.js?v=nav-resume-35"></script>
+<link rel="stylesheet" href="./home/style.css">
+<link rel="stylesheet" href="./home/opening.css">
+<script src="./home/opening.js"></script>
 </head>
 <body data-view="enter">
 <div class="opening" id="opening" role="dialog" aria-label="Welcome to Zhaolin Hu’s portfolio" aria-modal="true">
-  <button class="opening-skip" id="openingSkip" type="button" aria-label="Skip introduction">SKIP ↗</button>
-  <div class="opening-art"><video class="opening-video" id="openingVideo" muted playsinline preload="auto" aria-label="Two hands reaching toward a shared point of light"><source src="assets/opening-metallic-touch.mp4" type="video/mp4"></video><p><span class="opening-copy-first">Curious about people.</span> <span class="opening-copy-second">Driven by interaction.</span></p></div>
+  <button class="opening-skip" type="button" aria-label="Skip introduction">SKIP ↗</button>
+  <div class="opening-art">
+    <video class="opening-video" muted playsinline preload="none" src="./assets/opening-metallic-touch.mp4"></video>
+    <p><span class="opening-copy-first">Curious about people.</span> <span class="opening-copy-second">Driven by interaction.</span></p>
+  </div>
 </div>
-<script src="./hanging/opening.js"></script>
 <header class="masthead" inert>
   <nav aria-label="Main navigation">
     <a class="nav-home" href="#work" inert aria-label="Zhaolin Hu — home"><h1 id="gallery-title">ZHAOLIN HU</h1></a>
@@ -55,7 +57,7 @@
           <div class="profile-practice"><strong>Research → Interaction → Prototyping</strong><br>USER RESEARCH &amp; SYNTHESIS · EMBODIED INTERACTION<br>UNITY / UNREAL / FIGMA · CREATIVE CODING</div>
         </div>
         <figure class="profile-portrait">
-          <img src="./hanging/assets/zhaolin-portrait.jpg" alt="Zhaolin Hu" width="2533" height="3377">
+          <img src="./home/assets/zhaolin-portrait.jpg" alt="Zhaolin Hu" width="2533" height="3377">
           <figcaption><span>ZHAOLIN HU</span><span>INTERACTION DESIGNER</span></figcaption>
         </figure>
       </div>
@@ -77,15 +79,15 @@
   </div>
 </section>
 <section class="work-notes" hidden>
-  <a href="./hovr.html" target="_blank" rel="noopener"><strong>HOVR</strong><span>Gesture-controlled kitchen tablet.</span></a>
+  <a href="./hovr/index.html" target="_blank" rel="noopener"><strong>HOVR</strong><span>Gesture-controlled kitchen tablet.</span></a>
   <a href="./scadpro.html" target="_blank" rel="noopener"><strong>SCADpro × Deloitte Digital</strong><span>Research for public-service AI avatars.</span></a>
   <a href="./academic-search.html" target="_blank" rel="noopener"><strong>Smart Research</strong><span>Academic search, tags, and research maps.</span></a>
   <a href="./robinhood-junior.html" target="_blank" rel="noopener"><strong>Robinhood Junior</strong><span>Investing education through simulation.</span></a>
-  <a href="./epic-door.html" target="_blank" rel="noopener"><strong>Epic Door</strong><span>Sci-fi environment and portal in Unreal Engine.</span></a>
+  <a href="./heima/index.html" target="_blank" rel="noopener"><strong>HEIMA</strong><span>AR glasses with live captions and speaker highlighting.</span></a>
 </section>
 <p id="space-hint">SPACE TO PAUSE CARD MOTION</p>
 <p id="scroll-cue"><span>SCROLL TO EXPLORE</span><span class="scroll-arrow" aria-hidden="true">↓</span></p>
-<p id="status" role="status" hidden></p>
-<script type="module" src="./hanging/gallery.js"></script>
+<p id="status" role="status">Loading cards…</p>
+<script type="module" src="./home/gallery.js"></script>
 </body>
 </html>

@@ -1,0 +1,12 @@
+html:has(.project-page){background:#e4e4e4}
+body.project-page{margin:0;overflow:auto;background:#e4e4e4;color:#171717}
+.project-page::after{content:none}
+.project-page .masthead{position:fixed;z-index:10;background:transparent;border:0;box-shadow:none;backdrop-filter:none}
+.project-page .masthead nav,.project-page .masthead .locale{background:transparent;border:0;box-shadow:none;backdrop-filter:none}
+.project-page .masthead a,.project-page .masthead .locale{font-family:"Azeret Mono","Courier New",monospace}
+.project-page .masthead .locale{padding:0;color:inherit;cursor:pointer;pointer-events:auto}
+.project-page .project-main{position:relative;inset:auto;max-width:1360px;margin:auto;padding:clamp(78px,11vh,130px) var(--gutter) 80px}
+.project-back{display:inline-block;margin-bottom:26px;font:500 12px/1.4 "Azeret Mono",monospace}
+.project-page .heima-case h1{font:700 clamp(48px,10vw,126px)/.95 Arial,sans-serif;letter-spacing:-.055em}
+.project-page .heima-case p{font-size:clamp(13px,1.5vw,19px);margin:1em 0 1.6em}
+.heima-case video{display:block;width:100%;aspect-ratio:16/9;background:#eee;object-fit:contain}
