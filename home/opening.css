@@ -5,7 +5,7 @@ html[data-intro] .opening{
   background:#e4e4e4;color:#414947;
 }
 .opening-loading{width:min(64vw,280px);font:500 11px/1.45 "Azeret Mono",monospace}
-.loading-label{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.loading-label{display:flex;justify-content:center;gap:10px;align-items:baseline}
 .loading-percent{font-variant-numeric:tabular-nums}
 .gallery-progress{display:block;width:100%;height:3px;margin-top:10px;border:0;border-radius:4px;overflow:hidden;accent-color:#505d58}
 .gallery-progress::-webkit-progress-bar{background:#b9b9b780}
