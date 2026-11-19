@@ -1154,7 +1154,7 @@ let language='en', lastDescribedCard;
 const chineseDescriptions=[
   '通过手势操控的厨房平板。','面向公共服务 AI 虚拟助手的研究。',
   '结合标签与研究地图的学术搜索。','通过模拟学习投资。',
-  '带有实时字幕和说话人高亮的 AR 眼镜。'
+  '面向聋人和重听人群的 AI 社交感知眼镜。'
 ];
 function renderProjectSummary() {
   const summary=document.querySelector('#project-summary');
