@@ -1375,18 +1375,7 @@ async function loadGalleryModel(loader) {
     try {
       const response = await fetch(url.href+'.gz');
       if (!response.ok) throw new Error('Compressed model unavailable');
-      const length = Number(response.headers.get('Content-Length'));
-      const reader = response.body.getReader();
-      const chunks = [];
-      let received = 0;
-      while (true) {
-        const {value,done} = await reader.read();
-        if (done) break;
-        chunks.push(value);
-        received += value.length;
-        if (length > 0) window.setPortfolioProgress?.(8 + 57 * Math.min(1,received/length));
-      }
-      const packed = await new Blob(chunks).arrayBuffer();
+      const packed = await response.arrayBuffer();
       const magic = new Uint8Array(packed,0,2);
       const model = magic[0]===31 && magic[1]===139
         ? await new Response(new Blob([packed]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()
@@ -1396,9 +1385,7 @@ async function loadGalleryModel(loader) {
       // Fall back to the original glTF transport when compression is unavailable.
     }
   }
-  return loader.loadAsync(url.href,event=>{
-    if(event.total)window.setPortfolioProgress?.(8+57*Math.min(1,event.loaded/event.total));
-  });
+  return loader.loadAsync(url.href);
 }
 
 async function start() {
@@ -1414,13 +1401,11 @@ async function start() {
   camera.updateMatrixWorld();
   lighting();
   backdrop=studioBackdrop();
-  window.setPortfolioProgress?.(8);
   const [gltf,heimaPoster,hovrPoster] = await Promise.all([
     loadGalleryModel(new GLTFLoader()),
     new T.TextureLoader().loadAsync(new URL('./assets/heima-poster.jpg',import.meta.url).href),
     new T.TextureLoader().loadAsync(new URL('../hovr/assets/hovr-hero.jpg',import.meta.url).href),
   ]);
-  window.setPortfolioProgress?.(76);
   hovrPoster.colorSpace = T.SRGBColorSpace;
   hovrPoster.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
   heimaPoster.colorSpace = T.SRGBColorSpace;
@@ -1451,7 +1436,6 @@ async function start() {
       result.textContent=language==='zh'?'已选中邮箱，按 Ctrl+C 复制。':'Email selected. Press Ctrl+C to copy.';
     }
   });
-  window.setPortfolioProgress?.(90);
   await renderer.compileAsync(scene,camera);
   window.settlePortfolioLoading?.(true);
   await window.portfolioOpening;

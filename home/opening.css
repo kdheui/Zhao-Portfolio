@@ -9,7 +9,4 @@ html[data-intro] .opening{
 .loading-percent{font-variant-numeric:tabular-nums}
 .gallery-progress{display:block;width:100%;height:3px;margin-top:10px;border:0;border-radius:4px;overflow:hidden;accent-color:#505d58}
 .gallery-progress::-webkit-progress-bar{background:#b9b9b780}
-.gallery-progress::-webkit-progress-value{background:#505d58;transition:width .16s ease}
-@media(prefers-reduced-motion:reduce){
-  .gallery-progress::-webkit-progress-value{transition:none}
-}
+.gallery-progress::-webkit-progress-value{background:#505d58}
