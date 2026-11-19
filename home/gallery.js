@@ -710,6 +710,7 @@ function prepareProject(card) {
   const url = new URL(card.projectUrl);
   url.searchParams.set('embedded','1');
   frame.className = 'project-frame';
+  if(card.projectIndex===0)frame.classList.add('hovr-hero-only');
   if(card.projectIndex===4){
     frame.classList.add('heima-film-frame');
     frame.allow='autoplay';
@@ -749,6 +750,8 @@ function closeProject() {
 window.addEventListener('message',event=>{
   if(!projectFrame || event.source!==projectFrame.contentWindow)return;
   if(event.data==='portfolio-back-to-work')showWork();
+  else if(event.data==='hovr-hero-only')projectFrame.classList.add('hovr-hero-only');
+  else if(event.data==='hovr-content-visible')projectFrame.classList.remove('hovr-hero-only');
   if(event.data==='heima-film-finished' && projectFrame.classList.contains('heima-film-frame')){
     projectFrame.classList.add('heima-film-complete');
   }

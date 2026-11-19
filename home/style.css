@@ -142,6 +142,7 @@ body[data-view="project-exit"]::before{background:#e4e4e4}
 .heima-film-frame{background:#000;z-index:12}
 .heima-film-frame.heima-film-complete{z-index:8}
 body[data-view="project-detail"]:has(.heima-film-frame:not([hidden],.heima-film-complete)) .masthead{visibility:hidden}
+body[data-view="project-detail"]:has(.hovr-hero-only:not([hidden])) .masthead{visibility:hidden}
 
 body:is(.hovr-page,:has(.project-frame[src*="/hovr/"]:not([hidden]))) .masthead :is(a,button,h1){
   text-shadow:0 0 .16em #fffcfa,0 0 .38em #fffcfa,0 0 .62em #fffcfa;
