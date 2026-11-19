@@ -1,65 +1,42 @@
 (() => {
   const page = document.documentElement;
-  page.dataset.intro = 'playing';
-  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  const duration = 1050;
-  const waitingLimit = 94;
   let ready;
-  let loaded;
-  let wake = () => {};
+  let progress = 0;
+  let settled = false;
   window.portfolioOpening = new Promise(resolve => { ready = resolve; });
-  window.settlePortfolioLoading = success => {
-    loaded = success;
-    wake();
-  };
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const opening = document.querySelector('#opening');
-    const bar = opening.querySelector('progress');
-    const percentage = opening.querySelector('.loading-percent');
-    let progress = 0;
-    let previousTime;
-    let frame = 0;
-    let finished = false;
-
-    function removeOpening() {
-      opening.remove();
-      delete page.dataset.intro;
-      ready();
-    }
-
-    function tick(time) {
-      frame = 0;
-      if (loaded === false) {
-        finished = true;
-        removeOpening();
-        return;
-      }
-      const limit = loaded ? 100 : waitingLimit;
-      const elapsed = previousTime === undefined ? 0 : time - previousTime;
-      previousTime = time;
-      if (reducedMotion.matches) {
-        if (!loaded) return;
-        progress = 100;
-      } else {
-        progress = Math.min(limit, progress + elapsed * 100 / duration);
-      }
+  function updateIndicator() {
+    const bar = document.querySelector('#opening progress');
+    if (!bar) return;
+    const percentage = document.querySelector('#opening .loading-percent');
+    if (progress === null) {
+      bar.removeAttribute('value');
+      percentage.textContent = '…';
+    } else {
       bar.value = progress;
       percentage.textContent = Math.floor(progress) + '%';
-      if (progress === 100) {
-        finished = true;
-        if (reducedMotion.matches) removeOpening();
-        else requestAnimationFrame(removeOpening);
-      } else if (progress < limit) {
-        frame = requestAnimationFrame(tick);
-      } else {
-        previousTime = undefined;
-      }
     }
+  }
 
-    wake = () => {
-      if (!frame && !finished) frame = requestAnimationFrame(tick);
-    };
-    wake();
-  }, {once:true});
+  window.setPortfolioProgress = value => {
+    if (settled) return;
+    progress = value === null ? null : Math.max(progress ?? 0,value);
+    if (page.hasAttribute('data-intro')) updateIndicator();
+  };
+
+  const showTimer = setTimeout(() => {
+    if (settled) return;
+    updateIndicator();
+    page.dataset.intro = 'playing';
+  }, 250);
+
+  window.settlePortfolioLoading = success => {
+    if (settled) return;
+    clearTimeout(showTimer);
+    if (success) window.setPortfolioProgress(100);
+    settled = true;
+    document.querySelector('#opening')?.remove();
+    delete page.dataset.intro;
+    ready();
+  };
 })();
