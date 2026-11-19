@@ -24,13 +24,6 @@
     percentage = opening.querySelector('.loading-percent');
     window.setPortfolioProgress(progress);
     await resources;
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      page.dataset.intro = 'leaving';
-      await new Promise(resolve => {
-        opening.addEventListener('transitionend', resolve, {once:true});
-        setTimeout(resolve, 550);
-      });
-    }
     opening.remove();
     delete page.dataset.intro;
     ready();
