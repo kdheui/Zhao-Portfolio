@@ -39,14 +39,13 @@ html:has(.hovr-page),body.hovr-page{background:#FFFCFA}
 
 .hovr-page .unity-demo{aspect-ratio:auto 16/9;background:#171717;object-fit:contain}
 
-html:has(.hovr-page.cover-reveal:not(.cover-finished)){
-  overflow:hidden;overscroll-behavior:none;
-}
-.hovr-page.cover-reveal .hovr-hero{height:0}
+.hovr-page.cover-reveal .hovr-hero{height:100vh;height:100svh}
 .hovr-page.cover-reveal .hero-image{
-  position:fixed;inset:0;z-index:12;animation:none;background:#fffcfa;
-  transition:transform .72s cubic-bezier(.76,0,.24,1);
+  position:fixed;inset:0;z-index:12;animation:none;
+  transform:translateY(calc(-1 * var(--cover-scroll,0px)));pointer-events:none;
 }
-.hovr-page.cover-leaving .hero-image{transform:translateY(-101%);pointer-events:none}
-.hovr-page.cover-finished .hovr-hero{display:none}
-@media(prefers-reduced-motion:reduce){.hovr-page.cover-reveal .hero-image{transition:none}}
+.embedded-project .hovr-page.cover-reveal .hero-image{visibility:hidden}
+.hovr-page.cover-reveal .hovr-content{
+  transform:translateY(calc(var(--cover-scroll,0px) - 100vh));
+  transform:translateY(calc(var(--cover-scroll,0px) - 100svh));
+}
