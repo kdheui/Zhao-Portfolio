@@ -22,17 +22,3 @@ if (document.documentElement.classList.contains('embedded-project')) {
     parent.postMessage('portfolio-back-to-work','*');
   });
 }
-
-if (document.body.classList.contains('hovr-page')) {
-  const embedded = document.documentElement.classList.contains('embedded-project');
-  let atTop;
-  function syncHero() {
-    const nextAtTop = window.scrollY <= 8;
-    if (atTop === nextAtTop) return;
-    atTop = nextAtTop;
-    document.body.classList.toggle('at-hero-top', atTop);
-    if (embedded) parent.postMessage(atTop ? 'hovr-hero-only' : 'hovr-content-visible','*');
-  }
-  window.addEventListener('scroll', syncHero, {passive:true});
-  syncHero();
-}
