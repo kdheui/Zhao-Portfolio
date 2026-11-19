@@ -1,41 +1,61 @@
 (() => {
   const page = document.documentElement;
   const key = 'zhaolin-portfolio-opening-seen';
-  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  if (location.hash || reducedMotion.matches) return;
-  try {
-    if (localStorage.getItem(key)) return;
-    localStorage.setItem(key, '1');
-  } catch {
+  let showIntro = !location.hash && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (showIntro) {
     try {
-      if (sessionStorage.getItem(key)) return;
-      sessionStorage.setItem(key, '1');
-    } catch {}
+      showIntro = !localStorage.getItem(key);
+      if (showIntro) localStorage.setItem(key, '1');
+    } catch {
+      try {
+        showIntro = !sessionStorage.getItem(key);
+        if (showIntro) sessionStorage.setItem(key, '1');
+      } catch {}
+    }
   }
-  page.dataset.intro = 'playing';
+  let value = 0, bar, settled = false, finishIfReady = () => {};
+  window.setPortfolioProgress = progress => {
+    value = Math.max(value, progress);
+    if (bar) bar.value = value;
+  };
+  window.settlePortfolioLoading = success => {
+    settled = true;
+    if (success) window.setPortfolioProgress(100);
+    finishIfReady();
+  };
 
   let openingFinished;
-  window.portfolioOpening = new Promise(resolve => { openingFinished = resolve; });
+  if (showIntro) {
+    page.dataset.intro = 'playing';
+    window.portfolioOpening = new Promise(resolve => { openingFinished = resolve; });
+  }
 
   document.addEventListener('DOMContentLoaded', () => {
     const opening = document.querySelector('#opening');
+    const status = document.querySelector('#status');
+    bar = document.createElement('progress');
+    bar.className = 'gallery-progress';
+    bar.max = 100;
+    bar.value = value;
+    bar.setAttribute('aria-label','Loading cards');
+    if (!showIntro) {
+      if (!settled) status.append(bar);
+      return;
+    }
+    const loading = document.createElement('div');
+    loading.className = 'opening-loading';
+    loading.append('Loading cards', bar);
+    opening.append(loading);
     const video = opening.querySelector('video');
     const skip = opening.querySelector('button');
-    const timer = setTimeout(finish, 2400);
-    video.playbackRate = 2;
-    video.play().catch(() => {});
-    skip.focus({preventScroll:true});
-    skip.addEventListener('click', finish);
-    opening.addEventListener('keydown', event => {
-      if (event.key === 'Escape') finish();
-      if (event.key === 'Tab') {
-        event.preventDefault();
-        skip.focus();
-      }
-    });
-
-    function finish() {
-      if (page.dataset.intro !== 'playing') return;
+    let requested = false;
+    function requestExit() {
+      requested = true;
+      finishIfReady();
+    }
+    const timer = setTimeout(requestExit, 2400);
+    finishIfReady = () => {
+      if (!settled || !requested || page.dataset.intro !== 'playing') return;
       clearTimeout(timer);
       page.dataset.intro = 'leaving';
       setTimeout(() => {
@@ -44,6 +64,17 @@
         delete page.dataset.intro;
         openingFinished();
       }, 600);
-    }
+    };
+    video.playbackRate = 2;
+    video.play().catch(() => {});
+    skip.focus({preventScroll:true});
+    skip.addEventListener('click', requestExit);
+    opening.addEventListener('keydown', event => {
+      if (event.key === 'Escape') requestExit();
+      if (event.key === 'Tab') {
+        event.preventDefault();
+        skip.focus();
+      }
+    });
   }, {once:true});
 })();
