@@ -1,22 +1,17 @@
+html[data-intro]{background:#e4e4e4}
 .opening{display:none}
-html[data-intro] .opening{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--page-background,#e4e4e4);color:#4d4133;transform:translateY(0);transition:transform .6s cubic-bezier(.76,0,.24,1)}
+html[data-intro] .opening{
+  position:fixed;inset:0;z-index:100;display:grid;place-items:center;
+  background:#e4e4e4;color:#414947;
+  transition:transform .48s cubic-bezier(.76,0,.24,1);
+}
 html[data-intro="leaving"] .opening{transform:translateY(-101%);pointer-events:none}
-.opening-art{width:min(27vw,560px);text-align:center}
-.opening-video{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
-.opening-art p{margin:24px -10vw 0;font:400 clamp(10px,1.05vw,18px)/1.5 "Azeret Mono",Arial,sans-serif;color:#4d4133}
-.opening-art p span{display:inline-block;animation:opening-copy-in .45s cubic-bezier(.22,.7,.25,1) both}
-.opening-art .opening-copy-first{animation-delay:.15s}
-.opening-art .opening-copy-second{animation-delay:.8s}
-.opening-skip{position:absolute;right:26px;bottom:22px;opacity:1;border:0;background:transparent;padding:8px 0 8px 16px;font:10px/1.5 "Azeret Mono",monospace;color:#75685f;cursor:pointer}
-.opening-skip:hover,.opening-skip:focus-visible{opacity:1}
-.opening-skip:focus-visible{outline:1px solid currentColor;outline-offset:6px}
-@keyframes opening-copy-in{from{opacity:0;transform:translateY(7px);filter:blur(3px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
-@keyframes opening-video-close{from{clip-path:inset(0 0)}to{clip-path:inset(50% 0)}}
-@media(max-width:799px){.opening-art{width:68vw}.opening-art p{margin:18px -12vw 0;font-size:10px}}
-
-
-html[data-intro="leaving"] .opening-video{animation:opening-video-close .35s cubic-bezier(.65,0,.35,1) both}
-.opening-loading{margin-top:24px;width:min(42vw,220px);text-align:center;font:10px/1.5 "Azeret Mono",monospace;letter-spacing:.04em}
-.gallery-progress{display:block;width:min(42vw,220px);height:3px;margin-top:7px;border:0;border-radius:4px;overflow:hidden;accent-color:#555e5b}
+.opening-loading{width:min(64vw,280px);font:500 11px/1.45 "Azeret Mono",monospace}
+.loading-label{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.loading-percent{font-variant-numeric:tabular-nums}
+.gallery-progress{display:block;width:100%;height:3px;margin-top:10px;border:0;border-radius:4px;overflow:hidden;accent-color:#505d58}
 .gallery-progress::-webkit-progress-bar{background:#b9b9b780}
-.gallery-progress::-webkit-progress-value{background:#555e5b;transition:width .2s ease}
+.gallery-progress::-webkit-progress-value{background:#505d58;transition:width .16s ease}
+@media(prefers-reduced-motion:reduce){
+  html[data-intro] .opening,.gallery-progress::-webkit-progress-value{transition:none}
+}
