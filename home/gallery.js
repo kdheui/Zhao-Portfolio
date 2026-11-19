@@ -710,6 +710,7 @@ function prepareProject(card) {
   const url = new URL(card.projectUrl);
   url.searchParams.set('embedded','1');
   frame.className = 'project-frame';
+  if(card.projectIndex===0)frame.classList.add('hovr-cover-frame');
   if(card.projectIndex===4){
     frame.classList.add('heima-film-frame');
     frame.allow='autoplay';
@@ -731,6 +732,7 @@ async function revealProject(project) {
   projectExit=undefined;
   changeView('project-detail');
   project.frame.hidden=false;
+  if(project.frame.classList.contains('hovr-cover-frame'))project.frame.focus();
   if(project.frame.classList.contains('heima-film-frame')){
     project.frame.contentWindow.postMessage('heima-start-film','*');
   }
@@ -749,6 +751,7 @@ function closeProject() {
 window.addEventListener('message',event=>{
   if(!projectFrame || event.source!==projectFrame.contentWindow)return;
   if(event.data==='portfolio-back-to-work')showWork();
+  if(event.data==='hovr-cover-finished')projectFrame.classList.remove('hovr-cover-frame');
   if(event.data==='heima-film-finished' && projectFrame.classList.contains('heima-film-frame')){
     projectFrame.classList.add('heima-film-complete');
   }
@@ -1253,6 +1256,12 @@ function setupViews() {
   },{passive:true});
   window.addEventListener('keydown',e=>{
     if(e.defaultPrevented||e.altKey||e.ctrlKey||e.metaKey)return;
+    if(view==='project-detail'&&projectFrame?.classList.contains('hovr-cover-frame')
+      && ['ArrowDown','PageDown',' ','End'].includes(e.key)) {
+      e.preventDefault();
+      projectFrame.contentWindow.postMessage('hovr-reveal-cover','*');
+      return;
+    }
     if(e.code==='Space'&&view==='work'&&!dragController.active&&!e.target.closest?.('button,a,input,textarea,select,[contenteditable]')) {
       e.preventDefault();
       if(e.repeat)return;
