@@ -3,7 +3,7 @@ const labels = { en: ['About', 'Contact', 'Resume'], zh: ['关于', '联系', '�
 let language = 'en';
 try { if (localStorage.getItem('gallery-language') === 'zh') language = 'zh'; } catch {}
 function updateNavigation() {
-  document.querySelectorAll('.masthead nav a').forEach((link, index) => {
+  document.querySelectorAll('.masthead nav a:not(.project-wordmark)').forEach((link, index) => {
     link.textContent = labels[language][index];
   });
   toggle.textContent = language === 'zh' ? '中文 / EN' : 'EN / 中文';
@@ -15,3 +15,10 @@ toggle.addEventListener('click', () => {
   updateNavigation();
 });
 updateNavigation();
+
+if (document.documentElement.classList.contains('embedded-project')) {
+  document.querySelector('.project-back').addEventListener('click', event => {
+    event.preventDefault();
+    parent.postMessage('portfolio-back-to-work','*');
+  });
+}

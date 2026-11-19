@@ -5,7 +5,7 @@ const stage = document.querySelector('#stage');
 const status = document.querySelector('#status');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const cards = [];
-let hovered, drag;
+let hovered;
 const poses = [
   [.155, .395, 0], [.320, .488, 0], [.477, .349, 0],
   [.612, .575, 0], [.851, .332, 0]
@@ -205,11 +205,11 @@ function updateCord(c,dt) {
     const rate=dt>0&&returning.lastLength!==undefined?(length-returning.lastLength)/dt:0;
     if(returning.wasLoose&&length>=nominal-.008&&rate>.045) {
       returning.tensionPlayed=true;
-      playClipTension(c.pivot.position.x,T.MathUtils.clamp(rate/.8,.15,1));
+      acrylicSound.playClipTension(c.pivot.position.x,T.MathUtils.clamp(rate/.8,.15,1));
     }
     returning.lastLength=length;
   }
-  const slack=(drag?.card===c || c.returnMotion) && length<nominal-.008 ? Math.sqrt(Math.max(0,nominal*nominal-length*length)) : 0;
+  const slack=(dragController.active?.card===c || c.returnMotion) && length<nominal-.008 ? Math.sqrt(Math.max(0,nominal*nominal-length*length)) : 0;
   const targetLag=c.lastCordX===undefined||dt===0 ? 0 :
     T.MathUtils.clamp(-(cordEnd.x-c.lastCordX)/dt*.075,-.050,.050);
   c.lastCordX=cordEnd.x;
@@ -406,7 +406,7 @@ function projectAerogel(material, flipY, heima) {
   };
 }
 
-function fitHeimaPoster(mesh) {
+function fitProjectPoster(mesh, verticalSpan=1) {
   mesh.geometry = mesh.geometry.clone();
   mesh.geometry.computeBoundingBox();
   const {min, max} = mesh.geometry.boundingBox;
@@ -414,12 +414,46 @@ function fitHeimaPoster(mesh) {
   const uv = [];
   for (let i = 0; i < positions.count; i++) {
     uv.push((max.x - positions.getX(i)) / (max.x - min.x),
-      (positions.getY(i) - min.y) / (max.y - min.y));
+      .5 + ((positions.getY(i) - min.y) / (max.y - min.y) - .5) * verticalSpan);
   }
   mesh.geometry.setAttribute('uv', new T.Float32BufferAttribute(uv, 2));
 }
 
-function addCard(root, index, heimaPoster) {
+class HangingCard {
+  constructor({index,placeholder,projectUrl,projectTitle,projectDescription,
+    pivot,swing,flip,cord,connector,faces,backContent,label,hoverBox,shadowCenter}) {
+    Object.assign(this, {
+      projectIndex:index,placeholder,projectUrl,projectTitle,projectDescription,
+      pivot,swing,flip,cord,connector,faces,backContent,label,hoverBox,shadowCenter,
+      cordSide:index%2===0 ? 1 : -1, pose:poses[index], z:[0,.08,0,.04,.08][index],
+      angle:0,spin:0,travel:0,speed:0,contactShift:0,turn:0,manualBack:false,tilt:0
+    });
+    this.hitBounds={
+      center:new T.Vector3(),half:new T.Vector3(),
+      axes:[new T.Vector3(),new T.Vector3(),new T.Vector3()]
+    };
+  }
+
+  toggleFlip() {
+    if(!this.placeholder)this.manualBack=!this.manualBack;
+  }
+
+  updateMotion(dt,isDragged,heldBack,isHovered,reducedMotion) {
+    this.spin += (-10*this.angle - 2.15*this.spin)*dt;
+    this.angle = T.MathUtils.clamp(this.angle+this.spin*dt,-1.14,1.14);
+    if(!isDragged) {
+      this.speed += (-12*this.travel - 2.6*this.speed)*dt;
+      this.travel += this.speed*dt;
+    }
+    const back=!this.placeholder&&(heldBack||isHovered||this.manualBack);
+    const target=back ? Math.PI : 0;
+    const pressed=String(back);
+    if(this.label.getAttribute('aria-pressed')!==pressed)this.label.setAttribute('aria-pressed',pressed);
+    this.turn = reducedMotion||heldBack ? target : T.MathUtils.damp(this.turn,target,9,dt);
+  }
+}
+
+function addCard(root, index, hovrPoster, heimaPoster) {
   const id = String(index + 1).padStart(2,'0');
   const prefix = 'Card_' + id;
   const placeholder = index > 0 && index < 4;
@@ -430,7 +464,7 @@ function addCard(root, index, heimaPoster) {
   const faces = [], backContent = [];
   let frostMap;
   root.traverse(o => {
-    if (/_Frosted_Title$/.test(o.name) || (index===4 && /_Clear_Title$/.test(o.name))) { o.visible=false; return; }
+    if (/_Frosted_Title$/.test(o.name) || ((index===0||index===4) && /_Clear_Title$/.test(o.name))) { o.visible=false; return; }
     if (/_Clear_(Title|Cover)$/.test(o.name)) {
       o.visible=false;
       if(!placeholder)backContent.push(o);
@@ -452,12 +486,14 @@ function addCard(root, index, heimaPoster) {
       faces.push(o);
     } else if (/_Cover$/.test(o.name) && o.material.map) {
       const old = o.material;
-      const isHeimaPoster = index===4 && /_Clear_Cover$/.test(o.name);
-      if(isHeimaPoster)fitHeimaPoster(o);
+      const customPoster = /_Clear_Cover$/.test(o.name)
+        ? (index===0 ? hovrPoster : index===4 ? heimaPoster : null)
+        : null;
+      if(customPoster)fitProjectPoster(o,index===0?.93:1);
       const isFrost=/_Frosted_Cover$/.test(o.name);
       if(isFrost) { frostMap=frostedArtwork(old.map); o.visible=false; return; }
       o.material = new T.MeshBasicMaterial({
-        map:isHeimaPoster ? heimaPoster : old.map, color:0xffffff, side:T.FrontSide, toneMapped:false
+        map:customPoster ?? old.map, color:0xffffff, side:T.FrontSide, toneMapped:false
       });
     }
   });
@@ -519,14 +555,14 @@ function addCard(root, index, heimaPoster) {
   document.querySelector('#labels').append(label);
   const projectLink=document.querySelectorAll('.work-notes a')[index];
   const projectUrl=placeholder ? undefined : projectLink?.href;
-  const c = {projectIndex:index,placeholder,projectUrl, projectTitle:projectLink?.querySelector('strong')?.textContent, projectDescription:projectLink?.querySelector('span')?.textContent, pivot, swing, flip, cord, cordSide:index%2===0 ? 1 : -1, connector, faces, backContent, label, hoverBox, shadowCenter, pose:poses[index],
-    hitBounds:{center:new T.Vector3(),half:new T.Vector3(),axes:[new T.Vector3(),new T.Vector3(),new T.Vector3()]},
-    z:[0,.08,0,.04,.08][index], angle:0, spin:0,
-    travel:0, speed:0, contactShift:0, turn:0, manualBack:false, tilt:0};
-  label.addEventListener('click', () => flipCard(c));
+  const c = new HangingCard({
+    index,placeholder,projectUrl,projectTitle:projectLink?.querySelector('strong')?.textContent,
+    projectDescription:projectLink?.querySelector('span')?.textContent,
+    pivot,swing,flip,cord,connector,faces,backContent,label,hoverBox,shadowCenter
+  });
+  label.addEventListener('click', () => c.toggleFlip());
   cards.push(c);
 }
-function flipCard(c) { if(!c.placeholder)c.manualBack = !c.manualBack; }
 
 function hoverCardAt(x,y) {
   const wx=(x/width-.5)*spanX, wy=(.5-y/height)*spanY;
@@ -563,112 +599,175 @@ function cardAt(x,y) {
   return match;
 }
 
-let soundContext, soundBus;
-const contactAudio=new Map();
+class AcrylicSound {
+  acrylicSamples = new Map();
 
-async function enableSound() {
-  try {
-    const Audio=window.AudioContext || window.webkitAudioContext;
-    if(!Audio)return false;
-    if(!soundContext) {
-      soundContext=new Audio();
-      soundBus=soundContext.createGain();
-      soundBus.gain.value=1.05;
-      soundBus.connect(soundContext.destination);
-    }
-    if(soundContext.state!=='running')await soundContext.resume();
-    if(soundContext.state!=='running')return false;
+  get running() { return this.soundContext?.state === 'running'; }
 
-    return true;
-  } catch { return false; }
-}
-
-const acrylicSamples=new Map();
-
-function acrylicImpact(soft) {
-  if(acrylicSamples.has(soft))return acrylicSamples.get(soft);
-  const rate=soundContext.sampleRate;
-  const buffer=soundContext.createBuffer(1,Math.ceil(rate*.17),rate);
-  const wave=buffer.getChannelData(0);
-  const modes=soft
-    ? [[440,.09,175],[869,.22,115],[1469,.29,75],[2213,.25,102],[3149,.15,147],[4531,.065,215]]
-    : [[466,.11,168],[923,.24,102],[1547,.31,66],[2399,.27,90],[3527,.17,128],[4937,.086,196]];
-  let seed=soft?7241:52371, fast=0, slow=0, peak=0;
-  const smooth=hz=>1-Math.exp(-2*Math.PI*hz/rate);
-  const high=smooth(6400), low=smooth(920);
-  for(let i=0;i<wave.length;i++) {
-    const t=i/rate;
-    seed=(Math.imul(seed,1664525)+1013904223)>>>0;
-    const noise=seed/2147483648-1;
-    fast+=high*(noise-fast);
-    slow+=low*(noise-slow);
-    // Brief hard edge click, then inharmonic plate vibrations damped by the grip.
-    let v=(fast-slow)*(soft?.17:.28)*Math.exp(-t*620);
-    for(const [hz,amp,decay] of modes) {
-      const phase=2*Math.PI*hz*t;
-      v+=amp*Math.sin(phase)*Math.exp(-decay*t);
-      if(!soft&&t>.0028) {
-        const t2=t-.0028;
-        v+=amp*.085*Math.sin(2*Math.PI*hz*t2)*Math.exp(-(decay+58)*t2);
+  async enableSound() {
+    try {
+      const Audio=window.AudioContext || window.webkitAudioContext;
+      if(!Audio)return false;
+      if(!this.soundContext) {
+        this.soundContext=new Audio();
+        this.soundBus=this.soundContext.createGain();
+        this.soundBus.gain.value=1.05;
+        this.soundBus.connect(this.soundContext.destination);
       }
-    }
-    v=Math.tanh(v*1.08)*Math.min(1,t/.00022);
-    wave[i]=v;
-    peak=Math.max(peak,Math.abs(v));
+      if(this.soundContext.state!=='running')await this.soundContext.resume();
+      if(this.soundContext.state!=='running')return false;
+
+      return true;
+    } catch { return false; }
   }
-  for(let i=0;i<wave.length;i++)wave[i]*=.88/Math.max(.01,peak);
-  acrylicSamples.set(soft,buffer);
-  return buffer;
-}
 
-function playImpactBuffer(buffer,x,gain,rate,delay=0,brightness=0) {
-  if(soundContext?.state!=='running')return;
-  const pan=soundContext.createStereoPanner();
-  pan.pan.value=T.MathUtils.clamp(x/((spanX||1.58)*.58),-.78,.78);
-  const volume=soundContext.createGain();
-  volume.gain.value=gain;
-  const filter=soundContext.createBiquadFilter();
-  filter.type='highshelf';
-  filter.frequency.value=2100;
-  filter.gain.value=brightness;
-  const hit=soundContext.createBufferSource();
-  hit.buffer=buffer;
-  hit.playbackRate.value=rate;
-  hit.connect(filter); filter.connect(volume); volume.connect(pan); pan.connect(soundBus);
-  hit.start(soundContext.currentTime+delay);
-  hit.onended=()=>{hit.disconnect();filter.disconnect();volume.disconnect();pan.disconnect();};
-}
-
-function playAcrylicHit(x,force,pitch,delay=0) {
-  if(soundContext?.state!=='running')return;
-  playImpactBuffer(acrylicImpact(force<.42),x,.59*Math.pow(force,1.12),
-    pitch*(.96+.11*force),delay,1.2+force*2.1);
-}
-
-let clipSample;
-function playClipTension(x,force,delay=0) {
-  if(soundContext?.state!=='running')return;
-  if(!clipSample) {
-    const rate=soundContext.sampleRate;
-    clipSample=soundContext.createBuffer(1,Math.ceil(rate*.055),rate);
-    const wave=clipSample.getChannelData(0);
-    let seed=997, lp=0;
+  acrylicImpact(soft) {
+    if(this.acrylicSamples.has(soft))return this.acrylicSamples.get(soft);
+    const rate=this.soundContext.sampleRate;
+    const buffer=this.soundContext.createBuffer(1,Math.ceil(rate*.17),rate);
+    const wave=buffer.getChannelData(0);
+    const modes=soft
+      ? [[440,.09,175],[869,.22,115],[1469,.29,75],[2213,.25,102],[3149,.15,147],[4531,.065,215]]
+      : [[466,.11,168],[923,.24,102],[1547,.31,66],[2399,.27,90],[3527,.17,128],[4937,.086,196]];
+    let seed=soft?7241:52371, fast=0, slow=0, peak=0;
+    const smooth=hz=>1-Math.exp(-2*Math.PI*hz/rate);
+    const high=smooth(6400), low=smooth(920);
     for(let i=0;i<wave.length;i++) {
       const t=i/rate;
       seed=(Math.imul(seed,1664525)+1013904223)>>>0;
-      lp+=.17*(seed/2147483648-1-lp);
-      wave[i]=Math.min(1,t/.0018)*(lp*.44*Math.exp(-170*t)
-        +.13*Math.sin(t*2*Math.PI*830)*Math.exp(-250*t));
+      const noise=seed/2147483648-1;
+      fast+=high*(noise-fast);
+      slow+=low*(noise-slow);
+      // Brief hard edge click, then inharmonic plate vibrations damped by the grip.
+      let v=(fast-slow)*(soft?.17:.28)*Math.exp(-t*620);
+      for(const [hz,amp,decay] of modes) {
+        const phase=2*Math.PI*hz*t;
+        v+=amp*Math.sin(phase)*Math.exp(-decay*t);
+        if(!soft&&t>.0028) {
+          const t2=t-.0028;
+          v+=amp*.085*Math.sin(2*Math.PI*hz*t2)*Math.exp(-(decay+58)*t2);
+        }
+      }
+      v=Math.tanh(v*1.08)*Math.min(1,t/.00022);
+      wave[i]=v;
+      peak=Math.max(peak,Math.abs(v));
     }
+    for(let i=0;i<wave.length;i++)wave[i]*=.88/Math.max(.01,peak);
+    this.acrylicSamples.set(soft,buffer);
+    return buffer;
   }
-  playImpactBuffer(clipSample,x,.15+.17*force,.94+force*.17,delay);
+
+  playImpactBuffer(buffer,x,gain,rate,delay=0,brightness=0) {
+    if(this.soundContext?.state!=='running')return;
+    const pan=this.soundContext.createStereoPanner();
+    pan.pan.value=T.MathUtils.clamp(x/((spanX||1.58)*.58),-.78,.78);
+    const volume=this.soundContext.createGain();
+    volume.gain.value=gain;
+    const filter=this.soundContext.createBiquadFilter();
+    filter.type='highshelf';
+    filter.frequency.value=2100;
+    filter.gain.value=brightness;
+    const hit=this.soundContext.createBufferSource();
+    hit.buffer=buffer;
+    hit.playbackRate.value=rate;
+    hit.connect(filter); filter.connect(volume); volume.connect(pan); pan.connect(this.soundBus);
+    hit.start(this.soundContext.currentTime+delay);
+    hit.onended=()=>{hit.disconnect();filter.disconnect();volume.disconnect();pan.disconnect();};
+  }
+
+  playAcrylicHit(x,force,pitch,delay=0) {
+    if(this.soundContext?.state!=='running')return;
+    this.playImpactBuffer(this.acrylicImpact(force<.42),x,.59*Math.pow(force,1.12),
+      pitch*(.96+.11*force),delay,1.2+force*2.1);
+  }
+
+  playClipTension(x,force,delay=0) {
+    if(this.soundContext?.state!=='running')return;
+    if(!this.clipSample) {
+      const rate=this.soundContext.sampleRate;
+      this.clipSample=this.soundContext.createBuffer(1,Math.ceil(rate*.055),rate);
+      const wave=this.clipSample.getChannelData(0);
+      let seed=997, lp=0;
+      for(let i=0;i<wave.length;i++) {
+        const t=i/rate;
+        seed=(Math.imul(seed,1664525)+1013904223)>>>0;
+        lp+=.17*(seed/2147483648-1-lp);
+        wave[i]=Math.min(1,t/.0018)*(lp*.44*Math.exp(-170*t)
+          +.13*Math.sin(t*2*Math.PI*830)*Math.exp(-250*t));
+      }
+    }
+    this.playImpactBuffer(this.clipSample,x,.15+.17*force,.94+force*.17,delay);
+  }
 }
 
-let projectExit;
+const acrylicSound = new AcrylicSound();
+const contactAudio = new Map();
+
+let projectExit, projectFrame;
+
+function prepareProject(card) {
+  const frame = document.createElement('iframe');
+  const url = new URL(card.projectUrl);
+  url.searchParams.set('embedded','1');
+  frame.className = 'project-frame';
+  if(card.projectIndex===4){
+    frame.classList.add('heima-film-frame');
+    frame.allow='autoplay';
+  }
+  frame.title = card.projectTitle;
+  frame.hidden = true;
+  const ready = new Promise(resolve => frame.addEventListener('load',resolve,{once:true}));
+  frame.src = url.href;
+  document.body.append(frame);
+  return {frame,ready};
+}
+
+async function revealProject(project) {
+  await project.ready;
+  if(projectFrame !== project.frame)return;
+  document.body.dataset.introduced='true';
+  document.querySelector('.masthead').inert=false;
+  delete document.body.dataset.projectFade;
+  projectExit=undefined;
+  changeView('project-detail');
+  project.frame.hidden=false;
+  if(project.frame.classList.contains('heima-film-frame')){
+    project.frame.contentWindow.postMessage('heima-start-film','*');
+  }
+  if(location.hash!==project.hash)history.pushState(null,'',project.hash);
+}
+
+function closeProject() {
+  for(const card of cards)card.pivot.scale.setScalar(card.scale);
+  projectFrame?.remove();
+  projectFrame=undefined;
+  projectExit=undefined;
+  delete document.body.dataset.projectFade;
+  if(/^#project-/.test(location.hash))history.replaceState(null,'','#work');
+}
+
+window.addEventListener('message',event=>{
+  if(!projectFrame || event.source!==projectFrame.contentWindow)return;
+  if(event.data==='portfolio-back-to-work')showWork();
+  if(event.data==='heima-film-finished' && projectFrame.classList.contains('heima-film-frame')){
+    projectFrame.classList.add('heima-film-complete');
+  }
+});
+window.addEventListener('popstate',()=>{
+  const card=cards.find(item=>item.projectUrl&&location.hash==='#project-'+(item.projectIndex===0?'hovr':'heima'));
+  if(card&&(view==='work'||view==='project-detail')) {
+    closeProject();
+    openProject(card);
+  } else if(projectFrame)showWork();
+});
+
 function openProject(card) {
-  if(!card?.projectUrl||projectExit||view!=='work')return;
-  if(reduced.matches||spaceBack){window.location.assign(card.projectUrl);return;}
-  projectExit={card,url:card.projectUrl,started:sceneTime,poses:cards.map(c=>({
+  if(!card?.projectUrl||projectFrame||!['work','project-detail'].includes(view))return;
+  const project=prepareProject(card);
+  project.hash='#project-'+(card.projectIndex===0?'hovr':'heima');
+  projectFrame=project.frame;
+  if(reduced.matches||spaceBack||view==='project-detail'){revealProject(project);return;}
+  projectExit={card,project,started:sceneTime,poses:cards.map(c=>({
     x:c.pivot.position.x,y:c.pivot.position.y,z:c.pivot.position.z,
     turn:c.flip.rotation.y,lean:c.swing.rotation.z,scale:c.pivot.scale.x
   }))};
@@ -710,7 +809,7 @@ function renderProjectExit(dt) {
   renderer.render(scene,camera);
   if(t>.91&&!exit.navigating) {
     exit.navigating=true;
-    window.location.assign(exit.url);
+    revealProject(exit.project);
   }
 }
 
@@ -730,113 +829,116 @@ function resetProjectExit(event) {
 }
 window.addEventListener('pageshow',resetProjectExit);
 
-function controls() {
-  const canvas = renderer.domElement;
-  window.addEventListener('pointerdown',enableSound,{passive:true});
-  let last, down;
-  function point(e) {
-    const r=canvas.getBoundingClientRect();
-    return {x:e.clientX-r.left,y:e.clientY-r.top};
-  }
-  canvas.addEventListener('pointermove',e=>{
-    if(view!=='work')return;
-    const p=point(e);
-    if(spaceBack) {
-      if(down&&Math.hypot(p.x-down.x,p.y-down.y)>6)down.moved=true;
-      canvas.classList.toggle('over',!!cardAt(p.x,p.y));
-      return;
+class CardDragController {
+  bind(canvas) {
+    window.addEventListener('pointerdown',()=>acrylicSound.enableSound(),{passive:true});
+    let last, down;
+    function point(e) {
+      const r=canvas.getBoundingClientRect();
+      return {x:e.clientX-r.left,y:e.clientY-r.top};
     }
-    if(drag?.pointerId===e.pointerId) {
-      if(Math.hypot(p.x-drag.startX,p.y-drag.startY)>6)drag.moved=true;
-      const t=performance.now();
-      const x=drag.startWorldX+(p.x-drag.startX)*spanX/width;
-      const y=drag.startWorldY-(p.y-drag.startY)*spanY/height;
-      const deltaTime=Math.max(.012,(t-drag.lastTime)/1000);
-      drag.vx=T.MathUtils.clamp((x-drag.x)/deltaTime,-1.65,1.65);
-      drag.vy=T.MathUtils.clamp((y-drag.y)/deltaTime,-1.65,1.65);
-      drag.x=x;
-      drag.y=y;
-      drag.lastTime=t;
-      last=p;
-      return;
-    }
-    if(e.pointerType !== 'touch')setHovered(hoverCardAt(p.x,p.y));
-    if (last && e.pointerType !== 'touch' && !reduced.matches && !spaceBack) {
-      const dx=p.x-last.x, dy=p.y-last.y, distance=Math.hypot(dx,dy);
-      if (distance>1 && distance<width*.75) {
-        const swept = new Set();
-        const steps=Math.min(30,Math.ceil(distance/14));
-        for(let i=0;i<=steps;i++) {
-          const c=hoverCardAt(last.x+dx*i/steps,last.y+dy*i/steps);
-          if(c) swept.add(c);
-        }
-        for(const c of swept) {
-          c.spin=T.MathUtils.clamp(c.spin+dx/width*34,-5,5);
-          c.speed=T.MathUtils.clamp(c.speed+dx/width*13,-2.1,2.1);
+    canvas.addEventListener('pointermove',e=>{
+      if(view!=='work')return;
+      const p=point(e);
+      if(spaceBack) {
+        if(down&&Math.hypot(p.x-down.x,p.y-down.y)>6)down.moved=true;
+        canvas.classList.toggle('over',!!cardAt(p.x,p.y));
+        return;
+      }
+      if(this.active?.pointerId===e.pointerId) {
+        if(Math.hypot(p.x-this.active.startX,p.y-this.active.startY)>6)this.active.moved=true;
+        const t=performance.now();
+        const x=this.active.startWorldX+(p.x-this.active.startX)*spanX/width;
+        const y=this.active.startWorldY-(p.y-this.active.startY)*spanY/height;
+        const deltaTime=Math.max(.012,(t-this.active.lastTime)/1000);
+        this.active.vx=T.MathUtils.clamp((x-this.active.x)/deltaTime,-1.65,1.65);
+        this.active.vy=T.MathUtils.clamp((y-this.active.y)/deltaTime,-1.65,1.65);
+        this.active.x=x;
+        this.active.y=y;
+        this.active.lastTime=t;
+        last=p;
+        return;
+      }
+      if(e.pointerType !== 'touch')setHovered(hoverCardAt(p.x,p.y));
+      if (last && e.pointerType !== 'touch' && !reduced.matches && !spaceBack) {
+        const dx=p.x-last.x, dy=p.y-last.y, distance=Math.hypot(dx,dy);
+        if (distance>1 && distance<width*.75) {
+          const swept = new Set();
+          const steps=Math.min(30,Math.ceil(distance/14));
+          for(let i=0;i<=steps;i++) {
+            const c=hoverCardAt(last.x+dx*i/steps,last.y+dy*i/steps);
+            if(c) swept.add(c);
+          }
+          for(const c of swept) {
+            c.spin=T.MathUtils.clamp(c.spin+dx/width*34,-5,5);
+            c.speed=T.MathUtils.clamp(c.speed+dx/width*13,-2.1,2.1);
+          }
         }
       }
-    }
-    last=p;
-  });
-  function finishDrag(e, cancelled=false) {
-    if(drag?.pointerId!==e.pointerId)return false;
-    const current=drag;
-    drag=undefined;
-    const card=current.card;
-    const moving=!cancelled&&performance.now()-current.lastTime<110;
-    card.returnMotion=reduced.matches||spaceBack ? null : {
-      t:0, allowSound:!cancelled, x:card.pivot.position.x-card.topX-card.contactShift,
-      y:card.pivot.position.y-card.restY,
-      vx:moving?current.vx:0, vy:moving?current.vy:0
+      last=p;
+    });
+    const finishDrag = (e, cancelled=false) => {
+      if(this.active?.pointerId!==e.pointerId)return false;
+      const current=this.active;
+      this.active=undefined;
+      const card=current.card;
+      const moving=!cancelled&&performance.now()-current.lastTime<110;
+      card.returnMotion=reduced.matches||spaceBack ? null : {
+        t:0, allowSound:!cancelled, x:card.pivot.position.x-card.topX-card.contactShift,
+        y:card.pivot.position.y-card.restY,
+        vx:moving?current.vx:0, vy:moving?current.vy:0
+      };
+      card.travel=0;
+      card.speed=0;
+      if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);
+      canvas.style.cursor='';
+      const p=point(e);
+      last=p;
+      setHovered(cancelled ? undefined : hoverCardAt(p.x,p.y));
+      if(!cancelled&&!current.moved&&Math.hypot(p.x-current.startX,p.y-current.startY)<=6)openProject(card);
+      return true;
     };
-    card.travel=0;
-    card.speed=0;
-    if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);
-    canvas.style.cursor='';
-    const p=point(e);
-    last=p;
-    setHovered(cancelled ? undefined : hoverCardAt(p.x,p.y));
-    if(!cancelled&&!current.moved&&Math.hypot(p.x-current.startX,p.y-current.startY)<=6)openProject(card);
-    return true;
+    canvas.addEventListener('pointerleave',()=>{
+      last=undefined;down=undefined;
+      if(!this.active)setHovered(undefined);
+    });
+    canvas.addEventListener('pointercancel',e=>{
+      finishDrag(e,true);
+      last=undefined;down=undefined;setHovered(undefined);
+    });
+    canvas.addEventListener('lostpointercapture',e=>finishDrag(e,true));
+    canvas.addEventListener('pointerdown',e=>{
+      if(e.button!==0||this.active)return;
+      const p=point(e);
+      if(spaceBack||e.pointerType==='touch') { down={...p,card:cardAt(p.x,p.y),moved:false}; return; }
+      const card=cardAt(p.x,p.y)||hoverCardAt(p.x,p.y);
+      if(!card?.entry?.engaged)return;
+      e.preventDefault();
+      setHovered(card);
+      const x=card.pivot.position.x-card.contactShift;
+      const y=card.pivot.position.y;
+      this.active={card,pointerId:e.pointerId,startX:p.x,startY:p.y,
+        startWorldX:x,startWorldY:y,x,y,vx:0,vy:0,lastTime:performance.now()};
+      card.returnMotion=null;
+      card.speed=0;
+      last=p;
+      canvas.style.cursor='grabbing';
+      canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener('pointerup',e=>{
+      if(finishDrag(e))return;
+      if(e.button!==0||!down)return;
+      const p=point(e);
+      if(!down.moved&&Math.hypot(p.x-down.x,p.y-down.y)<7) {
+        const c=cardAt(p.x,p.y);
+        if(c&&c===down.card)openProject(c);
+      }
+      down=undefined;
+    });
   }
-  canvas.addEventListener('pointerleave',()=>{
-    last=undefined;down=undefined;
-    if(!drag)setHovered(undefined);
-  });
-  canvas.addEventListener('pointercancel',e=>{
-    finishDrag(e,true);
-    last=undefined;down=undefined;setHovered(undefined);
-  });
-  canvas.addEventListener('lostpointercapture',e=>finishDrag(e,true));
-  canvas.addEventListener('pointerdown',e=>{
-    if(e.button!==0||drag)return;
-    const p=point(e);
-    if(spaceBack||e.pointerType==='touch') { down={...p,card:cardAt(p.x,p.y),moved:false}; return; }
-    const card=cardAt(p.x,p.y)||hoverCardAt(p.x,p.y);
-    if(!card?.entry?.engaged)return;
-    e.preventDefault();
-    setHovered(card);
-    const x=card.pivot.position.x-card.contactShift;
-    const y=card.pivot.position.y;
-    drag={card,pointerId:e.pointerId,startX:p.x,startY:p.y,
-      startWorldX:x,startWorldY:y,x,y,vx:0,vy:0,lastTime:performance.now()};
-    card.returnMotion=null;
-    card.speed=0;
-    last=p;
-    canvas.style.cursor='grabbing';
-    canvas.setPointerCapture(e.pointerId);
-  });
-  canvas.addEventListener('pointerup',e=>{
-    if(finishDrag(e))return;
-    if(e.button!==0||!down)return;
-    const p=point(e);
-    if(!down.moved&&Math.hypot(p.x-down.x,p.y-down.y)<7) {
-      const c=cardAt(p.x,p.y);
-      if(c&&c===down.card)openProject(c);
-    }
-    down=undefined;
-  });
 }
+
+const dragController = new CardDragController();
 
 function dropMotion(card,index,time) {
   if(reduced.matches)return {offset:0,drift:0,twist:0,engaged:true};
@@ -890,7 +992,7 @@ function soundAtContact(a,b,pair) {
   const event=prior&&now-prior.last<85 ? prior : {last:now,sounded:false};
   event.last=now;
   contactAudio.set(pair,event);
-  if(event.sounded||soundContext?.state!=='running')return;
+  if(event.sounded||!acrylicSound.running)return;
   closestOnCard(b.hitBounds.center,a.hitBounds,surfaceA);
   closestOnCard(surfaceA,b.hitBounds,surfaceB);
   contactPoint.copy(surfaceA).lerp(surfaceB,.5);
@@ -904,7 +1006,7 @@ function soundAtContact(a,b,pair) {
   const contactEdge=Math.abs(contactNormal.dot(a.hitBounds.axes[2]))
                    +Math.abs(contactNormal.dot(b.hitBounds.axes[2]));
   const pitch=T.MathUtils.clamp(1.03+(.26-size)*.52+(contactEdge-1)*.038,.87,1.14);
-  playAcrylicHit(contactPoint.x,force,pitch);
+  acrylicSound.playAcrylicHit(contactPoint.x,force,pitch);
 }
 
 function poseCard(c) {
@@ -971,7 +1073,7 @@ function resolveCardContacts() {
       if(separation<=0)continue;
       if(pass===0)soundAtContact(a,b,i*cards.length+j);
       const slide=(separation+.00015)*1.04;
-      const leftShare=drag?.card===a ? .10 : drag?.card===b ? .90 : .50;
+      const leftShare=dragController.active?.card===a ? .10 : dragController.active?.card===b ? .90 : .50;
       a.contactShift-=slide*leftShare;
       b.contactShift+=slide*(1-leftShare);
       // A small rebound transfers motion instead of stopping both cards abruptly.
@@ -996,7 +1098,7 @@ function changeView(next) {
   viewStarted=sceneTime;
   document.body.dataset.view=next;
   updateScrollCue();
-  document.querySelector('.nav-home').inert=!panels[next];
+  document.querySelector('.nav-home').inert=!panels[next]&&next!=='project-detail';
   if(next==='work') {
     delete document.body.dataset.returning;
     document.body.dataset.introduced='true';
@@ -1012,8 +1114,9 @@ function changeView(next) {
 }
 
 function showPanel(target='about') {
-  if(!panels[target]||drag)return;
+  if(!panels[target]||dragController.active)return;
   if(view==='enter'){panelRequested=target;return;}
+  if(view==='project-detail'){closeProject();changeView(target);return;}
   if(panels[view]){if(view!==target)changeView(target);return;}
   destination=target;
   if(view!=='work')return;
@@ -1021,7 +1124,8 @@ function showPanel(target='about') {
   changeView(reduced.matches?target:'exit-text');
 }
 function showWork() {
-  if(!panels[view])return;
+  if(!panels[view]&&!projectFrame)return;
+  if(projectFrame)closeProject();
   panelRequested=null;
   sceneStarted=sceneTime;
   document.body.dataset.returning='true';
@@ -1033,7 +1137,7 @@ function showWork() {
   changeView('enter');
 }
 function scrollView(direction) {
-  if(drag)return false;
+  if(dragController.active)return false;
   const panel=panels[view];
   if(direction>0) {
     if(view==='work'){showPanel('about');return true;}
@@ -1130,7 +1234,7 @@ function setupViews() {
     if(touchStart!==undefined&&Math.abs(e.touches[0].clientY-touchStart)>6)highlightScroll();
   },{passive:true});
   window.addEventListener('wheel',e=>{
-    if(e.ctrlKey||drag)return;
+    if(e.ctrlKey||dragController.active)return;
     if(e.deltaY)highlightScroll();
     const now=performance.now();
     if(now-lastWheel>160)wheel=0;
@@ -1149,7 +1253,7 @@ function setupViews() {
   },{passive:true});
   window.addEventListener('keydown',e=>{
     if(e.defaultPrevented||e.altKey||e.ctrlKey||e.metaKey)return;
-    if(e.code==='Space'&&view==='work'&&!drag&&!e.target.closest?.('button,a,input,textarea,select,[contenteditable]')) {
+    if(e.code==='Space'&&view==='work'&&!dragController.active&&!e.target.closest?.('button,a,input,textarea,select,[contenteditable]')) {
       e.preventDefault();
       if(e.repeat)return;
       spaceBack=!spaceBack;
@@ -1168,7 +1272,7 @@ function setupViews() {
     if(e.key==='PageDown'||e.key==='PageUp')highlightScroll();
     if(e.key==='PageDown'&&scrollView(1))e.preventDefault();
     if(e.key==='PageUp'&&scrollView(-1))e.preventDefault();
-    if(e.key==='Escape'&&panels[view]){e.preventDefault();showWork();}
+    if(e.key==='Escape'&&(panels[view]||projectFrame)){e.preventDefault();showWork();}
   });
   for(const link of document.querySelectorAll('a[href="#about"],a[href="#contact"],a[href="#work"]')) {
     link.addEventListener('click',e=>{
@@ -1182,26 +1286,20 @@ function frame() {
   const dt=Math.min(clock.getDelta(),.034);
   sceneTime=clock.elapsedTime;
   if(projectExit){renderProjectExit(dt);return;}
+  if(view==='project-detail')return;
   const time=sceneTime-sceneStarted;
   if(view==='enter'&&(reduced.matches||time>1.38)) {
     changeView('work');
     if(panelRequested) {const target=panelRequested;panelRequested=null;showPanel(target);}
+    else if(location.hash==='#project-hovr'||location.hash==='#project-heima') {
+      openProject(cards[location.hash==='#project-hovr'?0:4]);
+    }
   }
   if(view==='exit-text'&&sceneTime-viewStarted>.29)changeView('exit-cards');
   if(view==='exit-cards'&&sceneTime-viewStarted>.94)changeView(destination);
   for (const [i,c] of cards.entries()) {
-    c.spin += (-10*c.angle - 2.15*c.spin)*dt;
-    c.angle = T.MathUtils.clamp(c.angle+c.spin*dt,-1.14,1.14);
-    if(drag?.card!==c) {
-      c.speed += (-12*c.travel - 2.6*c.speed)*dt;
-      c.travel += c.speed*dt;
-    }
     const heldBack=spaceBack&&view==='work';
-    const back=!c.placeholder&&(heldBack||c===hovered||c.manualBack);
-    const target=back ? Math.PI : 0;
-    const pressed=String(back);
-    if(c.label.getAttribute('aria-pressed')!==pressed)c.label.setAttribute('aria-pressed',pressed);
-    c.turn = reduced.matches||heldBack ? target : T.MathUtils.damp(c.turn,target,9,dt);
+    c.updateMotion(dt,dragController.active?.card===c,heldBack,c===hovered,reduced.matches);
     c.topX=(c.pose[0]-.5)*spanX;
     c.entry=heldBack?{offset:0,drift:0,twist:0,engaged:true}:dropMotion(c,i,time);
     if(view==='exit-cards'||panels[view]) {
@@ -1224,10 +1322,10 @@ function frame() {
 
     c.flip.rotation.x=0;
     c.grabPose=null;
-    if(drag?.card===c) {
-      const velocity=performance.now()-drag.lastTime<85 ? drag.vx : 0;
+    if(dragController.active?.card===c) {
+      const velocity=performance.now()-dragController.active.lastTime<85 ? dragController.active.vx : 0;
       c.grabLean=T.MathUtils.damp(c.grabLean??0,-velocity*.065,12,dt);
-      c.grabPose={x:drag.x,y:drag.y,lean:c.grabLean};
+      c.grabPose={x:dragController.active.x,y:dragController.active.y,lean:c.grabLean};
     } else if(c.returnMotion) {
       const m=c.returnMotion;
       const t=m.t;
@@ -1286,18 +1384,21 @@ async function start() {
   backdrop=studioBackdrop();
   const gltf=await new GLTFLoader().loadAsync(new URL('./assets/cards.glb', import.meta.url).href);
   const heimaPoster = await new T.TextureLoader().loadAsync(new URL('./assets/heima-poster.jpg', import.meta.url).href);
+  const hovrPoster = await new T.TextureLoader().loadAsync(new URL('../hovr/assets/hovr-hero.jpg', import.meta.url).href);
+  hovrPoster.colorSpace = T.SRGBColorSpace;
+  hovrPoster.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
   heimaPoster.colorSpace = T.SRGBColorSpace;
   heimaPoster.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
   for(let i=0;i<5;i++) {
     const id=String(i+1).padStart(2,'0');
     const root=gltf.scene.getObjectByName('Card_'+id+'_Root');
     if(!root) throw new Error('Missing card '+id);
-    addCard(root,i,heimaPoster);
+    addCard(root,i,hovrPoster,heimaPoster);
   }
   resize();
   addEventListener('resize',resize);
   document.fonts.ready.then(resize);
-  controls();
+  dragController.bind(renderer.domElement);
   setupViews();
   if(location.hash==='#about'||location.hash==='#contact')showPanel(location.hash.slice(1));
   document.querySelector('.copy-email').addEventListener('click',async()=>{

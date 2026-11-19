@@ -4,30 +4,44 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HEIMA — Zhaolin Hu</title>
-
-<link rel="stylesheet" href="../home/style.css">
-<link rel="stylesheet" href="../home/project.css">
-<script src="../home/project-nav.js" defer></script>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#f3f5f4;color:#182424}
+html:not(.film-finished){overflow:hidden}
+video{position:fixed;inset:0;z-index:2;display:block;width:100%;height:100%;object-fit:cover;
+  background:#000;transition:transform .72s cubic-bezier(.76,0,.24,1)}
+.film-leaving video{transform:translateY(-101%);pointer-events:none}
+.film-finished video{display:none}
+.film-skip{position:fixed;right:clamp(18px,3vw,48px);bottom:clamp(18px,3vw,44px);z-index:3;
+  padding:10px 14px;border:1px solid #ffffff80;border-radius:999px;background:#14141499;
+  color:#fff;font:500 12px/1.4 Arial,sans-serif;letter-spacing:.09em;cursor:pointer}
+.film-skip:hover{background:#141414e6}
+.film-skip:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.film-leaving .film-skip{display:none}
+.heima-content{max-width:1180px;margin:auto;padding:clamp(80px,14vh,150px) clamp(24px,6vw,100px) 12vh;font:16px/1.55 Arial,sans-serif}
+.heima-content a{color:inherit;text-underline-offset:.2em}
+.heima-content h1{font:700 clamp(64px,15vw,194px)/.9 Arial,sans-serif;letter-spacing:-.065em;margin:.24em 0 .2em}
+.heima-content .description{font-size:clamp(21px,3vw,39px);max-width:28ch;line-height:1.16}
+.heima-overview{margin:clamp(35px,7vw,100px) 0 0}
+.heima-overview h2{font-size:clamp(24px,4vw,48px);line-height:1.1;margin-bottom:.5em}
+.heima-overview p{max-width:55ch;margin-bottom:2em}
+.heima-overview img{display:block;width:min(100%,520px);height:auto;background:#eee}
+@media(prefers-reduced-motion:reduce){video{transition:none}}
+</style>
+<script src="./film.js" defer></script>
 </head>
-<body class="project-page" data-introduced="true">
-<header class="masthead">
-  <nav aria-label="Main navigation">
-
-    <a href="../index.html#about" data-home-hash="about">About</a>
-    <a href="../index.html#contact" data-home-hash="contact">Contact</a>
-    <a href="../resume/Zhaolin-Hu-Resume-2026-11-04.pdf" target="_blank" rel="noopener">Resume</a>
-  </nav>
-  <div class="tools"><button type="button" id="language-toggle" class="locale" aria-label="Switch to Chinese">EN / 中文</button></div>
-</header>
-<main class="project-main">
-  <a class="project-back" data-home-hash="work" href="../index.html#work">← Back to work</a>
-  <article class="heima-case">
-  <h1>HEIMA</h1>
-  <p>AR glasses with live captions and speaker highlighting.</p>
-  <video controls playsinline preload="metadata" poster="./poster.jpg" src="./product.mp4" aria-label="HEIMA product video">
-    <a href="./product.mp4">Open the HEIMA product video</a>
-  </video>
-</article>
+<body>
+<video playsinline preload="auto" poster="./film-poster.jpg" src="./product.mp4" aria-label="HEIMA product film"></video>
+<button class="film-skip" type="button" aria-label="Skip HEIMA film">SKIP ↗</button>
+<main class="heima-content" inert>
+  <a class="heima-back" href="../index.html#work">← Back to work</a>
+  <h1 tabindex="-1">HEIMA</h1>
+  <p class="description">AR glasses with live captions and speaker highlighting.</p>
+  <section class="heima-overview">
+    <h2>See who’s speaking</h2>
+    <p>The lens places captions in the wearer’s view and highlights the speaker. The concert demo shows how those cues work together in a crowded setting.</p>
+    <img src="./poster.jpg" alt="HEIMA glasses seen from the front" width="1000" height="1370" loading="lazy">
+  </section>
 </main>
 </body>
 </html>
