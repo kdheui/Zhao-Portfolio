@@ -28,16 +28,15 @@ body > video{position:fixed;inset:0;z-index:2;display:block;width:100%;height:10
 .heima-overview img{display:block;width:min(100%,520px);height:auto;background:#eee}
 @media(prefers-reduced-motion:reduce){body > video{transition:none}}
 </style>
-<link rel="stylesheet" href="./case/story.css">
+<link rel="stylesheet" href="./case/story.css?v=shared-header">
 <script src="./film.js" defer></script>
-<script src="./case/media.js" defer></script>
+<script src="./case/media.js?v=shared-header" defer></script>
 </head>
 <body>
 <video playsinline preload="auto" poster="./film-poster.jpg" src="./product.mp4" aria-label="HEIMA product film"></video>
 <button class="film-skip" type="button" aria-label="Skip HEIMA film">SKIP ↗</button>
 <main class="heima-content" inert>
   <a class="heima-back" href="../index.html#work">← Back to work</a>
-<article id="case-en" lang="en">
 <header class="project-intro" aria-labelledby="heima-title">
   <h1 id="heima-title" tabindex="-1"><span class="project-name">HEIMA<span class="sr-colon">:</span></span><span class="project-tagline">Beyond Hearing.</span></h1>
   <p class="project-summary">AI-powered AR eyewear for Deaf and hard-of-hearing audiences. See who is speaking, catch the invitation and join in on your own terms.</p>
@@ -49,6 +48,7 @@ body > video{position:fixed;inset:0;z-index:2;display:block;width:100%;height:10
     <div><dt>My role</dt><dd>I led research and the experience direction, designed the companion app and made the product video. Vivian built the Unity prototype.</dd></div>
   </dl>
 </header>
+<article id="case-en" lang="en">
 <section class="case-section"><h2>Problem: at a concert, the moment to join is over before you understand it</h2>
 <ul><li><strong>The signal.</strong> A few people near you start to clap together. You do not hear it.</li><li><strong>The delay.</strong> You see hands moving. The crowd gives you context, a moment late.</li><li><strong>The cost.</strong> The room goes quiet. By the time you understand, the chance to join has passed.</li></ul>
 <div class="film-stills"><figure><img loading="lazy" src="./case/clips/heima-moment-19.jpg" alt="Frame from the HEIMA product film at 19 seconds"><figcaption>Product film · 00:19</figcaption></figure><figure><img loading="lazy" src="./case/clips/heima-moment-21.jpg" alt="Frame from the HEIMA product film at 21 seconds"><figcaption>Product film · 00:21</figcaption></figure><figure><img loading="lazy" src="./case/clips/heima-moment-22.jpg" alt="Frame from the HEIMA product film at 22 seconds"><figcaption>Product film · 00:22</figcaption></figure></div>
@@ -95,27 +95,7 @@ body > video{position:fixed;inset:0;z-index:2;display:block;width:100%;height:10
 </article>
 <article id="case-legacy" lang="en" hidden>
   <section class="case-section" aria-label="Overview">
-    <small>Overview</small>
-    <h1 tabindex="-1">HEIMA</h1>
-    <h2>Beyond Hearing</h2>
-    <p class="description">AI-powered AR eyewear for Deaf and hard-of-hearing audiences. See who’s speaking, catch the invitation and join in on your own terms.</p>
-    <figure>
-    <img loading="lazy" src="./case/eyewear.jpg" alt="HEIMA glasses with the companion app">
-    </figure>
-    <div class="case-group">
-    <div>
-    <small>TEAM</small>
-    <p>Vivian Peng &amp; Zhaolin Hu</p>
-    </div>
-<div>
-    <small>TIMELINE</small>
-    <p>2026</p>
-    </div>
-<div>
-    <small>SCOPE</small>
-    <p>Research, AR interaction, companion app, AI system design</p>
-    </div>
-    </div><p>A few claps can be over by the time you see the hands around you move. A clip of a sign-language interpreter at a Rihanna performance sparked our interest in concerts. I wanted to understand that same moment at a conference reception, where a speaker changes, a group laughs or someone nearby starts a conversation.</p>
+    <p>A few claps can be over by the time you see the hands around you move. A clip of a sign-language interpreter at a Rihanna performance sparked our interest in concerts. I wanted to understand that same moment at a conference reception, where a speaker changes, a group laughs or someone nearby starts a conversation.</p>
   </section>
   <section class="case-section" aria-label="Solution">
     <small>Solution</small>

@@ -1,10 +1,10 @@
 const article = document.querySelector('#case-en');
-const clips = article.querySelectorAll('.case-clip');
+const clips = document.querySelectorAll('.case-clip');
 const visible = new Set();
 
 function syncPlayback() {
   for (const clip of clips) {
-    const show = visible.has(clip) && !article.hidden && !document.hidden &&
+    const show = visible.has(clip) && !clip.closest('[hidden]') && !document.hidden &&
       document.documentElement.classList.contains('film-finished');
     if (!show) {
       clip.pause();
