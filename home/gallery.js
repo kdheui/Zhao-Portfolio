@@ -453,10 +453,12 @@ class HangingCard {
   }
 }
 
-function addCard(root, index, hovrPoster, heimaPoster) {
+function addCard(root, index, hovrPoster, heimaPoster, deloittePoster) {
   const id = String(index + 1).padStart(2,'0');
   const prefix = 'Card_' + id;
-  const placeholder = index > 0 && index < 4;
+  const projectLink=document.querySelectorAll('.work-notes a')[index];
+  const projectTitle=projectLink?.querySelector('strong')?.textContent;
+  const placeholder = index === 2 || index === 3;
   const mount = root.getObjectByName(prefix + '_Attachment');
   const attachment = mount ? mount.position.clone() : new T.Vector3(0,.1,0);
   root.position.set(0,0,0);
@@ -464,7 +466,7 @@ function addCard(root, index, hovrPoster, heimaPoster) {
   const faces = [], backContent = [];
   let frostMap;
   root.traverse(o => {
-    if (/_Frosted_Title$/.test(o.name) || ((index===0||index===4) && /_Clear_Title$/.test(o.name))) { o.visible=false; return; }
+    if (/_Frosted_Title$/.test(o.name) || ((index===0||index===1||index===4) && /_Clear_Title$/.test(o.name))) { o.visible=false; return; }
     if (/_Clear_(Title|Cover)$/.test(o.name)) {
       o.visible=false;
       if(!placeholder)backContent.push(o);
@@ -487,7 +489,7 @@ function addCard(root, index, hovrPoster, heimaPoster) {
     } else if (/_Cover$/.test(o.name) && o.material.map) {
       const old = o.material;
       const customPoster = /_Clear_Cover$/.test(o.name)
-        ? (index===0 ? hovrPoster : index===4 ? heimaPoster : null)
+        ? [hovrPoster,deloittePoster,null,null,heimaPoster][index]
         : null;
       if(customPoster)fitProjectPoster(o,index===0?.93:1);
       const isFrost=/_Frosted_Cover$/.test(o.name);
@@ -551,12 +553,11 @@ function addCard(root, index, hovrPoster, heimaPoster) {
   label.hidden = placeholder;
   label.textContent = 'Flip';
   label.setAttribute('aria-pressed', 'false');
-  label.setAttribute('aria-label', 'Flip ' + (index===4 ? 'HEIMA' : (root.userData.project || 'card ' + id)));
+  label.setAttribute('aria-label', 'Flip ' + (projectTitle || 'card ' + id));
   document.querySelector('#labels').append(label);
-  const projectLink=document.querySelectorAll('.work-notes a')[index];
   const projectUrl=placeholder ? undefined : projectLink?.href;
   const c = new HangingCard({
-    index,placeholder,projectUrl,projectTitle:projectLink?.querySelector('strong')?.textContent,
+    index,placeholder,projectUrl,projectTitle,
     projectDescription:projectLink?.querySelector('span')?.textContent,
     pivot,swing,flip,cord,connector,faces,backContent,label,hoverBox,shadowCenter
   });
@@ -773,7 +774,7 @@ window.addEventListener('message',event=>{
   }
 });
 window.addEventListener('popstate',()=>{
-  const card=cards.find(item=>item.projectUrl&&location.hash==='#project-'+(item.projectIndex===0?'hovr':'heima'));
+  const card=cards.find(item=>item.projectUrl&&item.projectIndex!==1&&location.hash==='#project-'+(item.projectIndex===0?'hovr':'heima'));
   if(card&&(view==='work'||view==='project-detail')) {
     closeProject();
     openProject(card);
@@ -782,6 +783,10 @@ window.addEventListener('popstate',()=>{
 
 function openProject(card) {
   if(!card?.projectUrl||projectFrame||!['work','project-detail'].includes(view))return;
+  if(card.projectIndex===1){
+    location.assign(card.projectUrl);
+    return;
+  }
   const project=prepareProject(card);
   project.hash='#project-'+(card.projectIndex===0?'hovr':'heima');
   projectFrame=project.frame;
@@ -1437,21 +1442,26 @@ async function start() {
   camera.updateMatrixWorld();
   lighting();
   backdrop=studioBackdrop();
-  const [gltf,heimaPoster,hovrPoster] = await Promise.all([
+  const [gltf,heimaPoster,hovrPoster,deloittePoster] = await Promise.all([
     loadGalleryModel(new GLTFLoader()),
     new T.TextureLoader().loadAsync(new URL('./assets/heima-poster.jpg',import.meta.url).href),
     new T.TextureLoader().loadAsync(new URL('../hovr/assets/hovr-hero.jpg',import.meta.url).href),
+    new T.TextureLoader().loadAsync(new URL('../assets/scadpro/workshop.jpg',import.meta.url).href).catch(()=>null),
   ]);
   window.setPortfolioProgress?.(86);
   hovrPoster.colorSpace = T.SRGBColorSpace;
   hovrPoster.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
   heimaPoster.colorSpace = T.SRGBColorSpace;
   heimaPoster.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+  if(deloittePoster){
+    deloittePoster.colorSpace = T.SRGBColorSpace;
+    deloittePoster.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+  }
   for(let i=0;i<5;i++) {
     const id=String(i+1).padStart(2,'0');
     const root=gltf.scene.getObjectByName('Card_'+id+'_Root');
     if(!root) throw new Error('Missing card '+id);
-    addCard(root,i,hovrPoster,heimaPoster);
+    addCard(root,i,hovrPoster,heimaPoster,deloittePoster);
   }
   resize();
   addEventListener('resize',resize);
