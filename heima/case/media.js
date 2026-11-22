@@ -22,6 +22,7 @@ function syncLanguage() {
   let language = 'en';
   try { language = localStorage.getItem('gallery-language'); } catch {}
   article.hidden = language === 'zh';
+  document.querySelector('#case-legacy').hidden = !article.hidden;
   syncPlayback();
 }
 

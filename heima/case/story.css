@@ -27,3 +27,6 @@
 .case-section th,.case-section td{padding:12px 10px;text-align:left;vertical-align:top;border-bottom:1px solid #bcc9c3}
 .case-section thead{background:#e4ebe7}
 @media(max-width:600px){.case-section .case-compare{grid-template-columns:1fr}.case-section th,.case-section td{padding:9px 5px}.case-section table{overflow-wrap:anywhere}}
+.film-stills,.proof-clips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.film-stills figure,.proof-clips figure{margin:14px 0}
+@media(max-width:650px){.proof-clips{grid-template-columns:1fr}.film-stills{gap:6px}.film-stills figcaption{font-size:11px}}
