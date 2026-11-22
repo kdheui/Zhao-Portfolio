@@ -1443,14 +1443,15 @@ async function start() {
   camera.updateMatrixWorld();
   lighting();
   backdrop=studioBackdrop();
-  const [gltf,heimaPoster,hovrPoster,deloittePoster] = await Promise.all([
+  const [gltf,heimaPoster,hovrPoster,deloittePoster,robinhoodPoster] = await Promise.all([
     loadGalleryModel(new GLTFLoader()),
     new T.TextureLoader().loadAsync(new URL('./assets/heima-poster.jpg',import.meta.url).href),
     new T.TextureLoader().loadAsync(new URL('../hovr/assets/hovr-hero.jpg',import.meta.url).href),
     new T.TextureLoader().loadAsync(new URL('../assets/scadpro/workshop.jpg',import.meta.url).href).catch(()=>null),
+    new T.TextureLoader().loadAsync(new URL('../assets/scad/junior-cover.jpg',import.meta.url).href).catch(()=>null),
   ]);
   window.setPortfolioProgress?.(86);
-  const posters=[hovrPoster,deloittePoster,null,null,heimaPoster];
+  const posters=[hovrPoster,deloittePoster,null,robinhoodPoster,heimaPoster];
   for(const poster of posters.filter(Boolean)){
     poster.colorSpace = T.SRGBColorSpace;
     poster.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
