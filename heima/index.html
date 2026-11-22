@@ -36,7 +36,8 @@ video{position:fixed;inset:0;z-index:2;display:block;width:100%;height:100%;obje
 <button class="film-skip" type="button" aria-label="Skip HEIMA film">SKIP ↗</button>
 <main class="heima-content" inert>
   <a class="heima-back" href="../index.html#work">← Back to work</a>
-  <section class="case-section">
+  <section class="case-section" aria-label="Overview">
+    <small>Overview</small>
     <h1 tabindex="-1">HEIMA</h1>
     <h2>Beyond Hearing</h2>
     <p class="description">AI-powered AR eyewear for Deaf and hard-of-hearing audiences. See who’s speaking, catch the invitation and join in on your own terms.</p>
@@ -56,84 +57,30 @@ video{position:fixed;inset:0;z-index:2;display:block;width:100%;height:100%;obje
     <small>SCOPE</small>
     <p>Research, AR interaction, companion app, AI system design</p>
     </div>
-    </div>
+    </div><p>A few claps can be over by the time you see the hands around you move. A clip of a sign-language interpreter at a Rihanna performance sparked our interest in concerts. I wanted to understand that same moment at a conference reception, where a speaker changes, a group laughs or someone nearby starts a conversation.</p>
   </section>
-  <section class="case-section">
-    <small>IMPLEMENTATION   /   UNITY</small>
-    <h2>Three AI models. One working prototype.</h2>
-    <p>In our Applied AI class, we connected three models to Unity and demonstrated speaker-linked captions, sound-event and direction cues, tone cues and an invitation-triggered countdown. The recording documents individual prototype behaviors.</p>
-    <div class="case-group">
-    <div>
-    <small>01</small>
-    <h3>Paraformer</h3>
-    <strong>Speech → captions</strong>
-    <p>Turns spoken words into readable text.</p>
-    </div>
-<div>
-    <small>02</small>
-    <h3>YAMNet</h3>
-    <strong>Sound → event</strong>
-    <p>Identifies sounds such as applause, laughter and alarms.</p>
-    </div>
-<div>
-    <small>03</small>
-    <h3>emotion2vec</h3>
-    <strong>Voice → tone</strong>
-    <p>Estimates emotional tone from speech.</p>
-    </div>
-    </div>
-    <p>In the Unity demo, we explored how these signals could appear in view: a caption beside a speaker, a cue for a sound outside the field of view, and a tone indicator during conversation.</p>
+  <section class="case-section" aria-label="Solution">
+    <small>Solution</small>
+    <h2>Three kinds of sound, three ways to read the room.</h2>
+    <p>HEIMA uses the lenses to show who is speaking, what a group is doing and where to look when something happens outside the wearer’s view. The wearer can keep watching the event and decide whether to join.</p><figure>
+    <img loading="lazy" src="./case/system.png" alt="HEIMA system map">
+    </figure><a href="https://www.figma.com/design/WCQ4Xel0bciGqxwpuoyIpN/IXDS722Design?node-id=52-56" target="_blank" rel="noopener">OPEN ORIGINAL SYSTEM MAP ↗</a>
   </section>
-  <section class="case-section">
-    <small>THE STORY   /   ORIGIN</small>
-    <h2>It started with a Rihanna performance.</h2>
-    <p>A clip of a sign-language interpreter at a Rihanna performance caught Vivian’s attention. Fans were sharing the interpreter’s expressive performance. It sparked our first question: what else makes it possible to take part in a live event?</p>
-    <div class="case-group">
-    <div>
-    <small>THE SIGNAL</small>
-    <h3>The applause starts.</h3>
-    <p>A few people clap together.</p>
-    </div>
-<div>
-    <small>THE DELAY</small>
-    <h3>The fan sees hands moving.</h3>
-    <p>Watching the crowd supplies context, a moment later.</p>
-    </div>
-<div>
-    <small>THE COST</small>
-    <h3>The room goes quiet.</h3>
-    <p>By the time the fan understands, the chance to join may have passed.</p>
-    </div>
-    </div>
+  <section class="case-section" aria-label="Core Flows">
+    <small>Core Flows</small>
+    <h2>From the crowd to a conversation.</h2>
+    <h3>A chant starts behind you.</h3><p>A fan section starts chanting outside your field of view. A highlight at the edge of the lens points toward it. A short label tells you what you would be turning to see.</p><figure>
+    <img loading="lazy" src="./case/offscreen.jpg" alt="Unity view showing a cue at the edge of the lens">
+    <figcaption>Through the glasses · The Unity demo places a fan chant at the edge of the view. The lit edge tells the wearer which way to turn.</figcaption>
+    </figure><h3>Someone speaks to you on the way out.</h3><p>As the crowd disperses, a fan turns to talk. A highlight connects the speaker to their caption. A tone cue can add context to how the words were said.</p><figure>
+    <img loading="lazy" src="./case/conversation.jpg" alt="Speaker highlight in the Unity classroom demo">
+    <figcaption>Unity classroom demo · Follow the highlighted speaker, then read their caption.</figcaption>
+    </figure>
   </section>
-  <section class="case-section">
-    <small>PRODUCT DIRECTION</small>
-    <h2>Every overlay asks someone to look away.</h2>
-    <p>I proposed taking our concert journey into a conference reception. In both places, speakers change and conversations open up. Immersion meant staying with those people. That observation shaped which product direction we chose.</p>
-    <div class="case-group">
-    <div>
-    <small>DIRECTION EXPLORED</small>
-    <h3>Visualize the concert</h3>
-    <p>Translate music and stage activity into visual effects. More layers would also compete with the faces and performance people came to see.</p>
-    </div>
-<div>
-    <small>DIRECTION CHOSEN</small>
-    <h3>Make participation visible</h3>
-    <p>Highlight the speaker, locate a chant or show a timed invitation. These social moments recur at concerts, in theaters and at conference receptions.</p>
-    </div>
-<div>
-    <small>FORM FACTOR</small>
-    <h3>Let people keep looking up.</h3>
-    <p>We considered phones, VR and AR. A lightweight pair of glasses could keep the real venue in view and deliver guidance without asking the wearer to find a phone or switch modes. For me, immersion meant staying with the people already there.</p>
-    </div>
-    </div>
-    <a href="https://www.figma.com/design/WCQ4Xel0bciGqxwpuoyIpN/IXDS722Design?node-id=84-2" target="_blank" rel="noopener">Inspect the six-stage audience journey in the design file ↗</a>
-  </section>
-  <section class="case-section">
-    <small>SECONDARY RESEARCH &amp; COMPETITIVE REVIEW</small>
-    <h2>What earns a place in the wearer’s view?</h2>
-    <p>I led secondary research and reviewed captioning glasses with Vivian. Captions carry words, but reading also takes time and attention. We used the information a wearer needs next to choose the form of each cue.</p>
-    <div class="case-group">
+  <section class="case-section" aria-label="Research">
+    <small>Research</small>
+    <h2>A transcript leaves some questions open.</h2>
+    <p>I led the secondary research and reviewed captioning glasses with Vivian. As we compared published DHH experiences and AR sound-alert research with our concert journey, we kept coming back to three different things a wearer might need: timing, location and the exact words of a message.</p><div class="case-group">
     <div>
     <small>01  /  TIMING</small>
     <h3>The crowd starts clapping.</h3>
@@ -152,61 +99,63 @@ video{position:fixed;inset:0;z-index:2;display:block;width:100%;height:100%;obje
     <p>Show the words of the announcement.</p>
     <p>Direction alone cannot communicate the new room. The exact message matters here.</p>
     </div>
-    </div>
-    <a href="https://www.figma.com/design/WCQ4Xel0bciGqxwpuoyIpN/IXDS722Design?node-id=84-2" target="_blank" rel="noopener">PROJECT ANALYSIS  /  ORIGINAL JOURNEY MAP ↗</a>
-    <p>Our journey map records the team’s design reasoning. Testing with DHH audiences is a next step.</p>
-    <a href="https://www.figma.com/design/WCQ4Xel0bciGqxwpuoyIpN/IXDS722Design?node-id=0-1" target="_blank" rel="noopener">Explore the original research workspace ↗</a>
+    </div><a href="https://www.figma.com/design/WCQ4Xel0bciGqxwpuoyIpN/IXDS722Design?node-id=84-2" target="_blank" rel="noopener">PROJECT ANALYSIS  /  ORIGINAL JOURNEY MAP ↗</a>
   </section>
-  <section class="case-section">
-    <h2>A cheer comes from behind you.</h2>
-    <p>At a conference reception, you’re facing the person you came to meet. A group behind you starts cheering. Which way do you look?</p>
-    <figure>
-    <img loading="lazy" src="./case/offscreen.jpg" alt="Unity view showing a cue at the edge of the lens">
-    <figcaption>Through the glasses · The Unity demo places a fan chant at the edge of the view. The lit edge tells the wearer which way to turn.</figcaption>
-    </figure>
-    <p>Now the venue announces a room change. If both cues compete for space, which one gets through?</p>
-    <figure>
+  <section class="case-section" aria-label="Exploring Form Factors">
+    <small>Exploring Form Factors</small>
+    <h2>Where should a cue appear?</h2>
+    <p>I proposed comparing the concert with a conference reception. In both, someone may be speaking right in front of you while something worth joining starts behind you. We chose to design for those exchanges across venues.</p><div class="case-group"><div><h3>Phone</h3><p>A phone gives someone space to read and adjust settings. Looking down for a prompt can also mean missing the face of the person talking.</p></div><div><h3>VR headset</h3><p>A virtual scene could visualize the music. We wanted to keep the actual stage, crowd and people nearby in view.</p></div><div><h3>AR glasses</h3><p>We chose a lightweight eyewear concept so the wearer could look up throughout the event. The phone became the place to set preferences beforehand.</p></div></div>
+  </section>
+  <section class="case-section" aria-label="Prototyping and Testing">
+    <small>Prototyping and Testing</small>
+    <h2>What we could run in the classroom.</h2>
+    <p>For our Applied AI class, we connected three models to Unity. The classroom demonstration showed individual behaviors, including captions, a sound-event cue, a tone indicator and a sing-along countdown.</p><div class="case-group">
+    <div>
+    <small>01</small>
+    <h3>Paraformer</h3>
+    <strong>Speech → captions</strong>
+    <p>Turns spoken words into readable text.</p>
+    </div>
+<div>
+    <small>02</small>
+    <h3>YAMNet</h3>
+    <strong>Sound → event</strong>
+    <p>Identifies sounds such as applause, laughter and alarms.</p>
+    </div>
+<div>
+    <small>03</small>
+    <h3>emotion2vec</h3>
+    <strong>Voice → tone</strong>
+    <p>Estimates emotional tone from speech.</p>
+    </div>
+    </div><p>The demonstration let us inspect what appeared in view. Whether the cues were legible in a crowded venue, or arrived early enough for someone to participate, remained open when the course ended.</p>
+  </section>
+  <section class="case-section" aria-label="Design Decisions">
+    <small>Design Decisions</small>
+    <h2>Choose what gets through.</h2>
+    <p>Imagine a cheer behind you just as the venue announces a room change. I designed the priority editor so a wearer could put announcements first before arriving. In our proposed display rule, only the higher-ranked category appears when cues compete.</p><figure>
     <img loading="lazy" src="./case/priority.gif" alt="Event priority settings in the phone prototype">
     <figcaption>On the phone · In this example, Announcements ranks above Fan chants. That preference determines which cue the glasses should show first.</figcaption>
-    </figure>
-  </section>
-  <section class="case-section">
-    <h2>One card, two ways to change the text.</h2>
-    <p>Before the doors open, a wearer can adjust the captions once, then put the phone away. I kept the quick switch and the detailed controls on the same card.</p>
-    <figure>
+    </figure><h3>One card, two actions.</h3><p>I designed the Text tile around two different intentions. Its center turns text on or off. Opening the tile gives the wearer finer control over size and position. Someone who likes the defaults can leave the phone in their pocket.</p><figure>
     <img loading="lazy" src="./case/text.gif" alt="Recorded Text tile and caption controls">
     <figcaption>Watch the Text tile · Its center switches captions on or off. Tapping the rest of the tile opens the controls for size and position.</figcaption>
-    </figure>
-    <div class="case-compare">
-    <figure>
+    </figure><div class="case-compare"><figure>
     <img loading="lazy" src="./case/mid.jpg" alt="Mid-fidelity settings screen">
     <figcaption>Mid-fidelity · Organize the preferences.</figcaption>
-    </figure>
-    <figure>
+    </figure><figure>
     <img loading="lazy" src="./case/settings.png" alt="High-fidelity settings screen">
     <figcaption>High-fidelity · Separate the two tap targets.</figcaption>
-    </figure>
-    </div>
-    <a href="https://www.figma.com/design/WCQ4Xel0bciGqxwpuoyIpN/IXDS722Design?node-id=95-217" target="_blank" rel="noopener">Inspect the original mid-fidelity settings flow ↗</a>
+    </figure></div>
   </section>
-  <section class="case-section">
-    <h2>On the way out, another fan says hello.</h2>
-    <p>The person beside you starts talking as the crowd disperses. In this prototype, the glasses pair a caption with the person speaking. A small tone cue adds context to their words.</p>
-    <figure>
-    <img loading="lazy" src="./case/conversation.jpg" alt="Speaker highlight in the Unity classroom demo">
-    <figcaption>Unity classroom demo · Follow the highlighted speaker, then read their caption.</figcaption>
-    </figure>
-    <p>We designed for both moments: joining a crowd and following one person. The system map shows how each gets a different cue.</p>
-    <figure>
-    <img loading="lazy" src="./case/system.png" alt="HEIMA system map">
-    </figure>
-    <a href="https://www.figma.com/design/WCQ4Xel0bciGqxwpuoyIpN/IXDS722Design?node-id=52-56" target="_blank" rel="noopener">OPEN ORIGINAL SYSTEM MAP ↗</a>
+  <section class="case-section" aria-label="Hardware Constraints">
+    <small>Hardware Constraints</small>
+    <h2>A few claps leave very little time.</h2>
+    <p>A useful prompt has to fit both the lens and the moment. A line of text can carry a new room number. Describing the direction of a chant in a sentence would take time to read while the crowd keeps moving. That led us to pair an edge highlight with a short label.</p><p>Our Unity prototype left two hardware questions open: how quickly a physical device could present the cue after a sound, and how clearly someone could see it against a changing stage or a bright room. Both need to be measured on wearable hardware.</p>
   </section>
-  <section class="case-section">
-    <small>NEXT STEPS</small>
-    <h2>Can the wearer join in time?</h2>
-    <p>The project ended with our classroom demonstration. My next question is whether wearers who want to participate can catch the moment. I would record when applause begins, when the cue appears and when the wearer joins. If they choose to watch, I would ask what they noticed.</p>
-    <div class="case-group">
+  <section class="case-section" aria-label="Reflection">
+    <small>Reflection</small>
+    <h2>Did the wearer get a chance to join?</h2>
+    <p>I would return to the first few claps and test with Deaf and hard-of-hearing participants. For someone who wants to join, I would record three moments.</p><div class="case-group">
     <div>
     <small>T₀   /   EVENT</small>
     <h3>Applause begins.</h3>
@@ -222,7 +171,7 @@ video{position:fixed;inset:0;z-index:2;display:block;width:100%;height:100%;obje
     <h3>The wearer joins.</h3>
     <p>If they choose to clap, T₂ − T₀ measures time to participation.</p>
     </div>
-    </div>
+    </div><p>If someone keeps watching, I would ask what they noticed and what they wanted to do. Choosing to sit out and realizing too late are very different experiences. That distinction is what I would want the next round of testing to capture.</p>
   </section>
 </main>
 </body>
