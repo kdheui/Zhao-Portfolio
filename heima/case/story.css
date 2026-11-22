@@ -1,0 +1,19 @@
+.heima-content{font-family:Inter,Arial,sans-serif;max-width:1220px}
+.case-section{padding:clamp(36px,6vw,80px) 0;border-bottom:1px solid #ccd4d0}
+.case-section:last-child{border:0}
+.case-section h1,.case-section h2,.case-section h3{font-family:Montserrat,Arial,sans-serif;text-wrap:balance}
+.case-section h2{max-width:24ch;font-size:clamp(32px,4vw,56px);line-height:1.08;letter-spacing:-.045em;margin:.35em 0}
+.case-section:first-of-type h2{font-size:clamp(21px,2vw,30px)}
+.case-section h3{font-size:clamp(20px,2vw,28px);letter-spacing:-.035em;line-height:1.16;margin:.45em 0}
+.case-section p{max-width:64ch;font-size:clamp(16px,1.45vw,20px);line-height:1.55}
+.case-section small{font-size:12px;font-weight:650;letter-spacing:.08em}
+.case-section figure{margin:30px 0;width:min(100%,720px)}
+.case-section figure img{display:block;width:100%;height:auto}
+.case-section figcaption{margin-top:10px;max-width:66ch;font-size:15px;color:#40524b}
+.case-group,.case-compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:24px;margin:32px 0;max-width:960px}
+.case-group>div{border-top:1px solid #bac7c1;padding:18px 0 0}
+.case-group p{font-size:16px}
+.case-compare{max-width:640px}
+.case-compare figure{margin:0}
+.case-compare img{height:clamp(280px,40vw,480px)!important;object-fit:contain;background:#e9eeeb}
+@media(max-width:600px){.case-group{grid-template-columns:1fr;gap:8px}.case-compare{grid-template-columns:1fr 1fr;gap:12px}.case-compare img{height:250px!important}}
