@@ -17,3 +17,13 @@
 .case-compare figure{margin:0}
 .case-compare img{height:clamp(280px,40vw,480px)!important;object-fit:contain;background:#e9eeeb}
 @media(max-width:600px){.case-group{grid-template-columns:1fr;gap:8px}.case-compare{grid-template-columns:1fr 1fr;gap:12px}.case-compare img{height:250px!important}}
+.case-section h1{font-size:clamp(40px,7.5vw,104px);line-height:1.03}
+.case-section figure:has(.case-clip){margin-block:28px}
+.case-clip{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;background:#182424}
+.case-section .case-compare{max-width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}
+.case-section li{max-width:65ch;margin-block:.65em}
+.table-scroll{max-width:100%;overflow-x:auto;margin:24px 0}
+.case-section table{width:100%;border-collapse:collapse;font-size:clamp(14px,1.3vw,18px);line-height:1.5}
+.case-section th,.case-section td{padding:12px 10px;text-align:left;vertical-align:top;border-bottom:1px solid #bcc9c3}
+.case-section thead{background:#e4ebe7}
+@media(max-width:600px){.case-section .case-compare{grid-template-columns:1fr}.case-section th,.case-section td{padding:9px 5px}.case-section table{overflow-wrap:anywhere}}

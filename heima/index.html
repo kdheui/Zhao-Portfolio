@@ -8,10 +8,10 @@
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:#f3f5f4;color:#182424}
 html:not(.film-finished){overflow:hidden}
-video{position:fixed;inset:0;z-index:2;display:block;width:100%;height:100%;object-fit:cover;
+body > video{position:fixed;inset:0;z-index:2;display:block;width:100%;height:100%;object-fit:cover;
   background:#000;transition:transform .72s cubic-bezier(.76,0,.24,1)}
-.film-leaving video{transform:translateY(-101%);pointer-events:none}
-.film-finished video{display:none}
+.film-leaving body > video{transform:translateY(-101%);pointer-events:none}
+.film-finished body > video{display:none}
 .film-skip{position:fixed;right:clamp(18px,3vw,48px);bottom:clamp(18px,3vw,44px);z-index:3;
   padding:10px 14px;border:1px solid #ffffff80;border-radius:999px;background:#14141499;
   color:#fff;font:500 12px/1.4 Arial,sans-serif;letter-spacing:.09em;cursor:pointer}
@@ -26,153 +26,66 @@ video{position:fixed;inset:0;z-index:2;display:block;width:100%;height:100%;obje
 .heima-overview h2{font-size:clamp(24px,4vw,48px);line-height:1.1;margin-bottom:.5em}
 .heima-overview p{max-width:55ch;margin-bottom:2em}
 .heima-overview img{display:block;width:min(100%,520px);height:auto;background:#eee}
-@media(prefers-reduced-motion:reduce){video{transition:none}}
+@media(prefers-reduced-motion:reduce){body > video{transition:none}}
 </style>
 <link rel="stylesheet" href="./case/story.css">
 <script src="./film.js" defer></script>
+<script src="./case/media.js" defer></script>
 </head>
 <body>
 <video playsinline preload="auto" poster="./film-poster.jpg" src="./product.mp4" aria-label="HEIMA product film"></video>
 <button class="film-skip" type="button" aria-label="Skip HEIMA film">SKIP ↗</button>
 <main class="heima-content" inert>
   <a class="heima-back" href="../index.html#work">← Back to work</a>
-  <section class="case-section" aria-label="Overview">
-    <small>Overview</small>
-    <h1 tabindex="-1">HEIMA</h1>
-    <h2>Beyond Hearing</h2>
-    <p class="description">AI-powered AR eyewear for Deaf and hard-of-hearing audiences. See who’s speaking, catch the invitation and join in on your own terms.</p>
-    <figure>
-    <img loading="lazy" src="./case/eyewear.jpg" alt="HEIMA glasses with the companion app">
-    </figure>
-    <div class="case-group">
-    <div>
-    <small>TEAM</small>
-    <p>Vivian Peng &amp; Zhaolin Hu</p>
-    </div>
-<div>
-    <small>TIMELINE</small>
-    <p>2026</p>
-    </div>
-<div>
-    <small>SCOPE</small>
-    <p>Research, AR interaction, companion app, AI system design</p>
-    </div>
-    </div><p>A few claps can be over by the time you see the hands around you move. A clip of a sign-language interpreter at a Rihanna performance sparked our interest in concerts. I wanted to understand that same moment at a conference reception, where a speaker changes, a group laughs or someone nearby starts a conversation.</p>
-  </section>
-  <section class="case-section" aria-label="Solution">
-    <small>Solution</small>
-    <h2>Three kinds of sound, three ways to read the room.</h2>
-    <p>HEIMA uses the lenses to show who is speaking, what a group is doing and where to look when something happens outside the wearer’s view. The wearer can keep watching the event and decide whether to join.</p><figure>
-    <img loading="lazy" src="./case/system.png" alt="HEIMA system map">
-    </figure><a href="https://www.figma.com/design/WCQ4Xel0bciGqxwpuoyIpN/IXDS722Design?node-id=52-56" target="_blank" rel="noopener">OPEN ORIGINAL SYSTEM MAP ↗</a>
-  </section>
-  <section class="case-section" aria-label="Core Flows">
-    <small>Core Flows</small>
-    <h2>From the crowd to a conversation.</h2>
-    <h3>A chant starts behind you.</h3><p>A fan section starts chanting outside your field of view. A highlight at the edge of the lens points toward it. A short label tells you what you would be turning to see.</p><figure>
-    <img loading="lazy" src="./case/offscreen.jpg" alt="Unity view showing a cue at the edge of the lens">
-    <figcaption>Through the glasses · The Unity demo places a fan chant at the edge of the view. The lit edge tells the wearer which way to turn.</figcaption>
-    </figure><h3>Someone speaks to you on the way out.</h3><p>As the crowd disperses, a fan turns to talk. A highlight connects the speaker to their caption. A tone cue can add context to how the words were said.</p><figure>
-    <img loading="lazy" src="./case/conversation.jpg" alt="Speaker highlight in the Unity classroom demo">
-    <figcaption>Unity classroom demo · Follow the highlighted speaker, then read their caption.</figcaption>
-    </figure>
-  </section>
-  <section class="case-section" aria-label="Research">
-    <small>Research</small>
-    <h2>A transcript leaves some questions open.</h2>
-    <p>I led the secondary research and reviewed captioning glasses with Vivian. As we compared published DHH experiences and AR sound-alert research with our concert journey, we kept coming back to three different things a wearer might need: timing, location and the exact words of a message.</p><div class="case-group">
-    <div>
-    <small>01  /  TIMING</small>
-    <h3>The crowd starts clapping.</h3>
-    <p>A border catches attention. A label or icon identifies the activity.</p>
-    <p>Our research notes described border alerts for urgent sounds. We adapted that placement because a short burst of applause also has a narrow window for joining.</p>
-    </div>
-<div>
-    <small>02  /  LOCATION</small>
-    <h3>A chant starts to the left.</h3>
-    <p>Light the edge nearest the sound.</p>
-    <p>The wearer can locate an off-screen group with a glance, then decide whether to turn toward it.</p>
-    </div>
-<div>
-    <small>03  /  MEANING</small>
-    <h3>The next talk moves to Room 2.</h3>
-    <p>Show the words of the announcement.</p>
-    <p>Direction alone cannot communicate the new room. The exact message matters here.</p>
-    </div>
-    </div><a href="https://www.figma.com/design/WCQ4Xel0bciGqxwpuoyIpN/IXDS722Design?node-id=84-2" target="_blank" rel="noopener">PROJECT ANALYSIS  /  ORIGINAL JOURNEY MAP ↗</a>
-  </section>
-  <section class="case-section" aria-label="Exploring Form Factors">
-    <small>Exploring Form Factors</small>
-    <h2>Where should a cue appear?</h2>
-    <p>I proposed comparing the concert with a conference reception. In both, someone may be speaking right in front of you while something worth joining starts behind you. We chose to design for those exchanges across venues.</p><div class="case-group"><div><h3>Phone</h3><p>A phone gives someone space to read and adjust settings. Looking down for a prompt can also mean missing the face of the person talking.</p></div><div><h3>VR headset</h3><p>A virtual scene could visualize the music. We wanted to keep the actual stage, crowd and people nearby in view.</p></div><div><h3>AR glasses</h3><p>We chose a lightweight eyewear concept so the wearer could look up throughout the event. The phone became the place to set preferences beforehand.</p></div></div>
-  </section>
-  <section class="case-section" aria-label="Prototyping and Testing">
-    <small>Prototyping and Testing</small>
-    <h2>What we could run in the classroom.</h2>
-    <p>For our Applied AI class, we connected three models to Unity. The classroom demonstration showed individual behaviors, including captions, a sound-event cue, a tone indicator and a sing-along countdown.</p><div class="case-group">
-    <div>
-    <small>01</small>
-    <h3>Paraformer</h3>
-    <strong>Speech → captions</strong>
-    <p>Turns spoken words into readable text.</p>
-    </div>
-<div>
-    <small>02</small>
-    <h3>YAMNet</h3>
-    <strong>Sound → event</strong>
-    <p>Identifies sounds such as applause, laughter and alarms.</p>
-    </div>
-<div>
-    <small>03</small>
-    <h3>emotion2vec</h3>
-    <strong>Voice → tone</strong>
-    <p>Estimates emotional tone from speech.</p>
-    </div>
-    </div><p>The demonstration let us inspect what appeared in view. Whether the cues were legible in a crowded venue, or arrived early enough for someone to participate, remained open when the course ended.</p>
-  </section>
-  <section class="case-section" aria-label="Design Decisions">
-    <small>Design Decisions</small>
-    <h2>Choose what gets through.</h2>
-    <p>Imagine a cheer behind you just as the venue announces a room change. I designed the priority editor so a wearer could put announcements first before arriving. In our proposed display rule, only the higher-ranked category appears when cues compete.</p><figure>
-    <img loading="lazy" src="./case/priority.gif" alt="Event priority settings in the phone prototype">
-    <figcaption>On the phone · In this example, Announcements ranks above Fan chants. That preference determines which cue the glasses should show first.</figcaption>
-    </figure><h3>One card, two actions.</h3><p>I designed the Text tile around two different intentions. Its center turns text on or off. Opening the tile gives the wearer finer control over size and position. Someone who likes the defaults can leave the phone in their pocket.</p><figure>
-    <img loading="lazy" src="./case/text.gif" alt="Recorded Text tile and caption controls">
-    <figcaption>Watch the Text tile · Its center switches captions on or off. Tapping the rest of the tile opens the controls for size and position.</figcaption>
-    </figure><div class="case-compare"><figure>
-    <img loading="lazy" src="./case/mid.jpg" alt="Mid-fidelity settings screen">
-    <figcaption>Mid-fidelity · Organize the preferences.</figcaption>
-    </figure><figure>
-    <img loading="lazy" src="./case/settings.png" alt="High-fidelity settings screen">
-    <figcaption>High-fidelity · Separate the two tap targets.</figcaption>
-    </figure></div>
-  </section>
-  <section class="case-section" aria-label="Hardware Constraints">
-    <small>Hardware Constraints</small>
-    <h2>A few claps leave very little time.</h2>
-    <p>A useful prompt has to fit both the lens and the moment. A line of text can carry a new room number. Describing the direction of a chant in a sentence would take time to read while the crowd keeps moving. That led us to pair an edge highlight with a short label.</p><p>Our Unity prototype left two hardware questions open: how quickly a physical device could present the cue after a sound, and how clearly someone could see it against a changing stage or a bright room. Both need to be measured on wearable hardware.</p>
-  </section>
-  <section class="case-section" aria-label="Reflection">
-    <small>Reflection</small>
-    <h2>Did the wearer get a chance to join?</h2>
-    <p>I would return to the first few claps and test with Deaf and hard-of-hearing participants. For someone who wants to join, I would record three moments.</p><div class="case-group">
-    <div>
-    <small>T₀   /   EVENT</small>
-    <h3>Applause begins.</h3>
-    <p>Record the start of the shared moment.</p>
-    </div>
-<div>
-    <small>T₁   /   CUE</small>
-    <h3>The border appears.</h3>
-    <p>T₁ − T₀ gives the delay before the prompt.</p>
-    </div>
-<div>
-    <small>T₂   /   RESPONSE</small>
-    <h3>The wearer joins.</h3>
-    <p>If they choose to clap, T₂ − T₀ measures time to participation.</p>
-    </div>
-    </div><p>If someone keeps watching, I would ask what they noticed and what they wanted to do. Choosing to sit out and realizing too late are very different experiences. That distinction is what I would want the next round of testing to capture.</p>
-  </section>
+<article id="case-en" lang="en">
+<section class="case-section"><h1 tabindex="-1">HEIMA Case Study (Draft)</h1>
+<p>Nov 22, 2026 · @Zhaolin Hu</p>
+<p><strong>HEIMA: Beyond Hearing.</strong> AI-powered AR eyewear for Deaf and hard-of-hearing audiences. See who is speaking, catch the invitation and join in on your own terms.</p>
+<figure><video class="case-clip" src="./case/clips/01_hero_product_video.mp4" poster="./case/clips/09_product_render.jpg" autoplay preload="metadata" muted loop playsinline controls aria-label="HEIMA shows live-event cues in the wearer’s view."></video><figcaption>HEIMA shows live-event cues in the wearer’s view.</figcaption></figure>
+<div class="table-scroll"><table><tr><th scope="row">Team</th><td>Vivian Peng and Zhaolin Hu</td></tr><tr><th scope="row">Timeline</th><td>2026</td></tr><tr><th scope="row">Scope</th><td>Research, AR interaction, companion app, AI system design</td></tr><tr><th scope="row">My role</th><td>I led research and the experience direction, designed the companion app and made the product video. Vivian built the Unity prototype.</td></tr></table></div>
+</section>
+<section class="case-section"><h2>Problem: at a concert, the moment to join is over before you understand it</h2>
+<ul><li><strong>The signal.</strong> A few people near you start to clap together. You do not hear it.</li><li><strong>The delay.</strong> You see hands moving. The crowd gives you context, a moment late.</li><li><strong>The cost.</strong> The room goes quiet. By the time you understand, the chance to join has passed.</li></ul>
+</section>
+<section class="case-section"><h2>Solution: HEIMA shows what is happening and when you can join</h2>
+<p>Glasses give three kinds of cue, each matched to what the wearer needs next. A phone app lets them set it up once.</p>
+<ul><li><strong>Timing.</strong> The crowd starts clapping: a border appears and an icon names the activity.</li><li><strong>Location.</strong> A chant starts to your left: the nearest edge of your view lights up.</li><li><strong>Meaning.</strong> The next talk moves to Room 2: the words of the announcement appear.</li></ul>
+<figure><img src="./case/clips/09_product_render.jpg" loading="lazy" alt="HEIMA eyewear and companion app"></figure>
+<figure><video class="case-clip" data-src="./case/clips/02_unity_speaker_highlight.mp4" preload="none" muted loop playsinline controls aria-label="A caption appears beside the highlighted speaker."></video><figcaption>A caption appears beside the highlighted speaker.</figcaption></figure>
+</section>
+<section class="case-section"><h2>Research: captions give the words, not the moment</h2>
+<p>I led the secondary research with Vivian: papers on DHH access and sound awareness, caption glasses and apps (XRAI, GalaPro, LiveText), and AR research prototypes (HoloSound, SoundWeAR). Three pain points came out of it.</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Pain point</th><th scope="col">Evidence</th></tr></thead><tr><th scope="row"><strong>P1. Missing the moment to join</strong></th><td>Performers, fan chants and announcements overlap. Sources are hard to locate. A chant is often understood after the moment to join.</td></tr><tr><th scope="row"><strong>P2. Knowing, but not knowing how to respond</strong></th><td>Captions carry words. Sing-alongs and call-and-response also need the action that goes with them.</td></tr><tr><th scope="row"><strong>P3. Cues must not add load</strong></th><td>Eyes already switch between stage, interpreter and crowd. Captions use the same visual attention, and dim light makes it worse.</td></tr></table></div>
+</section>
+<section class="case-section"><h2>Decisions: each cue answers one pain point</h2>
+<div class="table-scroll"><table><thead><tr><th scope="col">Pain point</th><th scope="col">Decision</th><th scope="col">Why this form</th></tr></thead><tr><th scope="row">P1</th><td>Border for group activity. Lit edge for off-screen chants. Countdown for delayed starts.</td><td>Timing and direction are the urgent facts. A glance at the edge gives both.</td></tr><tr><th scope="row">P2</th><td>Icons for announcements, chants and singing. Chant text written in advance, with the action.</td><td>A sing-along needs words and gesture. A room change needs the exact message.</td></tr><tr><th scope="row">P3</th><td>Quiet by default. Limit on simultaneous cues. Display time set by importance. Icon shape, not color alone. Wearer picks text, icon or vibration.</td><td>If every sound made a cue, the glasses would become one more thing to look at.</td></tr></table></div>
+<figure><video class="case-clip" data-src="./case/clips/04_unity_offscreen_and_tone.mp4" preload="none" muted loop playsinline controls aria-label="The lens indicates an off-screen event and shows a tone cue during conversation."></video><figcaption>The lens indicates an off-screen event and shows a tone cue during conversation.</figcaption></figure>
+<figure><video class="case-clip" data-src="./case/clips/03_unity_singalong_countdown.mp4" preload="none" muted loop playsinline controls aria-label="A countdown marks when to join the sing-along."></video><figcaption>A countdown marks when to join the sing-along.</figcaption></figure>
+</section>
+<section class="case-section"><h2>Trade-offs: we gave up spectacle and automation for reliability</h2>
+<div class="table-scroll"><table><thead><tr><th scope="col">We chose</th><th scope="col">We gave up</th><th scope="col">Because</th></tr></thead><tr><th scope="row">Make participation visible</th><td>Visualizing the concert as effects</td><td>More layers compete with the faces and performance people came to see.</td></tr><tr><th scope="row">Lightweight glasses</th><td>Phone or VR</td><td>Glasses keep the real venue in view and need no phone or mode switch.</td></tr><tr><th scope="row">Chant text written in advance</th><td>Detecting chants automatically</td><td>Sound-event detection recognized chants unreliably, so it stays a backup. Live transcription is kept for host announcements.</td></tr><tr><th scope="row">Zone guidance (which area, which direction)</th><td>Precise location</td><td>The wearer only needs to know where to turn.</td></tr></table></div>
+</section>
+<section class="case-section"><h2>The app: one settings card, two speeds</h2>
+<p>The wearer sets up HEIMA once, then puts the phone away. Control must cost less attention than the cue it manages (P3).</p>
+<ul><li><strong>Tap the center</strong> of a card to turn captions, color or icons on or off.</li><li><strong>Tap anywhere else</strong> on the card to adjust size, position and width.</li><li><strong>Event priority.</strong> When an announcement and a chant collide, the wearer's ranking decides which one the glasses show first.</li><li><strong>Replay.</strong> After the show, a timeline marks announcements, chants and singing so the wearer can return to moments they half caught.</li></ul>
+<p>High-fidelity prototype: <a href="https://www.figma.com/proto/WCQ4Xel0bciGqxwpuoyIpN/IXDS722Design?page-id=259%3A5119&amp;node-id=301-1981&amp;p=f&amp;viewport=541%2C-970%2C0.08&amp;t=uQqfJFHG1GD1wQW7-1&amp;scaling=scale-down&amp;content-scaling=fixed&amp;starting-point-node-id=300%3A643">open in Figma</a></p>
+<div class="case-compare"><figure><video class="case-clip" data-src="./case/clips/05_app_card_center_tap_toggle.mp4" preload="none" muted loop playsinline controls aria-label="Tapping the center of a card switches the setting on or off."></video><figcaption>Tapping the center of a card switches the setting on or off.</figcaption></figure><figure><video class="case-clip" data-src="./case/clips/06_app_card_open_details.mp4" preload="none" muted loop playsinline controls aria-label="Tapping the card opens its detailed controls."></video><figcaption>Tapping the card opens its detailed controls.</figcaption></figure><figure><video class="case-clip" data-src="./case/clips/07_app_event_priority.mp4" preload="none" muted loop playsinline controls aria-label="The wearer ranks which events should appear first."></video><figcaption>The wearer ranks which events should appear first.</figcaption></figure><figure><video class="case-clip" data-src="./case/clips/08_app_replay_timeline.mp4" preload="none" muted loop playsinline controls aria-label="The replay timeline lets the wearer revisit an event."></video><figcaption>The replay timeline lets the wearer revisit an event.</figcaption></figure></div>
+</section>
+<section class="case-section"><h2>Proof: three AI models, one working prototype</h2>
+<p>For our Applied AI class, Vivian connected three models to Unity. The recording shows separate behaviors: speaker-linked captions, sound-event and direction cues, tone cues and an invitation-triggered countdown. I made the product video that shows the full intended experience.</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Model</th><th scope="col">Job</th><th scope="col">Cue it feeds</th></tr></thead><tr><th scope="row">Paraformer</th><td>Speech to captions</td><td>Caption beside the speaker</td></tr><tr><th scope="row">YAMNet</th><td>Sound to event</td><td>Event icon and edge direction</td></tr><tr><th scope="row">emotion2vec</th><td>Voice to tone</td><td>Tone indicator in conversation</td></tr></table></div>
+<p>The demo is not a field test. It shows these cues can be driven by real models, not only drawn.</p>
+</section>
+<section class="case-section"><h2>Next steps: can the wearer join in time?</h2>
+<p>The pain points and cues come from research and scenario work. The project ended with a classroom demo. The next test asks one question: can a wearer who wants to join catch the moment?</p>
+<ol><li><strong>T0, the event:</strong> applause begins.</li><li><strong>T1, the cue:</strong> the border appears. T1 minus T0 is the delay before the prompt.</li><li><strong>T2, the response:</strong> the wearer joins. T2 minus T0 is the time to participation.</li></ol>
+<p>If a wearer chooses to watch, I would ask what they noticed. Joining is their choice, so the aim is to make joining possible, not to make it happen.</p>
+</section>
+<section class="case-section"><h2>Reflection: what I learned</h2>
+<p><strong>Choose the form by what the person needs next.</strong> Timing needed an edge and a glance. Meaning needed words. Once I asked what the wearer needs next, each cue chose its own form.</p>
+<p><strong>Every overlay asks someone to look away.</strong> Control and cues both cost attention, so the settings card had to be faster than the cue it manages.</p>
+</section>
+</article>
 </main>
 </body>
 </html>
