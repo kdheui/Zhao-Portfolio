@@ -456,7 +456,7 @@ class HangingCard {
 function addCard(root, index, posters) {
   const id = String(index + 1).padStart(2,'0');
   const prefix = 'Card_' + id;
-  const projectLink=document.querySelectorAll('.work-notes a')[index];
+  const projectLink=document.querySelector(`.work-notes a[data-card-slot="${index + 1}"]`);
   const projectTitle=projectLink?.querySelector('strong')?.textContent;
   const placeholder = !projectLink;
   const poster = posters[index];
@@ -1443,16 +1443,14 @@ async function start() {
   camera.updateMatrixWorld();
   lighting();
   backdrop=studioBackdrop();
-  const [gltf,heimaPoster,hovrPoster,deloittePoster,smartResearchPoster,robinhoodPoster] = await Promise.all([
+  const [gltf,heimaPoster,hovrPoster,deloittePoster] = await Promise.all([
     loadGalleryModel(new GLTFLoader()),
     new T.TextureLoader().loadAsync(new URL('./assets/heima-poster.jpg',import.meta.url).href),
     new T.TextureLoader().loadAsync(new URL('../hovr/assets/hovr-hero.jpg',import.meta.url).href),
     new T.TextureLoader().loadAsync(new URL('../assets/scadpro/workshop.jpg',import.meta.url).href).catch(()=>null),
-    new T.TextureLoader().loadAsync(new URL('../assets/scad/smart-research-home.jpg',import.meta.url).href).catch(()=>null),
-    new T.TextureLoader().loadAsync(new URL('../assets/scad/junior-cover.jpg',import.meta.url).href).catch(()=>null),
   ]);
   window.setPortfolioProgress?.(86);
-  const posters=[hovrPoster,deloittePoster,smartResearchPoster,robinhoodPoster,heimaPoster];
+  const posters=[hovrPoster,deloittePoster,null,null,heimaPoster];
   for(const poster of posters.filter(Boolean)){
     poster.colorSpace = T.SRGBColorSpace;
     poster.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
