@@ -453,12 +453,13 @@ class HangingCard {
   }
 }
 
-function addCard(root, index, hovrPoster, heimaPoster, deloittePoster) {
+function addCard(root, index, posters) {
   const id = String(index + 1).padStart(2,'0');
   const prefix = 'Card_' + id;
   const projectLink=document.querySelectorAll('.work-notes a')[index];
   const projectTitle=projectLink?.querySelector('strong')?.textContent;
-  const placeholder = index === 2 || index === 3;
+  const placeholder = !projectLink;
+  const poster = posters[index];
   const mount = root.getObjectByName(prefix + '_Attachment');
   const attachment = mount ? mount.position.clone() : new T.Vector3(0,.1,0);
   root.position.set(0,0,0);
@@ -466,7 +467,7 @@ function addCard(root, index, hovrPoster, heimaPoster, deloittePoster) {
   const faces = [], backContent = [];
   let frostMap;
   root.traverse(o => {
-    if (/_Frosted_Title$/.test(o.name) || ((index===0||index===1||index===4) && /_Clear_Title$/.test(o.name))) { o.visible=false; return; }
+    if (/_Frosted_Title$/.test(o.name) || (poster && /_Clear_Title$/.test(o.name))) { o.visible=false; return; }
     if (/_Clear_(Title|Cover)$/.test(o.name)) {
       o.visible=false;
       if(!placeholder)backContent.push(o);
@@ -489,7 +490,7 @@ function addCard(root, index, hovrPoster, heimaPoster, deloittePoster) {
     } else if (/_Cover$/.test(o.name) && o.material.map) {
       const old = o.material;
       const customPoster = /_Clear_Cover$/.test(o.name)
-        ? [hovrPoster,deloittePoster,null,null,heimaPoster][index]
+        ? poster
         : null;
       if(customPoster)fitProjectPoster(o,index===0?.93:1);
       const isFrost=/_Frosted_Cover$/.test(o.name);
@@ -774,7 +775,7 @@ window.addEventListener('message',event=>{
   }
 });
 window.addEventListener('popstate',()=>{
-  const card=cards.find(item=>item.projectUrl&&item.projectIndex!==1&&location.hash==='#project-'+(item.projectIndex===0?'hovr':'heima'));
+  const card=cards.find(item=>item.projectUrl&&(item.projectIndex===0||item.projectIndex===4)&&location.hash==='#project-'+(item.projectIndex===0?'hovr':'heima'));
   if(card&&(view==='work'||view==='project-detail')) {
     closeProject();
     openProject(card);
@@ -783,7 +784,7 @@ window.addEventListener('popstate',()=>{
 
 function openProject(card) {
   if(!card?.projectUrl||projectFrame||!['work','project-detail'].includes(view))return;
-  if(card.projectIndex===1){
+  if(card.projectIndex>0&&card.projectIndex<4){
     location.assign(card.projectUrl);
     return;
   }
@@ -1442,26 +1443,25 @@ async function start() {
   camera.updateMatrixWorld();
   lighting();
   backdrop=studioBackdrop();
-  const [gltf,heimaPoster,hovrPoster,deloittePoster] = await Promise.all([
+  const [gltf,heimaPoster,hovrPoster,deloittePoster,smartResearchPoster,robinhoodPoster] = await Promise.all([
     loadGalleryModel(new GLTFLoader()),
     new T.TextureLoader().loadAsync(new URL('./assets/heima-poster.jpg',import.meta.url).href),
     new T.TextureLoader().loadAsync(new URL('../hovr/assets/hovr-hero.jpg',import.meta.url).href),
     new T.TextureLoader().loadAsync(new URL('../assets/scadpro/workshop.jpg',import.meta.url).href).catch(()=>null),
+    new T.TextureLoader().loadAsync(new URL('../assets/scad/smart-research-home.jpg',import.meta.url).href).catch(()=>null),
+    new T.TextureLoader().loadAsync(new URL('../assets/scad/junior-cover.jpg',import.meta.url).href).catch(()=>null),
   ]);
   window.setPortfolioProgress?.(86);
-  hovrPoster.colorSpace = T.SRGBColorSpace;
-  hovrPoster.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
-  heimaPoster.colorSpace = T.SRGBColorSpace;
-  heimaPoster.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
-  if(deloittePoster){
-    deloittePoster.colorSpace = T.SRGBColorSpace;
-    deloittePoster.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+  const posters=[hovrPoster,deloittePoster,smartResearchPoster,robinhoodPoster,heimaPoster];
+  for(const poster of posters.filter(Boolean)){
+    poster.colorSpace = T.SRGBColorSpace;
+    poster.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
   }
   for(let i=0;i<5;i++) {
     const id=String(i+1).padStart(2,'0');
     const root=gltf.scene.getObjectByName('Card_'+id+'_Root');
     if(!root) throw new Error('Missing card '+id);
-    addCard(root,i,hovrPoster,heimaPoster,deloittePoster);
+    addCard(root,i,posters);
   }
   resize();
   addEventListener('resize',resize);
