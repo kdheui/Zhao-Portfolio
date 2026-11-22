@@ -4,7 +4,7 @@ Savannah, GA | zhaohu21@student.scad.edu
 Portfolio: kdheui.github.io/Zhao-Portfolio/ | LinkedIn: linkedin.com/in/zhaolin-hu-9b152038a
 EDUCATION
 Savannah College of Art and Design	Savannah, GA
-MFA, Interactive Design	Sep 2025 - Nov 2027 (expected)
+MFA, Interactive Design	Sep 2025 - Summer 2027 (expected)
 Hubei University of Technology
 BA, Product Design	Sep 2021 - Jun 2025
 PROFESSIONAL EXPERIENCE
@@ -22,9 +22,9 @@ Smart Research - Academic Search Experience	Winter 2026
 UX/UI & Interaction Designer | Individual | Figma
 •	Designed Search, Library, and Map workflows with contextual paper review, personal tags, and reusable components for loading, confirmation, and fallback states.
 •	Evaluated the Figma prototype with two users; identified opportunities to clarify related-content entry points and the research map. AI retrieval remained a simulated interaction.
-Robinhood Junior - Investing Education Concept	Winter 2026
-Team Member | Academic UX Design Project
-•	Collaborated on an investing education concept combining virtual-money scenarios, short lessons, and contextual definitions; the team evaluated the prototype with four users.
+HEIMA - AR Eyewear for Live Events	2026
+UX Lead & UI Designer | Team Project
+•	Led secondary research on Deaf and hard-of-hearing audiences, designed the companion app and its high-fidelity prototype, and produced the product film.
 Epic Door & Fixed Scream - Real-Time Interactive Experiences	Fall 2025
 Creator | Unreal Engine
 •	Built a third-person portal environment and a fixed-screen arcade platformer, exploring spatial interaction, level layout, and gameplay feedback; documented both through running-project demos.
