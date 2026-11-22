@@ -280,10 +280,13 @@ function clipAt(parent,bounds) {
   return connector;
 }
 
-function projectAerogel(material, flipY, heima) {
+function projectAerogel(material, flipY, index) {
+  const heima = index === 4;
+  const research = index === 1;
+  const investing = index === 3;
   const canvas = document.createElement('canvas');
   canvas.width = 1024;
-  canvas.height = heima ? 1366 : 576;
+  canvas.height = heima ? 1366 : research || investing ? 1024 : 576;
   const ctx = canvas.getContext('2d');
   const w = canvas.width;
   const h = canvas.height;
@@ -302,9 +305,9 @@ function projectAerogel(material, flipY, heima) {
     ctx.restore();
   } else {
     const tint = ctx.createLinearGradient(w * .13, h * .65, w * .91, h * .36);
-    tint.addColorStop(0, '#8ac9b3');
-    tint.addColorStop(.51, '#ccdaca');
-    tint.addColorStop(1, '#e5c783');
+    tint.addColorStop(0, research ? '#8cbacf' : investing ? '#97cf94' : '#8ac9b3');
+    tint.addColorStop(.51, research ? '#b7d2dc' : investing ? '#c6dec1' : '#ccdaca');
+    tint.addColorStop(1, research ? '#a4c8ae' : investing ? '#dfdf9e' : '#e5c783');
     ctx.fillStyle = tint;
     ctx.fillRect(0, 0, w, h);
     ctx.globalCompositeOperation = 'destination-in';
@@ -377,6 +380,49 @@ function projectAerogel(material, flipY, heima) {
     text('Speaker 01', .5, .629, 28, '#e0fbff');
     text('Which one?', .5, .679, 55, '#f4ffff');
     text('LIVE CAPTIONS', .5, .806, 23, '#f1fcffcc');
+  } else if (research || investing) {
+    const ink = research ? '#244754' : '#24523a';
+    text(research ? 'SCADpro × DELOITTE DIGITAL' : 'ROBINHOOD JUNIOR', .5, .27, 32, ink);
+
+    ctx.save();
+    ctx.translate(w * .5, h * .49);
+    ctx.scale(w, w);
+    ctx.strokeStyle = ink;
+    ctx.fillStyle = ink;
+    ctx.lineWidth = .003;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    if (research) {
+      // Three touchpoints connected by a service journey.
+      ctx.beginPath();
+      ctx.moveTo(-.22, .055);
+      ctx.bezierCurveTo(-.12, .055, -.12, -.078, 0, -.078);
+      ctx.bezierCurveTo(.12, -.078, .12, .055, .22, .055);
+      ctx.stroke();
+      for (const [x,y] of [[-.22,.055],[0,-.078],[.22,.055]]) {
+        ctx.beginPath();
+        ctx.arc(x,y,.014,0,Math.PI*2);
+        ctx.fill();
+      }
+    } else {
+      // A miniature chart for the investing simulation.
+      ctx.beginPath();
+      ctx.moveTo(-.23, -.10);
+      ctx.lineTo(-.23, .11);
+      ctx.lineTo(.23, .11);
+      ctx.stroke();
+      const points = [[-.19,.061],[-.12,.019],[-.06,.043],[.023,-.033],[.09,-.009],[.19,-.087]];
+      ctx.beginPath();
+      points.forEach(([x,y],i) => i ? ctx.lineTo(x,y) : ctx.moveTo(x,y));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(.19,-.087,.012,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    text(research ? 'AI Avatar' : 'Investing Simulator', .5, .71, 55, ink);
+    text(research ? 'PUBLIC-SERVICE RESEARCH' : 'INVESTING EDUCATION', .5, .79, 25, ink);
   } else {
     text('10:45', .55, .35, 138);
     text('MM/DD/YYYY', .55, .17, 25);
@@ -529,7 +575,7 @@ function addCard(root, index, posters) {
       envMapIntensity:.72, bumpMap:groundGlassGrain(), bumpScale:.0032,
       toneMapped:false
     });
-    if(index===0||index===4)projectAerogel(matte,frostMap.flipY,index===4);
+    if(!placeholder)projectAerogel(matte,frostMap.flipY,index);
     pane.material=matte;
   }
   // The hover zone keeps the card's face-on size even halfway through a flip.
